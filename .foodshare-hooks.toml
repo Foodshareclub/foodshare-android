@@ -1,0 +1,200 @@
+# Foodshare Hooks Configuration (Android)
+# This file configures the foodshare-hooks CLI tool
+
+[general]
+# Kotlin version
+kotlin_version = "2.0"
+
+# Default Gradle module
+module = "app"
+
+# Default build variant
+build_variant = "debug"
+
+# App package name
+package_name = "com.foodshare"
+
+# Paths to exclude from all operations
+exclude_paths = [
+    "**/build/**",
+    "**/.gradle/**",
+    "**/.idea/**",
+    "**/generated/**",
+]
+
+[format]
+# Auto-stage formatted files
+stage_fixed = true
+
+# Paths to format
+paths = ["app/src"]
+
+# ktlint version
+ktlint_version = "1.0.1"
+
+[lint]
+# Enable strict mode by default
+strict = false
+
+# Use detekt for additional analysis
+use_detekt = true
+
+# Reporter format (default, json, sarif)
+reporter = "default"
+
+# Paths to lint
+paths = ["app/src"]
+
+[analyze]
+# Thresholds for warnings
+threshold_todos = 10
+threshold_fixmes = 5
+threshold_nullable_bang = 20
+
+# Paths to analyze
+paths = ["app/src/main/kotlin"]
+
+[secrets]
+# Patterns to detect (regex, case-insensitive)
+patterns = [
+    "password",
+    "api[_-]?key",
+    "secret",
+    "token",
+    "credential",
+    "private[_-]?key",
+    "access[_-]?key",
+    "auth[_-]?token",
+    "bearer",
+    "supabase.*key",
+    "SUPABASE_.*KEY",
+    "AWS_.*KEY",
+    "OPENAI_API_KEY",
+]
+
+# Files to exclude from secret scanning
+exclude_files = [
+    ".lefthook.yml",
+    "*.md",
+    ".foodshare-hooks.toml",
+    "Cargo.toml",
+    "Cargo.lock",
+    "gradle.properties.template",
+    "local.properties.template",
+]
+
+[commit_msg]
+# Allowed commit types
+types = ["feat", "fix", "docs", "style", "refactor", "test", "chore", "perf", "ci", "build", "revert"]
+
+# Subject line length limits
+max_length = 72
+min_length = 10
+
+# Skip validation for special commits
+skip_merge = true
+skip_revert = true
+
+[version]
+# Version file path (build.gradle.kts)
+build_file = "app/build.gradle.kts"
+
+# Version name pattern
+version_name_key = "versionName"
+version_code_key = "versionCode"
+
+# Require version bump before release
+require_bump = false
+
+[test]
+# Coverage threshold (percentage)
+coverage_threshold = 70
+
+# Test tasks
+unit_task = "testDebugUnitTest"
+integration_task = "connectedDebugAndroidTest"
+
+# Results directory
+results_dir = "app/build/reports/tests"
+
+[build]
+# Default configuration
+configuration = "debug"
+
+# Clean before build
+clean_first = false
+
+# Treat warnings as errors
+warnings_as_errors = false
+
+[deps]
+# Gradle lock file path (if using dependency locking)
+# lock_file = "gradle.lockfile"
+
+[migrations]
+# Migrations directory (shared with iOS)
+migrations_dir = "supabase/migrations"
+
+[clean]
+# Paths to clean
+gradle_cache = ".gradle"
+build_dir = "build"
+app_build_dir = "app/build"
+
+# Deep clean additional paths
+kotlin_cache = "~/.gradle/caches"
+android_cache = "~/.android/build-cache"
+
+[pre_push]
+# Enable fail-fast by default
+fail_fast = true
+
+# Use release configuration for CI parity
+configuration = "release"
+
+# Default timeout per check in seconds
+timeout = 300
+
+# Checks to run in quick mode
+quick_checks = ["lint", "analyze"]
+
+# Checks to run in full mode
+full_checks = ["lint", "analyze", "test", "build"]
+
+[pre_push.timeouts]
+lint = 120
+analyze = 60
+test = 300
+build = 300
+
+# ============================================================================
+# Swift on Android Configuration
+# ============================================================================
+
+[swift]
+# Enable Swift on Android support
+enabled = true
+
+# Path to Swift package (relative to project root)
+package_path = "swift-core"
+
+# Default target architecture (arm64, x86_64, all)
+default_target = "arm64"
+
+# Android API level for cross-compilation (minimum 28)
+api_level = 28
+
+# Use static Swift stdlib (recommended for Android)
+static_stdlib = true
+
+# Package name for generated Java/Kotlin bindings
+bindings_package = "com.foodshare.swift"
+
+# Output path for generated bindings
+bindings_output = "app/src/main/java"
+
+# Swift source paths to format/lint
+source_paths = ["swift-core/Sources"]
+
+# Required NDK version (27 or later recommended)
+ndk_version = "27"

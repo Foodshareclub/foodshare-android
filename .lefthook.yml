@@ -1,0 +1,152 @@
+# Lefthook Configuration for Foodshare Android (Swift + Kotlin Hybrid)
+# Git hooks automation using foodshare-hooks Rust CLI
+#
+# This project uses Swift on Android for shared domain logic
+# with Kotlin/Compose for the UI layer.
+#
+# Installation:
+#   brew install lefthook ktlint swiftformat swiftlint
+#   cargo install --path tools
+#   lefthook install
+#
+# Swift on Android requirements:
+#   - Swift toolchain (https://swift.org/download/)
+#   - Android NDK r27d+
+#   - swift-java for JNI bindings (brew tap apple/swift && brew install swift-java)
+#
+# Documentation: https://github.com/evilmartians/lefthook
+
+# Pre-commit hooks - run before every commit
+pre-commit:
+  parallel: true
+  commands:
+    # 1. Auto-fix Kotlin and Swift code (format + lint --fix)
+    auto-fix:
+      glob: "*.{kt,kts,swift}"
+      run: foodshare-hooks fix --staged --stage {staged_files}
+      stage_fixed: true
+
+    # 2. Check for sensitive data
+    secrets-check:
+      run: foodshare-hooks secrets
+
+# Pre-push hooks - run before pushing to remote
+# Uses orchestrated pre-push command with fail-fast, timeouts, and progress display
+#
+# Options:
+#   Normal push:      git push                    (full checks, fail-fast)
+#   Quick push:       FOODSHARE_QUICK_MODE=true git push  (validators only, ~30s)
+#   Emergency push:   git push --no-verify        (skip all hooks)
+#   Debug:            foodshare-hooks pre-push --verbose
+#
+pre-push:
+  parallel: false
+  commands:
+    # Single orchestrated command with fail-fast, timeouts, and progress
+    pre-push-checks:
+      run: foodshare-hooks pre-push --fail-fast
+
+# Commit message hooks - validate commit message format
+commit-msg:
+  commands:
+    # Enforce conventional commits
+    conventional-commit:
+      run: foodshare-hooks commit-msg {1}
+
+# Post-checkout hooks - run after checkout
+post-checkout:
+  commands:
+    # Sync dependencies after branch switch
+    sync-dependencies:
+      run: foodshare-hooks deps --sync
+
+# Post-merge hooks - run after merge
+post-merge:
+  commands:
+    # Sync dependencies after merge
+    sync-dependencies:
+      run: foodshare-hooks deps --sync
+
+    # Check for migration files
+    check-migrations:
+      run: foodshare-hooks migrations
+
+# Custom scripts for manual execution
+# Usage: lefthook run <script-name>
+scripts:
+  # Full quality check (Kotlin + Swift)
+  quality-check:
+    runner: bash
+    commands:
+      format:
+        run: foodshare-hooks format
+      lint:
+        run: foodshare-hooks lint --strict
+      test:
+        run: foodshare-hooks test unit
+
+  # Analyze code
+  analyze:
+    runner: bash
+    commands:
+      analyze:
+        run: foodshare-hooks analyze
+
+  # Setup development environment
+  setup:
+    runner: bash
+    commands:
+      setup:
+        run: foodshare-hooks setup
+
+  # Clean project
+  clean:
+    runner: bash
+    commands:
+      clean:
+        run: foodshare-hooks clean
+
+  # Verify setup
+  verify:
+    runner: bash
+    commands:
+      verify:
+        run: foodshare-hooks verify
+
+  # Fix all code (format + lint --fix) - Kotlin + Swift
+  fix:
+    runner: bash
+    commands:
+      fix:
+        run: foodshare-hooks fix
+
+  # Swift on Android scripts
+  swift-build:
+    runner: bash
+    commands:
+      build:
+        run: foodshare-hooks swift-build --target all
+
+  swift-bindings:
+    runner: bash
+    commands:
+      generate:
+        run: foodshare-hooks swift-java generate
+
+  swift-test:
+    runner: bash
+    commands:
+      test:
+        run: foodshare-hooks swift-test --host
+
+# Output configuration
+output:
+  - summary
+  - success
+  - failure
+
+# Colors configuration
+colors: true
+
+# Follow configuration
+follow: true
