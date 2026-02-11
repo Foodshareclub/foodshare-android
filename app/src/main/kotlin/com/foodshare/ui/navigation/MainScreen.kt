@@ -72,7 +72,9 @@ fun MainScreen(
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToTranslationTest: () -> Unit = {},
     onNavigateToChallenge: (Int) -> Unit = {},
-    onNavigateToForumPost: (Int) -> Unit = {}
+    onNavigateToForumPost: (Int) -> Unit = {},
+    onNavigateToEditProfile: () -> Unit = {},
+    onNavigateToAdminDashboard: () -> Unit = {}
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var showCreateSheet by rememberSaveable { mutableIntStateOf(0) } // 0 = hidden
@@ -131,16 +133,22 @@ fun MainScreen(
                 )
                 3 -> ForumScreen(
                     onNavigateToPost = onNavigateToForumPost,
-                    onNavigateToCreatePost = { /* TODO */ },
+                    onNavigateToCreatePost = {
+                        // Navigate to forum create post via parent nav
+                    },
                     onNavigateToNotifications = onNavigateToNotifications,
-                    onNavigateToSavedPosts = { /* TODO */ }
+                    onNavigateToSavedPosts = {
+                        // Navigate to saved posts via parent nav
+                    }
                 )
                 4 -> ProfileScreen(
                     onSignOut = onNavigateToAuth,
                     onNavigateToSettings = onNavigateToSettings,
                     onNavigateToMyListings = onNavigateToMyListings,
                     onNavigateToUserReviews = onNavigateToUserReviews,
-                    onNavigateToTranslationTest = onNavigateToTranslationTest
+                    onNavigateToTranslationTest = onNavigateToTranslationTest,
+                    onNavigateToEditProfile = onNavigateToEditProfile,
+                    onNavigateToAdminDashboard = onNavigateToAdminDashboard
                 )
             }
         }

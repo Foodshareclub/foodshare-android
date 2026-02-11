@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,6 +82,8 @@ import com.foodshare.ui.design.tokens.CornerRadius
 import com.foodshare.ui.design.tokens.LiquidGlassColors
 import com.foodshare.ui.design.tokens.LiquidGlassGradients
 import com.foodshare.ui.design.tokens.Spacing
+import com.foodshare.features.listing.presentation.components.PostActivityTimeline
+import androidx.hilt.navigation.compose.hiltViewModel as hiltViewModelAlias
 import kotlinx.coroutines.launch
 
 /**
@@ -98,6 +101,7 @@ import kotlinx.coroutines.launch
 fun ListingDetailScreen(
     onNavigateBack: () -> Unit,
     onContactOwner: ((Int) -> Unit)? = null,
+    onReportPost: ((Int, String) -> Unit)? = null,
     modifier: Modifier = Modifier,
     viewModel: ListingDetailViewModel = hiltViewModel()
 ) {
@@ -135,7 +139,12 @@ fun ListingDetailScreen(
                     }
                 },
                 onFavorite = { viewModel.toggleFavorite() },
-                isFavorite = uiState.isFavorite
+                isFavorite = uiState.isFavorite,
+                onReport = {
+                    uiState.listing?.let { listing ->
+                        onReportPost?.invoke(listing.id, listing.title)
+                    }
+                }
             )
         },
         containerColor = Color.Transparent,
@@ -184,7 +193,8 @@ private fun DetailTopBar(
     onBack: () -> Unit,
     onShare: () -> Unit,
     onFavorite: () -> Unit,
-    isFavorite: Boolean
+    isFavorite: Boolean,
+    onReport: () -> Unit = {}
 ) {
     TopAppBar(
         navigationIcon = {
@@ -206,6 +216,22 @@ private fun DetailTopBar(
         },
         title = { },
         actions = {
+            IconButton(onClick = onReport) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Flag,
+                        contentDescription = "Report",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
             IconButton(onClick = onShare) {
                 Box(
                     modifier = Modifier
@@ -306,6 +332,20 @@ private fun DetailContent(
 
             // Owner Section
             OwnerSection()
+
+            // Activity Timeline Section
+            uiState.listing?.let { listing ->
+                Spacer(Modifier.height(Spacing.md))
+                val timelineViewModel: PostActivityTimelineViewModel = hiltViewModelAlias()
+                val timelineState by timelineViewModel.uiState.collectAsStateWithLifecycle()
+
+                if (timelineState.events.isNotEmpty()) {
+                    PostActivityTimeline(
+                        events = timelineState.events,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
 
             Spacer(Modifier.height(Spacing.sm))
 

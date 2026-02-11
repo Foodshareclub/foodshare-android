@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.foodshare.core.deeplink.DeepLinkNavigator
 import com.foodshare.core.push.DeepLinkBuilder
 import com.foodshare.features.auth.presentation.AuthViewModel
 import com.foodshare.features.onboarding.data.OnboardingPreferences
@@ -88,7 +89,9 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Handle deep link navigation
+     * Handle deep link navigation using DeepLinkNavigator.
+     *
+     * Supports both app scheme (foodshare://) and web URLs (https://foodshare.club/).
      */
     private fun handleDeepLink(
         uri: Uri,
@@ -103,60 +106,7 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-        // Push notification deep links (foodshare://)
-        if (scheme == "foodshare") {
-            val info = DeepLinkBuilder.parse(uri.toString()) ?: return
-
-            when (info.type) {
-                "listing" -> {
-                    info.id?.toIntOrNull()?.let { listingId ->
-                        navController.navigate(NavRoutes.listingDetail(listingId))
-                    }
-                }
-                "chat", "conversation" -> {
-                    info.id?.let { roomId ->
-                        navController.navigate(NavRoutes.conversation(roomId))
-                    }
-                }
-                "messages" -> {
-                    navController.navigate(NavRoutes.MESSAGES)
-                }
-                "search" -> {
-                    navController.navigate(NavRoutes.SEARCH)
-                }
-                "reviews" -> {
-                    info.id?.let { userId ->
-                        navController.navigate(NavRoutes.userReviews(userId))
-                    }
-                }
-                "submit-review" -> {
-                    info.id?.let { revieweeId ->
-                        val postId = info.params["postId"]
-                        val transactionType = info.params["transactionType"] ?: "shared"
-                        navController.navigate(
-                            NavRoutes.submitReview(revieweeId, postId, transactionType)
-                        )
-                    }
-                }
-                "profile" -> {
-                    info.id?.let { userId ->
-                        // TODO: Navigate to user profile when implemented
-                    }
-                }
-                "arrangement" -> {
-                    info.id?.let { arrangementId ->
-                        // TODO: Navigate to arrangement detail when implemented
-                    }
-                }
-                "tab" -> {
-                    // Handle tab navigation
-                    when (info.id) {
-                        "messages" -> navController.navigate(NavRoutes.MESSAGES)
-                        "search" -> navController.navigate(NavRoutes.SEARCH)
-                        else -> {} // Main tabs handled by MainScreen
-                    }
-                }
-            }
-        }
+        // Use DeepLinkNavigator for all deep links (foodshare:// and https://foodshare.club/)
+        DeepLinkNavigator.navigate(navController, uri.toString())
     }
 }

@@ -196,6 +196,9 @@ dependencies {
     // DataStore (for preferences)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
+    // Google Play Billing
+    implementation("com.android.billingclient:billing-ktx:7.1.1")
+
     // Sentry for crash reporting
     implementation("io.sentry:sentry-android:8.5.0")
     implementation("io.sentry:sentry-compose-android:8.5.0")

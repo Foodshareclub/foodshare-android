@@ -59,7 +59,22 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="foodshare" />
             </intent-filter>
+
+            <!-- Deep linking for web URLs (foodshare.club) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="foodshare.club" />
+            </intent-filter>
         </activity>
+
+        <!-- Disable Sentry auto-init (manual init in SentryInitializer handles missing DSN) -->
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
 
         <!-- Remove default WorkManager initializer (using on-demand initialization) -->
         <provider

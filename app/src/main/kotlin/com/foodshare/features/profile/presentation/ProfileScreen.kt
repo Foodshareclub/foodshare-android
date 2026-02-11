@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
@@ -75,6 +76,8 @@ fun ProfileScreen(
     onNavigateToMyListings: (() -> Unit)? = null,
     onNavigateToUserReviews: ((String) -> Unit)? = null,
     onNavigateToTranslationTest: (() -> Unit)? = null,
+    onNavigateToEditProfile: (() -> Unit)? = null,
+    onNavigateToAdminDashboard: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -179,7 +182,7 @@ fun ProfileScreen(
                     // Edit Profile button
                     GlassButton(
                         text = "Edit Profile",
-                        onClick = { /* TODO */ },
+                        onClick = { onNavigateToEditProfile?.invoke() },
                         icon = Icons.Default.Edit,
                         style = GlassButtonStyle.Secondary,
                         modifier = Modifier.fillMaxWidth()
@@ -266,6 +269,12 @@ fun ProfileScreen(
                         title = "Settings",
                         subtitle = "App preferences",
                         onClick = { onNavigateToSettings?.invoke() }
+                    )
+                    ProfileMenuItem(
+                        icon = Icons.Default.AdminPanelSettings,
+                        title = "Admin Dashboard",
+                        subtitle = "Manage users and content",
+                        onClick = { onNavigateToAdminDashboard?.invoke() }
                     )
                     ProfileMenuItem(
                         icon = Icons.Default.Translate,

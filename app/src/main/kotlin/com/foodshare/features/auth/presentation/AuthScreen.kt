@@ -57,7 +57,8 @@ import com.foodshare.ui.design.tokens.Spacing
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    onAuthenticated: () -> Unit
+    onAuthenticated: () -> Unit,
+    onContinueAsGuest: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -253,6 +254,19 @@ fun AuthScreen(
                 onAppleClick = viewModel::signInWithApple,
                 isLoading = uiState.isLoading
             )
+
+            // Continue as Guest
+            onContinueAsGuest?.let { guestAction ->
+                Spacer(Modifier.height(Spacing.lg))
+
+                TextButton(onClick = guestAction) {
+                    Text(
+                        text = "Continue as Guest",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+                }
+            }
         }
     }
 }

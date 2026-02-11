@@ -100,6 +100,23 @@ interface ForumRepository {
 
     suspend fun markAllNotificationsAsRead(): Result<Unit>
 
+    // Polls
+    suspend fun getPoll(forumId: Int): Result<ForumPoll>
+
+    suspend fun castVote(pollId: String, optionIds: List<String>): Result<ForumPoll>
+
+    suspend fun createPoll(request: CreatePollRequest): Result<ForumPoll>
+
+    // Badges
+    suspend fun getBadges(): Result<List<ForumBadge>>
+
+    suspend fun getUserBadges(): Result<List<UserBadge>>
+
+    // User Stats & Trust Levels
+    suspend fun getUserStats(): Result<ForumUserStats>
+
+    suspend fun getTrustLevels(): Result<List<ForumTrustLevel>>
+
     // Realtime
     fun observePosts(categoryId: Int? = null): Flow<ForumPost>
 

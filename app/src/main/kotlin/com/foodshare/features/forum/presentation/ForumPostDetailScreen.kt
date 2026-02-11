@@ -47,6 +47,7 @@ import com.foodshare.ui.theme.LocalThemePalette
 @Composable
 fun ForumPostDetailScreen(
     onNavigateBack: () -> Unit,
+    onReportPost: ((Int, String) -> Unit)? = null,
     viewModel: ForumPostDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -108,7 +109,12 @@ fun ForumPostDetailScreen(
                     onToggleReaction = { viewModel.toggleReaction(it) },
                     onToggleBookmark = { viewModel.toggleBookmark() },
                     onToggleCommentReaction = { id, type -> viewModel.toggleCommentReaction(id, type) },
-                    onMarkBestAnswer = { viewModel.markAsBestAnswer(it) }
+                    onMarkBestAnswer = { viewModel.markAsBestAnswer(it) },
+                    onReportPost = {
+                        uiState.post?.let { post ->
+                            onReportPost?.invoke(post.id, post.title)
+                        }
+                    }
                 )
             }
         }
@@ -134,7 +140,8 @@ private fun ForumPostDetailContent(
     onToggleReaction: (String) -> Unit,
     onToggleBookmark: () -> Unit,
     onToggleCommentReaction: (Int, String) -> Unit,
-    onMarkBestAnswer: (Int) -> Unit
+    onMarkBestAnswer: (Int) -> Unit,
+    onReportPost: () -> Unit = {}
 ) {
     val palette = LocalThemePalette.current
 
@@ -158,6 +165,13 @@ private fun ForumPostDetailContent(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onReportPost) {
+                        Icon(
+                            Icons.Default.Flag,
+                            contentDescription = "Report",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = onToggleBookmark) {
                         Icon(
                             if (isBookmarked) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,

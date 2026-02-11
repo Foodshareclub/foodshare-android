@@ -441,13 +441,29 @@ object ValidationBridge {
     }
 
     // ========================================================================
-    // Forum Validation Constants (synced with Swift)
+    // Forum Validation Constants (synced with Swift ForumValidator)
     // ========================================================================
 
     const val MIN_FORUM_TITLE_LENGTH = 5
     const val MAX_FORUM_TITLE_LENGTH = 200
     const val MIN_FORUM_CONTENT_LENGTH = 20
     const val MAX_FORUM_CONTENT_LENGTH = 10000
+
+    // ========================================================================
+    // Poll Validation Constants (synced with Swift PollValidator)
+    // ========================================================================
+
+    const val MIN_POLL_QUESTION_LENGTH = 5
+    const val MAX_POLL_QUESTION_LENGTH = 200
+    const val MIN_POLL_OPTIONS = 2
+    const val MAX_POLL_OPTIONS = 10
+    const val MAX_POLL_OPTION_LENGTH = 200
+
+    // ========================================================================
+    // Invitation Validation Constants (synced with Swift InvitationValidator)
+    // ========================================================================
+
+    const val MAX_INVITATION_MESSAGE_LENGTH = 500
 
     // ========================================================================
     // Forum Validation (local implementation)
@@ -484,6 +500,79 @@ object ValidationBridge {
                 errors.add(ValidationError.Custom("Content must be at least $MIN_FORUM_CONTENT_LENGTH characters"))
             trimmed.length > MAX_FORUM_CONTENT_LENGTH ->
                 errors.add(ValidationError.Custom("Content cannot exceed $MAX_FORUM_CONTENT_LENGTH characters"))
+        }
+
+        return ValidationResult(isValid = errors.isEmpty(), errors = errors)
+    }
+
+    // ========================================================================
+    // Poll Validation (matching Swift PollValidator)
+    // ========================================================================
+
+    /**
+     * Validate poll question.
+     */
+    fun validatePollQuestion(question: String): ValidationResult {
+        val errors = mutableListOf<ValidationError>()
+        val trimmed = question.trim()
+
+        when {
+            trimmed.isEmpty() -> errors.add(ValidationError.Custom("Poll question is required"))
+            trimmed.length < MIN_POLL_QUESTION_LENGTH ->
+                errors.add(ValidationError.Custom("Poll question must be at least $MIN_POLL_QUESTION_LENGTH characters"))
+            trimmed.length > MAX_POLL_QUESTION_LENGTH ->
+                errors.add(ValidationError.Custom("Poll question cannot exceed $MAX_POLL_QUESTION_LENGTH characters"))
+        }
+
+        return ValidationResult(isValid = errors.isEmpty(), errors = errors)
+    }
+
+    /**
+     * Validate poll options (2-10 options, no empties, no duplicates).
+     */
+    fun validatePollOptions(options: List<String>): ValidationResult {
+        val errors = mutableListOf<ValidationError>()
+
+        when {
+            options.size < MIN_POLL_OPTIONS ->
+                errors.add(ValidationError.Custom("Poll must have at least $MIN_POLL_OPTIONS options"))
+            options.size > MAX_POLL_OPTIONS ->
+                errors.add(ValidationError.Custom("Poll cannot have more than $MAX_POLL_OPTIONS options"))
+        }
+
+        val trimmedOptions = options.map { it.trim() }
+
+        if (trimmedOptions.any { it.isEmpty() }) {
+            errors.add(ValidationError.Custom("Poll options cannot be empty"))
+        }
+
+        if (trimmedOptions.any { it.length > MAX_POLL_OPTION_LENGTH }) {
+            errors.add(ValidationError.Custom("Poll options cannot exceed $MAX_POLL_OPTION_LENGTH characters"))
+        }
+
+        val uniqueOptions = trimmedOptions.map { it.lowercase() }.toSet()
+        if (uniqueOptions.size != trimmedOptions.size) {
+            errors.add(ValidationError.Custom("Poll options must be unique"))
+        }
+
+        return ValidationResult(isValid = errors.isEmpty(), errors = errors)
+    }
+
+    /**
+     * Validate invitation email and message.
+     */
+    fun validateInvitation(email: String, message: String? = null): ValidationResult {
+        val errors = mutableListOf<ValidationError>()
+
+        validateEmail(email)?.let {
+            errors.add(ValidationError.Custom(it))
+        }
+
+        message?.let {
+            val trimmed = it.trim()
+            if (trimmed.length > MAX_INVITATION_MESSAGE_LENGTH) {
+                errors.add(ValidationError.Custom("Invitation message cannot exceed $MAX_INVITATION_MESSAGE_LENGTH characters"))
+            }
         }
 
         return ValidationResult(isValid = errors.isEmpty(), errors = errors)
