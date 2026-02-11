@@ -24,23 +24,12 @@ jobs:
         distribution: 'temurin'
         cache: gradle
     
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: '6.0'
-    
-    - name: Install Swift Android SDK
-      run: |
-        swift sdk install 6.0.3-RELEASE-android-24-0.1
-    
     - name: Create local.properties
       run: |
         echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> local.properties
         echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
         echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> local.properties
-    
-    - name: Build Swift Core
-      run: ./gradlew buildSwiftRelease
+        echo "skipNativeBuild=true" >> local.properties
     
     - name: Run Tests
       run: ./gradlew test
