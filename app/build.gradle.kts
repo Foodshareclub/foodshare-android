@@ -121,7 +121,8 @@ ksp {
 
 dependencies {
     // SwiftKit runtime (JNI mode) - required for swift-java generated bindings
-    implementation("org.swift.swiftkit:swiftkit-core:1.0-SNAPSHOT")
+    // TODO: Re-enable when SwiftKit is published to Maven Central
+    // implementation("org.swift.swiftkit:swiftkit-core:1.0-SNAPSHOT")
 
     // Hilt
     val hiltVersion = "2.51.1"
