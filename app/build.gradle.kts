@@ -65,10 +65,20 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("foodshare-release.keystore")
+            storePassword = "foodshare2026"
+            keyAlias = "foodshare"
+            keyPassword = "foodshare2026"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

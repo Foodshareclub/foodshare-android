@@ -86,3 +86,7 @@ supabase/.branches/
 supabase/.temp/
 foodshare-core
 supabase
+
+# Release keystore
+*.keystore
+*.jks
