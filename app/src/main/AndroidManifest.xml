@@ -57,15 +57,7 @@
                     android:host="auth" />
             </intent-filter>
 
-            <!-- Deep linking for push notifications and app links -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="foodshare" />
-            </intent-filter>
-
-            <!-- Deep linking for web URLs (foodshare.club) -->
+            <!-- App Links for foodshare.club domain -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -73,6 +65,24 @@
                 <data
                     android:scheme="https"
                     android:host="foodshare.club" />
+                <data
+                    android:scheme="https"
+                    android:host="www.foodshare.club" />
+                <!-- Specific paths -->
+                <data android:pathPrefix="/listing/" />
+                <data android:pathPrefix="/profile/" />
+                <data android:pathPrefix="/chat/" />
+                <data android:pathPrefix="/forum/" />
+                <data android:pathPrefix="/challenge/" />
+                <data android:pathPrefix="/auth/" />
+            </intent-filter>
+
+            <!-- Custom scheme for backward compatibility -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="foodshare" />
             </intent-filter>
         </activity>
 
