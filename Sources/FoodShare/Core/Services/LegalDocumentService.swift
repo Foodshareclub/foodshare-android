@@ -15,21 +15,33 @@ enum LegalDocumentType: String, Sendable {
     case privacy
 }
 
+// MARK: - Legal Document Model
+
+/// A localized legal document fetched from the API
+struct LegalDocument: Codable, Sendable {
+    let type: String
+    let locale: String
+    let title: String
+    let content: String
+    let version: String?
+    let updatedAt: String?
+}
+
 // MARK: - Legal Document Service
 
 @MainActor
 final class LegalDocumentService {
     static let shared = LegalDocumentService()
 
-    private let api: ProfileAPIService
+    private let client: APIClient
     private let logger = Logger(subsystem: "com.flutterflow.foodshare", category: "LegalDocumentService")
 
     // Cache for legal documents
     private var cache: [String: (document: LegalDocument, fetchedAt: Date)] = [:]
     private let cacheMaxAge: TimeInterval = 3600 // 1 hour
 
-    private init(api: ProfileAPIService = .shared) {
-        self.api = api
+    private init(client: APIClient = .shared) {
+        self.client = client
     }
 
     /// Fetch a legal document by type and locale
@@ -46,7 +58,10 @@ final class LegalDocumentService {
         // Fetch from API
         logger.info("Fetching legal document: \(type.rawValue) for locale: \(locale)")
 
-        let document = try await api.getLegalDocument(type: type.rawValue, locale: locale)
+        let document: LegalDocument = try await client.get(
+            "api-v1-profile",
+            params: ["action": "legal", "type": type.rawValue, "locale": locale]
+        )
 
         // Cache the result
         cache[cacheKey] = (document: document, fetchedAt: Date())

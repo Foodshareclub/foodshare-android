@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SupabaseActor.swift
 //  Foodshare
@@ -28,10 +29,10 @@ actor SupabaseActor {
     func query<T: Decodable>(
         _ table: String,
         select: String = "*",
-        filters: [(column: String, value: Any)] = []
+        filters: [(column: String, value: String)] = []
     ) async throws -> [T] {
         var query = client.database.from(table).select(select)
-        
+
         for filter in filters {
             query = query.eq(filter.column, value: filter.value)
         }
@@ -138,13 +139,8 @@ actor SupabaseActor {
     // MARK: - Realtime Operations
     
     /// Subscribe to realtime changes with actor isolation
-    nonisolated func subscribe(
-        to table: String,
-        event: String = "*",
-        callback: @escaping @Sendable (RealtimeMessage) -> Void
-    ) -> RealtimeChannel {
-        client.realtime.channel("public:\(table)")
-            .on(event, callback: callback)
+    nonisolated func channel(_ name: String) -> RealtimeChannelV2 {
+        client.realtimeV2.channel(name)
     }
 }
 
@@ -152,20 +148,20 @@ actor SupabaseActor {
 
 extension SupabaseActor {
     /// Execute a raw SQL query with actor isolation
-    func rpc<T: Decodable>(
+    func rpc<T: Decodable, P: Encodable & Sendable>(
         _ function: String,
-        params: [String: Any] = [:]
+        params: P
     ) async throws -> T {
         try await client.database
             .rpc(function, params: params)
             .execute()
             .value
     }
-    
+
     /// Execute a raw SQL query returning array with actor isolation
-    func rpcArray<T: Decodable>(
+    func rpcArray<T: Decodable, P: Encodable & Sendable>(
         _ function: String,
-        params: [String: Any] = [:]
+        params: P
     ) async throws -> [T] {
         try await client.database
             .rpc(function, params: params)
@@ -173,3 +169,4 @@ extension SupabaseActor {
             .value
     }
 }
+#endif

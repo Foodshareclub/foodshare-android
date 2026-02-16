@@ -10,8 +10,6 @@
 #if !SKIP
 import CoreLocation
 #endif
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import PostgREST
@@ -97,7 +95,7 @@ final class SupabaseFoodItemRepository: BaseSupabaseRepository, FoodItemReposito
 
     func fetchItemById(_ id: Int) async throws -> FoodItem {
         // Use AsyncHelpers.withRetry for automatic exponential backoff on transient failures
-        try await AsyncHelpers.withRetry {
+        try await withRetry {
             let product = try await self.productsAPI.getProduct(id: id)
             return product.toFoodItem()
         }

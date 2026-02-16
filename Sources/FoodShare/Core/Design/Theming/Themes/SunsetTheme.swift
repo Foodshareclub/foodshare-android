@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Sunset theme with orange and pink colors
 struct SunsetTheme: Theme {

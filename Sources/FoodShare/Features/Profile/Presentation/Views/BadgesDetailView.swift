@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -116,7 +115,9 @@ struct BadgesDetailView: View {
             .padding(.horizontal, Spacing.xxs)
         }
         .scrollBounceBehavior(.basedOnSize)
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
     }
 
     private func filterChip(_ filter: BadgeFilterType) -> some View {
@@ -430,7 +431,7 @@ struct BadgeDetailSheet: View {
     let userBadge: UserBadgeWithDetails?
     let userStats: ForumUserStats
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var showShareSheet = false
 
     private var isEarned: Bool { userBadge != nil }
@@ -721,7 +722,7 @@ struct ShareBadgeSheet: View {
     let badge: ForumBadge
     let earnedDate: Date?
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     private var shareText: String {
         // Note: Share text uses English for social media compatibility
@@ -747,6 +748,7 @@ struct ShareBadgeSheet: View {
                             .foregroundColor(.DesignSystem.text)
 
                         // Share button - uses system share sheet
+                        #if !SKIP
                         ShareLink(item: shareText) {
                             HStack(spacing: Spacing.sm) {
                                 Image(systemName: "square.and.arrow.up")
@@ -767,6 +769,28 @@ struct ShareBadgeSheet: View {
                                     ),
                             )
                         }
+                        #else
+                        Button(action: {}) {
+                            HStack(spacing: Spacing.sm) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text(t.t("common.share"))
+                            }
+                            .font(.DesignSystem.titleMedium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background(
+                                RoundedRectangle(cornerRadius: CornerRadius.large)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.DesignSystem.brandPink, Color.DesignSystem.brandTeal],
+                                            startPoint: .leading,
+                                            endPoint: .trailing,
+                                        ),
+                                    ),
+                            )
+                        }
+                        #endif
 
                         // Copy text button
                         Button {
@@ -806,7 +830,7 @@ struct ShareBadgeSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([PresentationDetent.medium])
     }
 
     private var badgePreview: some View {

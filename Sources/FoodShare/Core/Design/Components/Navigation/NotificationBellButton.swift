@@ -6,7 +6,6 @@
 //  Animated bell with shake, pulsing ring, badge counter, and full accessibility
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Notification Bell Button
@@ -39,8 +38,8 @@ struct NotificationBellButton: View {
     @State private var shakeRotation: Double = 0
     @State private var isPressed = false
     @State private var bellScale: CGFloat = 1.0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
     // MARK: - Size Variant
 
@@ -142,7 +141,11 @@ struct NotificationBellButton: View {
                     bellScale = 1.1
                 }
                 Task { @MainActor in
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(150 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(150))
+                    #endif
                     withAnimation(.interpolatingSpring(stiffness: 400, damping: 20)) {
                         bellScale = 1.0
                     }
@@ -195,7 +198,11 @@ struct NotificationBellButton: View {
         }
 
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(100 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(100))
+            #endif
             withAnimation(.interpolatingSpring(stiffness: 400, damping: 20)) {
                 isPressed = false
             }
@@ -222,7 +229,11 @@ struct NotificationBellButton: View {
                 withAnimation(.interpolatingSpring(stiffness: 500, damping: 8)) {
                     shakeRotation = rotation
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(durationMs * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(durationMs))
+                #endif
             }
         }
 
@@ -231,7 +242,11 @@ struct NotificationBellButton: View {
             bellScale = 1.15
         }
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(200 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(200))
+            #endif
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 15)) {
                 bellScale = 1.0
             }
@@ -394,7 +409,11 @@ struct NotificationBellIcon: View {
                             unreadCount += 1
                             hasNew = true
                             Task { @MainActor in
+                                #if SKIP
+                                try? await Task.sleep(nanoseconds: UInt64(600 * 1_000_000))
+                                #else
                                 try? await Task.sleep(for: .milliseconds(600))
+                                #endif
                                 hasNew = false
                             }
                         }
@@ -408,7 +427,11 @@ struct NotificationBellIcon: View {
                         Button("Shake") {
                             hasNew = true
                             Task { @MainActor in
+                                #if SKIP
+                                try? await Task.sleep(nanoseconds: UInt64(600 * 1_000_000))
+                                #else
                                 try? await Task.sleep(for: .milliseconds(600))
+                                #endif
                                 hasNew = false
                             }
                         }

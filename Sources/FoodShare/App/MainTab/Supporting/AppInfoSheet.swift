@@ -6,12 +6,11 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - App Info Sheet
 
 struct AppInfoSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     var body: some View {
@@ -44,8 +43,10 @@ struct AppInfoSheet: View {
                 }
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
     }
 
     private var appInfoBackground: some View {

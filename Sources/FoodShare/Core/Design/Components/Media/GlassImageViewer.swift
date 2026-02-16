@@ -9,7 +9,6 @@
 
 import Kingfisher
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Image Viewer
 

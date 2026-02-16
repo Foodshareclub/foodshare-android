@@ -7,8 +7,9 @@
 //  ProMotion 120Hz optimized with interpolating springs
 //
 
-import FoodShareDesignSystem
 import SwiftUI
+
+#if !SKIP
 
 // MARK: - Engagement Domain
 
@@ -168,7 +169,9 @@ struct EngagementLikeButton: View {
                         .foregroundColor(isLiked ? .DesignSystem.brandPink : .DesignSystem.textSecondary)
                         .scaleEffect(heartScale)
                         .offset(y: bounceOffset)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: isLiked)
+                        #endif
                 }
                 .frame(width: size.iconSize + 4, height: size.iconSize + 4)
 
@@ -178,7 +181,9 @@ struct EngagementLikeButton: View {
                         .font(size.font)
                         .fontWeight(.semibold)
                         .foregroundColor(isLiked ? .DesignSystem.brandPink : .DesignSystem.text)
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
                         .animation(.interpolatingSpring(stiffness: 300, damping: 20), value: likeCount)
                 }
             }
@@ -301,32 +306,52 @@ struct EngagementLikeButton: View {
 
         Task { @MainActor in
             // Phase 3: Particles appear
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(50 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(50))
+            #endif
             showParticles = true
 
             // Phase 4: Ring expands and fades
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(50 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(50))
+            #endif
             withAnimation(.easeOut(duration: 0.4)) {
                 ringScale = 1.5
                 ringOpacity = 0
             }
 
             // Phase 5: Heart bounces back with overshoot
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(20 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(20))
+            #endif
             withAnimation(.interpolatingSpring(stiffness: 350, damping: 12)) {
                 heartScale = 0.85
                 bounceOffset = 2
             }
 
             // Phase 6: Settle to normal
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(100 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(100))
+            #endif
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 14)) {
                 heartScale = 1.0
                 bounceOffset = 0
             }
 
             // Phase 7: Hide particles
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(280 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(280))
+            #endif
             showParticles = false
             ringScale = 0
         }
@@ -924,3 +949,4 @@ struct CompactChallengeLikeButton: View {
     .padding()
     .background(Color.black)
 }
+#endif

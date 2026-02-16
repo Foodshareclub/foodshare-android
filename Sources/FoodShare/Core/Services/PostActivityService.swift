@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PostActivityService.swift
 //  Foodshare
@@ -370,3 +371,4 @@ enum PostActivityError: LocalizedError, Sendable {
         }
     }
 }
+#endif

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Expander
 
@@ -140,6 +139,7 @@ struct GlassExpander<Content: View>: View {
 
 // MARK: - Glass Accordion
 
+#if !SKIP
 struct GlassAccordion<Item: Identifiable, Content: View>: View {
     let items: [Item]
     let titleKeyPath: KeyPath<Item, String>
@@ -197,6 +197,7 @@ struct GlassAccordion<Item: Identifiable, Content: View>: View {
         }
     }
 }
+#endif
 
 // MARK: - Glass FAQ Item
 
@@ -215,7 +216,9 @@ struct GlassFAQItem: View {
             Text(answer)
                 .font(.DesignSystem.bodyMedium)
                 .foregroundStyle(Color.DesignSystem.textSecondary)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
     }
 }

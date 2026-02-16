@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct AppLockSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     @State private var appLockService = AppLockService.shared
@@ -144,7 +143,9 @@ struct AppLockSettingsView: View {
                     .tint(.DesignSystem.brandGreen)
                     .labelsHidden()
                     .disabled(!appLockService.isBiometricAvailable)
+                    #if !SKIP
                     .sensoryFeedback(.selection, trigger: appLockService.isEnabled)
+                    #endif
                 }
             }
             .padding(Spacing.md)
@@ -162,7 +163,9 @@ struct AppLockSettingsView: View {
                 title: t.t("lock_on_background"),
                 isOn: $appLockService.lockOnBackground
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: appLockService.lockOnBackground)
+            #endif
 
             // Lock on launch
             GlassSettingsToggle(
@@ -171,7 +174,9 @@ struct AppLockSettingsView: View {
                 title: t.t("lock_on_launch"),
                 isOn: $appLockService.lockOnLaunch
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: appLockService.lockOnLaunch)
+            #endif
 
             // Lock delay
             HStack(spacing: Spacing.md) {
@@ -214,7 +219,9 @@ struct AppLockSettingsView: View {
             Text(t.t("app_lock_info_description"))
                 .font(.DesignSystem.caption)
                 .foregroundStyle(Color.DesignSystem.textTertiary)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)

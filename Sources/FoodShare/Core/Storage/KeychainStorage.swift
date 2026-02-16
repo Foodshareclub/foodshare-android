@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  KeychainStorage.swift
 //  Foodshare
@@ -31,7 +32,7 @@ final class KeychainStorage: @unchecked Sendable {
         let status = SecItemAdd(query as CFDictionary, nil)
 
         guard status == errSecSuccess else {
-            throw KeychainError.unableToStore(status)
+            throw KeychainError.unhandledError(status)
         }
     }
 
@@ -48,7 +49,7 @@ final class KeychainStorage: @unchecked Sendable {
         }
 
         guard status == errSecSuccess else {
-            throw KeychainError.unableToRetrieve(status)
+            throw KeychainError.unhandledError(status)
         }
 
         return result as? Data
@@ -59,7 +60,7 @@ final class KeychainStorage: @unchecked Sendable {
         let status = SecItemDelete(query as CFDictionary)
 
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw KeychainError.unableToDelete(status)
+            throw KeychainError.unhandledError(status)
         }
     }
 
@@ -76,7 +77,7 @@ final class KeychainStorage: @unchecked Sendable {
         let status = SecItemDelete(query as CFDictionary)
 
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw KeychainError.unableToDelete(status)
+            throw KeychainError.unhandledError(status)
         }
     }
 
@@ -99,29 +100,8 @@ final class KeychainStorage: @unchecked Sendable {
 }
 
 // MARK: - Keychain Error
-
-/// Errors that can occur during Keychain operations.
-///
-/// Thread-safe for Swift 6 concurrency.
-enum KeychainError: LocalizedError, Sendable {
-    /// Failed to store item in keychain
-    case unableToStore(OSStatus)
-    /// Failed to retrieve item from keychain
-    case unableToRetrieve(OSStatus)
-    /// Failed to delete item from keychain
-    case unableToDelete(OSStatus)
-
-    var errorDescription: String? {
-        switch self {
-        case let .unableToStore(status):
-            "Unable to store item in keychain. Status: \(status)"
-        case let .unableToRetrieve(status):
-            "Unable to retrieve item from keychain. Status: \(status)"
-        case let .unableToDelete(status):
-            "Unable to delete item from keychain. Status: \(status)"
-        }
-    }
-}
+// Note: KeychainError is defined in Core/Security/KeychainHelper.swift
 
 // MARK: - Supabase Auth Storage Extension
 // KeychainStorage implements the required methods for auth storage
+#endif

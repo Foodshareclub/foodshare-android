@@ -6,7 +6,6 @@
 //  Enhanced with search, filters, and conversation management
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 #if DEBUG
@@ -89,8 +88,10 @@ struct MessagingView: View {
             #endif
             .sheet(isPresented: $showFilters) {
                 ChatsFilterSheet(viewModel: viewModel)
-                    .presentationDetents([.medium])
+                    .presentationDetents([PresentationDetent.medium])
+                    #if !SKIP
                     .presentationDragIndicator(.visible)
+                    #endif
             }
             .sheet(isPresented: $showAppInfo) {
                 AppInfoSheet()
@@ -223,7 +224,9 @@ struct MessagingView: View {
             .padding(.vertical, Spacing.sm)
         }
         .scrollBounceBehavior(.basedOnSize)
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
     }
 
     private var loadingView: some View {
@@ -747,7 +750,9 @@ struct ChatRoomView: View {
         }
         .navigationTitle(t.t("navigation.chat"))
         .navigationBarTitleDisplayMode(.inline)
+        #if !SKIP
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        #endif
         .toolbar {
             ToolbarItem(placement: .principal) {
                 chatHeader
@@ -1239,7 +1244,7 @@ private struct MessageSkeletonRow: View {
 struct ChatsFilterSheet: View {
     @Environment(\.translationService) private var t
     @Bindable var viewModel: MessagingViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

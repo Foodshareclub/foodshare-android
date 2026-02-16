@@ -178,14 +178,6 @@ public enum ListingViewSource: String, Sendable {
     case share
 }
 
-public enum ShareMethod: String, Sendable {
-    case copy
-    case messages
-    case mail
-    case social
-    case other
-}
-
 // MARK: - Search Events
 
 public enum SearchAnalyticsEvent: AnalyticsEventProtocol, Sendable {

@@ -347,6 +347,15 @@ fragment float4 voice_waveform_fragment(
     return color;
 }
 
+// MARK: - Helper: Line Distance
+
+static float lineDistFunc(float2 p, float2 a, float2 b) {
+    float2 pa = p - a;
+    float2 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h);
+}
+
 // MARK: - Read Receipt Checkmark Shader
 // Animated checkmark with glow
 
@@ -374,22 +383,16 @@ fragment float4 read_receipt_fragment(
     float drawProgress = uniforms.progress;
     
     // Line distance function
-    auto lineDist = [](float2 p, float2 a, float2 b) -> float {
-        float2 pa = p - a;
-        float2 ba = b - a;
-        float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-        return length(pa - ba * h);
-    };
     
     // First check (always visible if read)
     if (uniforms.isRead > 0.5) {
-        float d1 = lineDist(uv, check1Start, check1Mid);
-        float d2 = lineDist(uv, check1Mid, check1End);
+        float d1 = lineDistFunc(uv, check1Start, check1Mid);
+        float d2 = lineDistFunc(uv, check1Mid, check1End);
         float check1 = 1.0 - smoothstep(checkWidth - 0.01, checkWidth + 0.01, min(d1, d2));
         
         // Second check
-        float d3 = lineDist(uv, check2Start, check2Mid);
-        float d4 = lineDist(uv, check2Mid, check2End);
+        float d3 = lineDistFunc(uv, check2Start, check2Mid);
+        float d4 = lineDistFunc(uv, check2Mid, check2End);
         float check2 = 1.0 - smoothstep(checkWidth - 0.01, checkWidth + 0.01, min(d3, d4));
         
         float checks = max(check1, check2);
@@ -402,8 +405,8 @@ fragment float4 read_receipt_fragment(
         color.a = (checks + glow) * uniforms.intensity;
     } else {
         // Single check for "delivered"
-        float d1 = lineDist(uv, check1Start, check1Mid);
-        float d2 = lineDist(uv, check1Mid, check1End);
+        float d1 = lineDistFunc(uv, check1Start, check1Mid);
+        float d2 = lineDistFunc(uv, check1Mid, check1End);
         float check1 = 1.0 - smoothstep(checkWidth - 0.01, checkWidth + 0.01, min(d1, d2));
         
         color = uniforms.secondaryColor;

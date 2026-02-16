@@ -12,7 +12,6 @@
 //  - iOS 17+ @FocusState integration
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Tab Search Header
@@ -50,7 +49,7 @@ struct TabSearchHeader<ActionButton: View>: View {
     var onSearchClear: (() -> Void)?
     @ViewBuilder let actionButton: () -> ActionButton
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
     @Environment(\.translationService) private var t
 
     var body: some View {

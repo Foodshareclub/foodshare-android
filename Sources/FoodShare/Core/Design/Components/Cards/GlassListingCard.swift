@@ -6,7 +6,6 @@
 //  Premium glassmorphism effects with advanced animations
 //
 
-import FoodShareDesignSystem
 import OSLog
 import SwiftUI
 
@@ -70,7 +69,7 @@ struct GlassListingCard: View {
             }
         }
         .buttonStyle(EnhancedCardPressStyle())
-        .modifier(ParallaxModifier(offset: parallaxOffset, enabled: enableParallax))
+        .modifier(CardParallaxModifier(offset: parallaxOffset, enabled: enableParallax))
         .gesture(parallaxGesture)
         .accessibilityLabel(accessibilityDescription)
         .onAppear {
@@ -164,7 +163,7 @@ struct GlassListingCard: View {
             y: style == .modern ? 4 : 10,
         )
         .shadow(
-            color: .black.opacity(style == .modern ? 0.04 : 0.1),
+            color: Color.black.opacity(style == .modern ? 0.04 : 0.1),
             radius: style == .modern ? 4 : 12,
             y: style == .modern ? 2 : 6,
         )
@@ -231,7 +230,7 @@ struct GlassListingCard: View {
                         // Like & Save buttons (top-right)
                         HStack(spacing: Spacing.xs) {
                             CompactEngagementLikeButton(
-                                domain: .post(id: item.id),
+                                domain: EngagementDomain.post(id: item.id),
                                 initialIsLiked: isLikedByDoubleTap,
                             )
                             .background(
@@ -287,7 +286,9 @@ struct GlassListingCard: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        #if !SKIP
                         .transition(.opacity.animation(.easeInOut(duration: 0.25)))
+                        #endif
                 case .failure:
                     modernPlaceholder
                 @unknown default:
@@ -444,6 +445,7 @@ struct GlassListingCard: View {
     @ViewBuilder
     private var featuredBorderOverlay: some View {
         if style == .featured {
+            #if !SKIP
             RoundedRectangle(cornerRadius: cardCornerRadius)
                 .stroke(
                     AngularGradient(
@@ -455,10 +457,11 @@ struct GlassListingCard: View {
                             categoryColor.opacity(0.8),
                         ]),
                         center: .center,
-                        angle: .degrees(shimmerPhase * 360),
+                        angle: Angle.degrees(shimmerPhase * 360),
                     ),
                     lineWidth: 2,
                 )
+            #endif
         }
     }
 
@@ -585,7 +588,9 @@ struct GlassListingCard: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        #if !SKIP
                         .transition(.opacity.animation(.easeInOut(duration: 0.25)))
+                        #endif
                 case .failure:
                     placeholderImage
                 @unknown default:
@@ -802,11 +807,11 @@ struct EnhancedCardPressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .brightness(configuration.isPressed ? 0.02 : 0)
             .rotation3DEffect(
-                .degrees(configuration.isPressed ? 1 : 0),
+                Angle.degrees(configuration.isPressed ? 1 : 0),
                 axis: (x: 1, y: 0, z: 0),
                 perspective: 0.5,
             )
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -816,7 +821,7 @@ struct CardPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -909,13 +914,17 @@ struct CompactListingRow: View {
                                 .foregroundStyle(isLiked
                                     ? Color.DesignSystem.brandPink
                                     : Color.DesignSystem.textTertiary)
+                                    #if !SKIP
                                     .symbolEffect(.bounce, value: isLiked)
+                                    #endif
                             Text("\(likeCount)")
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundStyle(isLiked
                                     ? Color.DesignSystem.brandPink
                                     : Color.DesignSystem.textTertiary)
+                                    #if !SKIP
                                     .contentTransition(.numericText())
+                                    #endif
                         }
                         .opacity(isLoadingStatus ? 0.5 : 1.0)
                     }
@@ -1064,9 +1073,9 @@ struct CompactListingRow: View {
     }
 }
 
-// MARK: - Parallax Modifier
+// MARK: - Card Parallax Modifier
 
-struct ParallaxModifier: ViewModifier {
+private struct CardParallaxModifier: ViewModifier {
     let offset: CGSize
     let enabled: Bool
 

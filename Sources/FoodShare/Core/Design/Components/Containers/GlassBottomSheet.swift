@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Bottom Sheet
 
@@ -20,7 +19,11 @@ struct GlassBottomSheet<Content: View>: View {
 
     @State private var currentDetent: SheetDetent = .medium
     @State private var dragOffset: CGFloat = 0
+    #if !SKIP
     @GestureState private var isDragging = false
+    #else
+    @State private var isDragging = false
+    #endif
 
     init(
         isPresented: Binding<Bool>,
@@ -67,12 +70,12 @@ struct GlassBottomSheet<Content: View>: View {
                 .background(sheetBackground)
                 .clipShape(
                     RoundedCornerShape(
-                        corners: [.topLeft, .topRight],
+                        corners: [UIRectCorner.topLeft, UIRectCorner.topRight],
                         radius: CornerRadius.xl
                     )
                 )
                 .overlay(alignment: .top) {
-                    RoundedCornerShape(corners: [.topLeft, .topRight], radius: CornerRadius.xl)
+                    RoundedCornerShape(corners: [UIRectCorner.topLeft, UIRectCorner.topRight], radius: CornerRadius.xl)
                         .stroke(
                             LinearGradient(
                                 colors: [

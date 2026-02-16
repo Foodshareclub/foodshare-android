@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MetalEffectModifiers.swift
 //  Foodshare
@@ -8,7 +9,6 @@
 
 import MetalKit
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Unified Metal Effect Modifier
 
@@ -341,3 +341,4 @@ extension View {
         )
     }
 }
+#endif

@@ -7,10 +7,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct DataExportView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     // Export options
@@ -113,7 +112,9 @@ struct DataExportView: View {
                 title: t.t("profile_data"),
                 isOn: $includeProfile
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includeProfile)
+            #endif
 
             // Listings
             GlassSettingsToggle(
@@ -122,7 +123,9 @@ struct DataExportView: View {
                 title: t.t("listings_data"),
                 isOn: $includeListings
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includeListings)
+            #endif
 
             // Messages
             GlassSettingsToggle(
@@ -131,7 +134,9 @@ struct DataExportView: View {
                 title: t.t("messages_data"),
                 isOn: $includeMessages
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includeMessages)
+            #endif
 
             // Activity
             GlassSettingsToggle(
@@ -140,7 +145,9 @@ struct DataExportView: View {
                 title: t.t("activity_history"),
                 isOn: $includeActivity
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includeActivity)
+            #endif
 
             // Preferences
             GlassSettingsToggle(
@@ -149,7 +156,9 @@ struct DataExportView: View {
                 title: t.t("preferences_data"),
                 isOn: $includePreferences
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includePreferences)
+            #endif
 
             // Local cache
             GlassSettingsToggle(
@@ -158,7 +167,9 @@ struct DataExportView: View {
                 title: t.t("local_cache_data"),
                 isOn: $includeLocalCache
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: includeLocalCache)
+            #endif
         }
     }
 
@@ -232,7 +243,9 @@ struct DataExportView: View {
             Text(t.t("gdpr_info_description"))
                 .font(.DesignSystem.caption)
                 .foregroundStyle(Color.DesignSystem.textTertiary)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)

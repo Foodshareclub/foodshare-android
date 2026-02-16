@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Sync Conflict
 
@@ -116,7 +115,7 @@ public struct ConflictResolutionSheet: View {
     @State private var expandedField: String?
     @State private var showConfirmation = false
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     // MARK: - Initialization

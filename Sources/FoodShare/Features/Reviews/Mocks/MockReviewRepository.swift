@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockReviewRepository.swift
 //  Foodshare
@@ -73,7 +74,7 @@ import Foundation
             }
 
             guard let index = mockReviews.firstIndex(where: { $0.id == id && $0.profileId == userId }) else {
-                throw AppError.forbidden(action: "delete this review")
+                throw AppError.permissionDenied(feature: "delete this review")
             }
 
             mockReviews.remove(at: index)
@@ -123,4 +124,5 @@ import Foundation
             )
         }
     }
+#endif
 #endif

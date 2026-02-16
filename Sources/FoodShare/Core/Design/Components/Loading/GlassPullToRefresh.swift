@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Pull To Refresh
 
@@ -22,7 +21,7 @@ public struct GlassPullToRefresh<Content: View>: View {
     @State private var orbScale: CGFloat = 1.0
     @State private var showSuccess = false
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -156,11 +155,11 @@ public struct GlassPullToRefresh<Content: View>: View {
                     style: StrokeStyle(lineWidth: 3, lineCap: .round),
                 )
                 .frame(width: 38, height: 38)
-                .rotationEffect(.degrees(isRefreshing ? orbRotation : -90))
+                .rotationEffect(Angle.degrees(isRefreshing ? orbRotation : -90))
                 .animation(
                     isRefreshing
-                        ? .linear(duration: 1).repeatForever(autoreverses: false)
-                        : .interpolatingSpring(stiffness: 300, damping: 20),
+                        ? Animation.linear(duration: 1).repeatForever(autoreverses: false)
+                        : Animation.interpolatingSpring(stiffness: 300, damping: 20),
                     value: isRefreshing,
                 )
 
@@ -240,7 +239,7 @@ public struct GlassPullToRefresh<Content: View>: View {
         isRefreshing = true
 
         // Haptic feedback
-        HapticManager.shared.impact(.medium)
+        HapticManager.medium()
 
         // Bounce animation
         withAnimation(.interpolatingSpring(stiffness: 400, damping: 15)) {
@@ -261,7 +260,7 @@ public struct GlassPullToRefresh<Content: View>: View {
 
     private func completeRefresh() {
         // Success animation
-        HapticManager.shared.notification(.success)
+        HapticManager.success()
 
         withAnimation(.interpolatingSpring(stiffness: 400, damping: 15)) {
             showSuccess = true
@@ -274,7 +273,11 @@ public struct GlassPullToRefresh<Content: View>: View {
 
         // Hide after delay
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(800 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(800))
+            #endif
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
                 showSuccess = false
                 pullProgress = 0
@@ -290,16 +293,6 @@ public struct GlassPullToRefresh<Content: View>: View {
         withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
             orbRotation = 360
         }
-    }
-}
-
-// MARK: - Scroll Offset Preference Key
-
-private struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 
@@ -359,7 +352,11 @@ extension View {
             GlassPullToRefresh(
                 isRefreshing: $isRefreshing,
                 onRefresh: {
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000_000))
+                    #else
                     try? await Task.sleep(for: .seconds(2))
+                    #endif
                 },
             ) {
                 LazyVStack(spacing: Spacing.sm) {

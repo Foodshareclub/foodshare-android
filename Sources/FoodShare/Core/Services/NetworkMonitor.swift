@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  NetworkMonitor.swift
 //  Foodshare
@@ -272,3 +273,4 @@ extension NetworkMonitor {
         }
     }
 }
+#endif

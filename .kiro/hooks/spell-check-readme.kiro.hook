@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Spell Check Documentation",
+  "description": "Manual hook to check spelling and grammar in documentation files",
+  "version": "1",
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Please review all markdown documentation files (README.md, docs/*.md, *.md) for:\n\n1. Spelling errors\n2. Grammar issues\n3. Broken links\n4. Inconsistent formatting\n5. Outdated information\n\nFix any issues found and provide a summary of changes."
+  }
+}

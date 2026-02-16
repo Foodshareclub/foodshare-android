@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AdminAPIService.swift
 //  Foodshare
@@ -103,3 +104,4 @@ private struct UpdateRoleBody: Encodable {
 private struct BulkIdsBody: Encodable {
     let ids: [Int]
 }
+#endif

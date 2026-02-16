@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Reusable app logo view with configurable size and styling
 struct AppLogoView: View {

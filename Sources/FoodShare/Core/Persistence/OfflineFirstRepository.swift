@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  OfflineFirstRepository.swift
 //  Foodshare
@@ -5,6 +6,7 @@
 //  Protocol for offline-first data access pattern
 //
 
+#if !SKIP
 import Foundation
 
 // MARK: - Offline First Repository Protocol
@@ -69,10 +71,10 @@ enum OfflineDataResult<T: Sendable>: Sendable {
     }
 }
 
-// MARK: - Cache Policy
+// MARK: - Offline Cache Policy
 
-/// Policy for cache behavior
-enum CachePolicy: Sendable {
+/// Policy for offline-first cache behavior
+enum OfflineCachePolicy: Sendable {
     /// Always fetch from remote first
     case remoteFirst
 
@@ -198,7 +200,7 @@ final class OfflineFirstDataSource<Local, Remote>where Local: Sendable, Remote: 
     }
 
     /// Fetch data using the specified cache policy
-    func fetch(policy: CachePolicy) async throws -> OfflineDataResult<Local> {
+    func fetch(policy: OfflineCachePolicy) async throws -> OfflineDataResult<Local> {
         switch policy {
         case .remoteFirst:
             try await fetchRemoteFirst()
@@ -502,3 +504,5 @@ actor SyncQueue {
         queue.removeAll()
     }
 }
+#endif
+#endif

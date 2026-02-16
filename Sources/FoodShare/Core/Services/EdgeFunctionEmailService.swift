@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  EdgeFunctionEmailService.swift
 //  Foodshare
@@ -243,4 +244,5 @@ actor EdgeFunctionEmailService: EdgeFunctionEmailServiceProtocol {
             sentEmails.removeAll()
         }
     }
+#endif
 #endif

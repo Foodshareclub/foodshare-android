@@ -6,7 +6,6 @@
 //  Required for App Store Guideline 3.1.2 compliance
 //
 
-import FoodShareDesignSystem
 import OSLog
 #if !SKIP
 import StoreKit
@@ -17,7 +16,7 @@ struct SubscriptionView: View {
 
     // MARK: - Environment
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
 

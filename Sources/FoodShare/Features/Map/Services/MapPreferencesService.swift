@@ -1,4 +1,5 @@
 #if !SKIP
+#if !SKIP
 import CoreHaptics
 import CoreMotion
 #endif
@@ -13,7 +14,7 @@ import OSLog
 @Observable
 final class MapPreferencesService {
     private let redis: UpstashRedisClient
-    private let supabase = SupabaseClient.shared
+    private let supabase = AuthenticationService.shared.supabase
     private let logger = Logger(subsystem: "FoodShare", category: "MapPreferences")
 
     // L1 Cache - Memory
@@ -37,7 +38,7 @@ final class MapPreferencesService {
     private let saveDebounceInterval: TimeInterval = 2.0
 
     /// Quality Management
-    private var qualitySettings: QualitySettings?
+    private var qualitySettings: MapQualitySettings?
 
     init(redis: UpstashRedisClient) {
         self.redis = redis
@@ -256,7 +257,7 @@ final class MapPreferencesService {
         return nil
     }
 
-    func getOptimalQualitySettings() async -> QualitySettings {
+    func getOptimalQualitySettings() async -> MapQualitySettings {
         if let cached = qualitySettings {
             return cached
         }
@@ -270,7 +271,7 @@ final class MapPreferencesService {
 
         } catch {
             logger.error("Failed to get quality settings: \(error)")
-            return QualitySettings.default
+            return MapQualitySettings.default
         }
     }
 
@@ -397,14 +398,14 @@ enum MotionState {
     case moving
 }
 
-struct QualitySettings: Codable {
+struct MapQualitySettings: Codable {
     var quality: String
     var retina: Bool
     var vector: Bool
     var concurrentTiles: Int
     var compression: String
 
-    static let `default` = QualitySettings(
+    static let `default` = MapQualitySettings(
         quality: "medium",
         retina: true,
         vector: true,
@@ -420,7 +421,7 @@ struct QualitySettings: Codable {
 
 struct QualityResponse: Codable {
     let success: Bool
-    let settings: QualitySettings
+    let settings: MapQualitySettings
 }
 
 struct MapPreferences: Codable {
@@ -459,3 +460,4 @@ struct MapPreferencesResponse: Codable {
     let success: Bool
     let preferences: MapPreferences?
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AppAttestService.swift
 //  Foodshare
@@ -309,4 +310,5 @@ final class AppAttestService {
             )
         }
     }
+#endif
 #endif

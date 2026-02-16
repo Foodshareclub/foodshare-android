@@ -6,8 +6,6 @@
 //  Supports all listing types matching web app
 //
 
-import FoodShareDesignSystem
-import FoodShareNetworking
 import PhotosUI
 import SwiftUI
 
@@ -17,7 +15,7 @@ import SwiftUI
 
 struct CreateListingView: View {
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
     @State private var viewModel: CreateListingViewModel
@@ -907,7 +905,9 @@ struct CategoryButton: View {
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(isSelected ? .white : color)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: isSelected)
+                        #endif
                 }
 
                 Text(title)
@@ -933,7 +933,9 @@ struct CategoryButton: View {
             )
         }
         .buttonStyle(ProMotionButtonStyle())
+        #if !SKIP
         .sensoryFeedback(.selection, trigger: isSelected)
+        #endif
         .animation(ProMotionAnimation.bouncy, value: isSelected)
     }
 }
@@ -998,47 +1000,3 @@ struct AddPhotoLabel: View {
     }
 }
 
-// MARK: - Camera Picker
-
-#if !SKIP
-private struct CameraImagePicker: UIViewControllerRepresentable {
-    @Binding var capturedImage: UIImage?
-    @Environment(\.dismiss) private var dismiss
-
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.delegate = context.coordinator
-        picker.allowsEditing = false
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: CameraImagePicker
-
-        init(_ parent: CameraImagePicker) {
-            self.parent = parent
-        }
-
-        func imagePickerController(
-            _ picker: UIImagePickerController,
-            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any],
-        ) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.capturedImage = image
-            }
-            parent.dismiss()
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.dismiss()
-        }
-    }
-}
-#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CircuitBreaker.swift
 //  Foodshare
@@ -486,3 +487,4 @@ extension CircuitBreaker {
     /// Pre-configured circuit breaker for real-time connections
     static let realtime = CircuitBreaker(name: "realtime", config: .aggressive)
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SecurityScoreView.swift
 //  Foodshare
@@ -7,9 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareSecurity
-import FoodShareDesignSystem
-import FoodShareSecurity
 
 
 
@@ -107,7 +105,7 @@ struct SecurityScoreCard: View {
 
 struct SecurityDetailView: View {
     
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @State private var score: Int = 0
     @State private var level: SecurityScoreLevel = .low
@@ -468,3 +466,4 @@ struct BiometricSetupOnboardingCard: View {
         SecurityDetailView()
     }
 }
+#endif

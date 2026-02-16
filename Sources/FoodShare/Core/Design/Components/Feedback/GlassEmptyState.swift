@@ -8,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Empty State
 
@@ -260,7 +259,7 @@ private struct EmptyStateButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
     }
 }
 
@@ -268,7 +267,7 @@ private struct EmptyStateSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.6 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
     }
 }
 

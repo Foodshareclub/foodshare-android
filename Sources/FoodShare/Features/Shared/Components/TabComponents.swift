@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Search Bar
 
@@ -328,7 +327,7 @@ struct ProfileActionButton: View {
 // MARK: - Settings Sheet
 
 struct SettingsSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("locationEnabled") private var locationEnabled = true

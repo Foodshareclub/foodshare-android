@@ -1,0 +1,50 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+      "name" : "Unit Tests Configuration",
+      "options" : {
+        "codeCoverage" : true,
+        "codeCoverageTargets" : [
+          {
+            "containerPath" : "container:FoodShare.xcodeproj",
+            "identifier" : "AAF6A898A242E828AF785E98",
+            "name" : "FoodShare"
+          }
+        ],
+        "environmentVariableEntries" : [
+          {
+            "key" : "IS_UNIT_TESTING",
+            "value" : "1"
+          }
+        ],
+        "testExecutionOrdering" : "random",
+        "threadSanitizerEnabled" : false
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:FoodShare.xcodeproj",
+      "identifier" : "AAF6A898A242E828AF785E98",
+      "name" : "FoodShare"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "SupabaseFeedRepositoryIntegrationTests",
+        "SupabaseMessagingRepositoryIntegrationTests",
+        "SupabaseReviewRepositoryIntegrationTests"
+      ],
+      "target" : {
+        "containerPath" : "container:FoodShare.xcodeproj",
+        "identifier" : "4ECF8F0551C6BF22899F45D3",
+        "name" : "FoodShareTests"
+      }
+    }
+  ],
+  "version" : 1
+}

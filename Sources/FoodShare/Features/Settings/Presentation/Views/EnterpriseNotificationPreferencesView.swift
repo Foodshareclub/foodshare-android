@@ -39,7 +39,7 @@ public struct EnterpriseNotificationPreferencesView: View {
     // MARK: - Properties
 
     @Bindable private var viewModel: NotificationPreferencesViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     // MARK: - State
 
@@ -384,7 +384,7 @@ public struct EnterpriseNotificationPreferencesView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
     }
 
     private func dndDurationButton(hours: Int, label: String) -> some View {
@@ -561,7 +561,7 @@ public struct EnterpriseNotificationPreferencesView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
     }
 
     private func quietHoursTimePicker(
@@ -694,7 +694,7 @@ public struct EnterpriseNotificationPreferencesView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
     }
 
     private var phoneNumberInputSection: some View {

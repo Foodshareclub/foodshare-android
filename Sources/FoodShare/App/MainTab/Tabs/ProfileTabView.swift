@@ -5,7 +5,6 @@
 //  Profile tab for user account management
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Profile Tab View
@@ -24,7 +23,7 @@ struct ProfileTabView: View {
             Group {
                 // Guest mode: Show guest-specific upgrade prompt
                 if guestManager.isGuestMode {
-                    GuestRestrictedTabView(feature: .profile)
+                    GuestRestrictedTabView(feature: GuestRestrictedFeature.profile)
                         .navigationTitle(t.t("tabs.profile"))
                 } else if appState.currentUser?.id != nil {
                     if let viewModel = profileViewModel {
@@ -123,7 +122,9 @@ struct ProfileTabView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.DesignSystem.background)
         .navigationTitle(t.t("tabs.profile"))
+        #if !SKIP
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        #endif
     }
 
     private func setupProfileViewModel() async {

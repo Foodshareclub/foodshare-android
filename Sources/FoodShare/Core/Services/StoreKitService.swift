@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  StoreKitService.swift
 //  Foodshare
@@ -796,8 +797,10 @@ final class StoreKitService {
                 "autoRenewStatus": AnyJSON(true),
             ]
 
+            let jsonData = try JSONEncoder().encode(body)
+            let receiptString = String(data: jsonData, encoding: .utf8) ?? ""
             let _: SyncSubscriptionResponse = try await SubscriptionAPIService.shared.verifyReceipt(
-                receiptData: receiptData
+                receiptData: receiptString
             )
         }
     }
@@ -928,3 +931,4 @@ final class StoreKitService {
         }
     }
 }
+#endif

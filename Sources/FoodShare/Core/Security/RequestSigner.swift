@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  RequestSigner.swift
 //  Foodshare
@@ -370,4 +371,5 @@ final class SignedRequestBuilder {
             )
         }
     }
+#endif
 #endif

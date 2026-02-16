@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Forum Filters Sheet
 
@@ -20,7 +19,7 @@ struct ForumFiltersSheet: View {
     var onNotificationsTap: (() -> Void)?
     var unreadNotificationCount = 0
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var showResetConfirmation = false
     @State private var sectionAppearStates: [String: Bool] = [:]
 
@@ -32,7 +31,9 @@ struct ForumFiltersSheet: View {
             }
             .navigationTitle(t.t("forum.filters.title"))
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 toolbarLeading
                 toolbarTrailing
@@ -51,10 +52,12 @@ struct ForumFiltersSheet: View {
                 animateSectionsIn()
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(CornerRadius.xl)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
+        #endif
     }
 
     // MARK: - Main Content
@@ -69,7 +72,9 @@ struct ForumFiltersSheet: View {
             }
             .padding(Spacing.md)
         }
+        #if !SKIP
         .scrollDismissesKeyboard(.interactively)
+        #endif
     }
 
     // MARK: - Sort By Section
@@ -102,7 +107,9 @@ struct ForumFiltersSheet: View {
                         ? .DesignSystem.brandGreen
                         : .DesignSystem.textSecondary)
                     .frame(width: 24)
+                    #if !SKIP
                     .symbolEffect(.pulse, options: .repeating, value: filters.sortBy == option)
+                    #endif
 
                 Text(option.displayName)
                     .font(.DesignSystem.bodySmall)
@@ -114,7 +121,9 @@ struct ForumFiltersSheet: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 18))
                         .foregroundColor(.DesignSystem.brandGreen)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: filters.sortBy)
+                        #endif
                         .transition(.scale.combined(with: .opacity))
                 }
             }
@@ -409,7 +418,6 @@ struct ForumFiltersSheet: View {
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 12, weight: .medium))
-                        .symbolEffect(.rotate, value: showResetConfirmation)
                     Text(t.t("common.action.reset"))
                         .font(.DesignSystem.bodySmall)
                         .fontWeight(.medium)
@@ -461,7 +469,11 @@ struct ForumFiltersSheet: View {
         onApply()
 
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(300))
+            #endif
             HapticManager.success()
         }
     }
@@ -475,7 +487,11 @@ struct ForumFiltersSheet: View {
                 let delayMs = Int(Double(index) * baseDelay * 1000)
 
                 if delayMs > 0 {
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(delayMs * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(delayMs))
+                    #endif
                 }
 
                 withAnimation(ProMotionAnimation.smooth) {
@@ -519,7 +535,9 @@ struct ForumFiltersSheet: View {
                                 endPoint: .bottomTrailing
                             )
                         )
+                        #if !SKIP
                         .symbolEffect(.bounce, options: .nonRepeating, value: sectionAppearStates[id] ?? false)
+                        #endif
                 }
 
                 Text(title)

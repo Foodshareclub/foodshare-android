@@ -7,9 +7,6 @@
 //
 
 import Foundation
-import FoodShareRepository
-import FoodShareArchitecture
-import FoodShareErrors
 import OSLog
 import Supabase
 
@@ -52,6 +49,18 @@ final class SupabaseListingRepository: BaseSupabaseRepository, ListingRepository
 
     func uploadImages(_ imageData: [Data]) async throws -> [String] {
         try await uploadImages(imageData, bucket: "food-images")
+    }
+
+    private func uploadImages(_ imageData: [Data], bucket: String) async throws -> [String] {
+        var urls: [String] = []
+        for data in imageData {
+            let fileName = "\(UUID().uuidString).jpg"
+            let path = "listings/\(fileName)"
+            try await supabase.storage.from(bucket).upload(path, data: data, options: .init(contentType: "image/jpeg"))
+            let publicURL = try supabase.storage.from(bucket).getPublicURL(path: path)
+            urls.append(publicURL.absoluteString)
+        }
+        return urls
     }
 
     // MARK: - CRUD Operations (via ProductsAPIService)
@@ -124,7 +133,7 @@ final class SupabaseListingRepository: BaseSupabaseRepository, ListingRepository
         let result: ArrangementResult = try await executeTransactionalRPC("arrange_post", params: params)
         
         guard let post = result.post else {
-            throw BusinessError.operationFailed
+            throw NSError(domain: "ListingRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Arrangement operation failed"])
         }
 
         // Send push notification to sharer (post owner) - fire and forget

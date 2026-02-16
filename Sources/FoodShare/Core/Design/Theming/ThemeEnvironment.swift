@@ -52,7 +52,7 @@ extension EnvironmentValues {
 /// View modifier that injects theme state into the environment
 /// and handles system color scheme changes
 struct ThemeRootModifier: ViewModifier {
-    @Environment(\.colorScheme) private var systemColorScheme
+    @Environment(\.colorScheme) private var systemColorScheme: ColorScheme
     private var themeManager = ThemeManager.shared
 
     func body(content: Content) -> some View {

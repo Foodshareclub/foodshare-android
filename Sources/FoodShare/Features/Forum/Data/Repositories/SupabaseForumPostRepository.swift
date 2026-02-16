@@ -1,8 +1,6 @@
 #if !SKIP
 import CoreData
 #endif
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase
@@ -45,7 +43,7 @@ final class SupabaseForumPostRepository: BaseSupabaseRepository, @unchecked Send
     // MARK: - Cache Policy Selection
 
     /// Determines the appropriate cache policy based on network state
-    private var currentCachePolicy: CachePolicy {
+    private var currentCachePolicy: OfflineCachePolicy {
         if networkMonitor.isOffline {
             .cacheOnly
         } else if networkMonitor.isConstrained {
@@ -70,25 +68,25 @@ final class SupabaseForumPostRepository: BaseSupabaseRepository, @unchecked Send
         sortBy: ForumSortOption,
         pagination: CursorPaginationParams,
     ) async throws -> [ForumPost] {
-        var queryParams: [(String, String)] = [
-            ("limit", String(pagination.limit)),
-            ("sortBy", sortBy.apiValue),
+        var queryParams: [URLQueryItem] = [
+            URLQueryItem(name: "limit", value: String(pagination.limit)),
+            URLQueryItem(name: "sortBy", value: sortBy.apiValue),
         ]
-        
+
         if let categoryId {
-            queryParams.append(("categoryId", String(categoryId)))
-        }
-        
-        if let postType {
-            queryParams.append(("postType", postType.rawValue))
-        }
-        
-        if let cursor = pagination.cursor {
-            queryParams.append(("cursor", cursor))
-            queryParams.append(("direction", pagination.direction == .backward ? "backward" : "forward"))
+            queryParams.append(URLQueryItem(name: "categoryId", value: String(categoryId)))
         }
 
-        let response = try await supabase.functions.invoke(
+        if let postType {
+            queryParams.append(URLQueryItem(name: "postType", value: postType.rawValue))
+        }
+
+        if let cursor = pagination.cursor {
+            queryParams.append(URLQueryItem(name: "cursor", value: cursor))
+            queryParams.append(URLQueryItem(name: "direction", value: pagination.direction == .backward ? "backward" : "forward"))
+        }
+
+        let posts: [ForumPost] = try await supabase.functions.invoke(
             "api-v1-forum",
             options: FunctionInvokeOptions(
                 method: .get,
@@ -96,7 +94,7 @@ final class SupabaseForumPostRepository: BaseSupabaseRepository, @unchecked Send
             )
         )
 
-        return try decoder.decode([ForumPost].self, from: response.data)
+        return posts
     }
 
     func fetchPosts(

@@ -1,0 +1,32 @@
+[project]
+name = "FoodShare Cross-Platform"
+type = "cross-platform"
+swift_version = "6.1"
+ios_min_version = "17.0"
+android_min_api = "28"
+
+[paths]
+source = "Sources/FoodShare"
+tests = "Tests"
+android = "Android"
+darwin = "Darwin"
+
+[testing]
+rust_tests_enabled = true
+swift_tests_enabled = true
+coverage_target = 70
+
+[validation]
+check_force_unwraps = true
+check_architecture = true
+check_design_system = true
+check_security = true
+
+[design_system]
+required_button = "GlassButton"
+required_textfield = "GlassTextField"
+required_colors = ["Color.DesignSystem"]
+
+[security]
+forbidden_patterns = ["password", "secret", "api_key", "private_key"]
+scan_extensions = [".swift", ".plist", ".gradle"]

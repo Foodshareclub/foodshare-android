@@ -1,4 +1,4 @@
-# Built with Opus 4.6: FoodShare Android
+# Built with Opus 4.6: FoodShare Cross-Platform App
 
 > Hackathon Submission | Feb 10-16, 2026 | Cerebral Valley x Anthropic
 
@@ -12,52 +12,57 @@
 
 ## TL;DR
 
-**FoodShare Android** is a production-grade Android app built entirely with Claude Code, featuring a first-of-its-kind **Swift-on-Android** architecture that shares 95% of business logic with the iOS app via JNI. Claude Code orchestrated the creation of 19 cross-platform Swift bridges, 37 core modules, and 17 feature screens -- a project that would typically take a team months, completed by one developer with Claude Code.
+**FoodShare** is a production-grade cross-platform app built from scratch with Claude Code (Opus 4.6). A single Swift codebase compiles to both iOS and Android via **Skip Fuse** -- 584 Swift files, 24 feature modules, 29 core infrastructure modules, a 137-component design system, and 35 backend Edge Functions. One solo developer, one week, ~198K lines of code.
 
 ---
 
 ## The Problem
 
-Food waste is a massive global problem. FoodShare connects people with surplus food to those who need it. The iOS app was already live -- but reaching Android users (72% of the global market) required building a companion app without duplicating the entire codebase.
+Food waste is a massive global problem. FoodShare connects people with surplus food to those who need it. Reaching both iOS and Android users (72% of the global market) traditionally requires separate engineering teams or compromising on framework-specific limitations.
 
-**The challenge:** Share Swift domain logic between iOS and Android while keeping native UI on both platforms. This is bleeding-edge territory -- Swift on Android is still in nightly preview, with minimal production examples.
+**The challenge:** Build a full-featured, production-grade app that runs natively on both platforms from a single codebase -- without sacrificing native UI quality, offline capability, or real-time features.
 
-**Why "Break the Barriers":** Cross-platform code sharing with Swift on Android is locked behind deep systems programming expertise (JNI, cross-compilation, memory management). Claude Code makes this architecture accessible to solo developers, breaking down the barrier between "possible in theory" and "shipped in practice."
+**Why "Break the Barriers":** Cross-platform mobile development at this scale is locked behind large teams, months of engineering time, and deep platform expertise. Claude Code breaks that barrier -- a solo developer shipped a complete cross-platform app with 24 features, 29 infrastructure modules, and a custom design system in one week.
 
 ---
 
 ## What We Built
 
-### FoodShare Android App
+### FoodShare Cross-Platform App
 
-A full-featured Android companion app with:
+A full-featured food-sharing app running on iOS and Android from a single Swift codebase:
 
-- **17 feature screens** -- Feed, Search, Map, Chat, Profile, Listings, Reviews, Challenges, Forum, Notifications, and more
-- **37 core infrastructure modules** -- Offline sync, caching, rate limiting, analytics, gamification, accessibility
-- **19 Swift-Kotlin bridges** -- Sharing validation, matching, recommendations, geo-intelligence, image processing, search, and more with the iOS app
-- **Liquid Glass design system** -- Custom Material 3 theme with glassmorphism effects
-- **Offline-first architecture** -- Room database with delta sync and conflict resolution
+- **24 feature modules** -- Feed, Search, Map, Messaging, Profile, Listings, Reviews, Challenges, Forum, Donations, Community Fridges, Notifications, Analytics, and more
+- **29 core infrastructure modules** -- Networking, caching, sync, analytics, accessibility, localization (21 languages), security, performance monitoring, feature flags, and more
+- **137-component Liquid Glass design system** -- Custom glassmorphism theme with 8 color themes, design tokens, and ProMotion 120Hz animations
+- **35 Supabase Edge Functions** -- Auth, search, AI recommendations, geocoding, notifications, email failover, Telegram/WhatsApp bots
+- **Skip Fuse cross-platform** -- Single Swift codebase → native SwiftUI on iOS, native Jetpack Compose on Android
 
-### Swift-on-Android Innovation
-
-The real innovation: **FoodshareCore**, a shared Swift package compiled for Android via JNI:
+### Architecture
 
 ```
-iOS App (SwiftUI)           Android App (Jetpack Compose)
-       \                          /
-        \                        /
-         \                      /
-    ┌─────────────────────────────┐
-    │     FoodshareCore (Swift)   │
-    │  Validators, Engines, ML,   │
-    │  Sync, Search, Geo, etc.    │
-    └─────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│           Supabase Backend (35 Edge Functions)    │
+│  PostgreSQL + PostGIS | Edge Functions | Auth     │
+│  RLS Policies | Storage | Realtime               │
+└──────────────────────┬───────────────────────────┘
+                       │
+         ┌─────────────┴─────────────┐
+         │                           │
+┌────────▼────────┐        ┌─────────▼────────┐
+│    iOS App      │        │   Android App    │
+│   (SwiftUI)     │        │ (Compose via     │
+│                 │        │  Skip Fuse)      │
+├─────────────────┤        ├──────────────────┤
+│                                              │
+│     Single Swift Codebase (584 files)        │
+│     Sources/FoodShare/                       │
+│     • 24 Features  • 29 Core modules         │
+│     • 137 Design components                  │
+│     • Clean Architecture + MVVM              │
+│                                              │
+└──────────────────────────────────────────────┘
 ```
-
-- **Single source of truth** for all business logic
-- **19 bridges** migrated to swift-java (official Swift-Java interop)
-- **36+ shared unit tests** running on both platforms
-- **Community first**: PR to swift-org-website, forum case study, 4 issue contributions
 
 ---
 
@@ -67,39 +72,46 @@ iOS App (SwiftUI)           Android App (Jetpack Compose)
 
 | Metric | Count |
 |--------|-------|
-| Kotlin files created | 200+ |
-| Swift bridges implemented | 19 |
-| Core modules built | 37 |
-| Feature screens | 17 |
-| Lines of code | ~50,000+ |
-| Swift shared tests | 36 |
-| Implementation phases | 19 |
+| Swift source files | 584 |
+| Lines of Swift code | ~198,000 |
+| Feature modules | 24 |
+| Core infrastructure modules | 29 |
+| Design system components | 137 |
+| Backend Edge Functions | 35 |
+| Supported languages (i18n) | 21 |
+| Platforms shipped | 2 (iOS + Android) |
 
 ### Claude Code Workflow
 
 Claude Code was the primary development tool for the entire project:
 
-1. **Architecture Design** -- Claude Code analyzed the iOS codebase and designed the Android counterpart with clean architecture (MVVM + Clean Architecture)
+1. **Architecture Design** -- Claude Code analyzed the existing iOS codebase and designed the cross-platform architecture with Clean Architecture (MVVM + @Observable), establishing layer conventions that held across all 584 files
 
-2. **Swift Bridge Generation** -- Claude Code wrote all 19 Swift-Kotlin JNI bridges, including the migration from manual `@_cdecl` exports to swift-java generated bindings
+2. **Feature Scaffolding** -- For each of the 24 features, Claude Code generated the full stack: View → ViewModel → Repository → API Service, following the same patterns without drift
 
-3. **Cross-Platform Consistency** -- Claude Code ensured domain models, validation rules, and business logic remained identical across platforms by generating both Swift and Kotlin sides
+3. **Cross-Platform Compatibility** -- Claude Code learned Skip Fuse boundaries and proactively guarded iOS-only APIs (Metal shaders, UIKit haptics, Keychain, Lottie) with `#if !SKIP` while finding cross-platform alternatives
 
-4. **Infrastructure Modules** -- Claude Code built 37 core modules (offline sync, caching, rate limiting, analytics, gamification, accessibility, etc.) following consistent patterns
+4. **Design System** -- Claude Code built the entire 137-component Liquid Glass design system: tokens, atoms, molecules, organisms across 8 color themes with ProMotion-optimized animations
 
-5. **Community Contributions** -- Claude Code helped draft the Swift Forums case study, file issues, and prepare PR contributions to the Swift ecosystem
+5. **Backend** -- Claude Code built 35 Edge Functions with consistent patterns: `createAPIHandler`, structured logging, response envelopes, and multi-provider failover
+
+6. **Infrastructure** -- Claude Code built all 29 core modules (networking with retry + fallback, caching, sync, analytics, accessibility, localization in 21 languages, feature flags, security, performance monitoring)
 
 ### What Makes This Different
 
-This isn't a simple CRUD app or wrapper. Claude Code tackled genuinely hard problems:
+This isn't a simple CRUD app. Claude Code tackled genuinely complex engineering:
 
-- **JNI bridge design** -- Managing memory across Swift/Kotlin via JNI is notoriously error-prone. Claude Code generated safe, leak-free bridges with proper `SwiftArena` lifecycle management.
+- **API-first with fallback** -- Every data operation goes through Edge Functions via `APIClient.shared`, with automatic Supabase direct-query fallback in catch blocks for resilience
 
-- **Delta sync algorithm** -- A complete version-based sync engine with conflict resolution, CRDT support, and state machine -- shared across platforms via Swift.
+- **Liquid Glass design system** -- 137 components with glassmorphism effects, 8 themes, design tokens (spacing, corner radius, typography), and spring animations tuned for 120Hz ProMotion displays
 
-- **ML recommendations** -- Collaborative filtering, content-based ranking, and contextual bandits -- all in shared Swift code.
+- **Real-time features** -- Supabase Realtime subscriptions for messaging, notifications, and live feed updates
 
-- **DBSCAN clustering** -- Geographic intelligence with route optimization, geofencing, and hotspot detection.
+- **Offline sync** -- Delta sync with conflict resolution across platforms
+
+- **21-language localization** -- Full i18n infrastructure with locale-aware formatting
+
+- **Self-hosted infrastructure** -- Not a managed service -- self-hosted Supabase on VPS with Cloudflare tunnel, 35 custom Edge Functions
 
 ---
 
@@ -107,122 +119,84 @@ This isn't a simple CRUD app or wrapper. Claude Code tackled genuinely hard prob
 
 | Layer | Technology |
 |-------|------------|
-| Language | Kotlin 2.0 + Swift 6.0 |
-| UI | Jetpack Compose + Material 3 |
-| Shared Core | FoodshareCore (Swift via JNI) |
-| Interop | swift-java (official) |
-| Backend | Self-hosted Supabase |
-| Database | Room (offline) + PostgreSQL (server) |
-| DI | Hilt |
-| Network | Ktor + supabase-kt |
-| Maps | Google Maps Compose + PostGIS |
-| Images | Coil |
-| Background | WorkManager |
-
----
-
-## Architecture
-
-### Ultra-Thin Client
-
-```
-┌──────────────────────────────────────────────────┐
-│              Supabase Backend (Thick)             │
-│  PostgreSQL + PostGIS | Edge Functions | Auth     │
-│  RLS Policies | Storage | Realtime               │
-└──────────────────────┬───────────────────────────┘
-                       │
-         ┌─────────────┴─────────────┐
-         │                           │
-┌────────▼────────┐        ┌─────────▼────────┐
-│    iOS App      │        │   Android App    │
-│   (SwiftUI)     │        │  (Compose)       │
-├─────────────────┤        ├──────────────────┤
-│  Native UI      │        │  Native UI       │
-│  @Observable    │        │  ViewModel       │
-├─────────────────┤        ├──────────────────┤
-│                 │        │                  │
-│  FoodshareCore ◄├────────┼► FoodshareCore   │
-│  (direct)       │        │  (via JNI)       │
-│                 │        │                  │
-└─────────────────┘        └──────────────────┘
-```
-
-### Swift Bridge Architecture (swift-java)
-
-```
-Kotlin ViewModel
-      │
-ValidationBridge.kt (swift-java generated classes + SwiftArena)
-      │ JNI (auto-generated)
-Swift ListingValidator, AuthValidator, etc.
-```
+| Language | Swift 6.1 |
+| Cross-Platform | Skip Fuse 1.7.2 |
+| UI (iOS) | SwiftUI |
+| UI (Android) | Jetpack Compose (via Skip transpilation) |
+| Architecture | Clean Architecture + MVVM + @Observable |
+| Backend | Self-hosted Supabase (Deno Edge Functions) |
+| Database | PostgreSQL + PostGIS |
+| Auth | Supabase Auth |
+| Images | Kingfisher (iOS) / Coil (Android via Skip) |
+| Design System | Liquid Glass (137 components, 8 themes) |
+| Dependencies | supabase-swift 2.41+, skip-fuse-ui 1.0.0 |
 
 ---
 
 ## Project Structure
 
 ```
-foodshare-android/
-├── app/src/main/kotlin/com/foodshare/
-│   ├── swift/              # Swift JNI integration (4 files)
-│   ├── core/               # 37 infrastructure modules
-│   │   ├── sync/           # Delta sync + conflict resolution
-│   │   ├── cache/          # Memory + disk caching
-│   │   ├── geo/            # Geolocation + clustering
-│   │   ├── search/         # NLP-powered search
-│   │   ├── gamification/   # Points, badges, streaks
-│   │   ├── accessibility/  # WCAG compliance
-│   │   └── ...             # 30+ more modules
-│   ├── features/           # 17 feature screens
-│   │   ├── feed/           # Main food feed
-│   │   ├── map/            # Map view (PostGIS)
-│   │   ├── messaging/      # Real-time chat
-│   │   ├── create/         # Create listing wizard
-│   │   └── ...             # 13 more screens
-│   └── ui/theme/           # Liquid Glass design system
-│
-├── foodshare-core/         # Shared Swift package (symlink)
-│   └── Sources/FoodshareCore/
-│       ├── Validation/     # Shared validators
-│       ├── Sync/           # Delta sync engine
-│       ├── Geo/            # Geographic intelligence
-│       └── JNI/            # Bridge exports
-│
-└── supabase/               # Shared backend (symlink)
+foodshare-app/
+├── Package.swift                    # SPM + Skip plugin
+├── Sources/FoodShare/               # Single Swift codebase
+│   ├── FoodShareApp.swift           # App entry point
+│   ├── Core/                        # 29 infrastructure modules
+│   │   ├── Networking/              # APIClient + Edge Function layer
+│   │   ├── Design/                  # Liquid Glass (137 components)
+│   │   ├── Cache/                   # Memory + disk caching
+│   │   ├── Sync/                    # Delta sync engine
+│   │   ├── Localization/            # 21 languages
+│   │   ├── Analytics/               # Event tracking
+│   │   ├── Security/                # Keychain, biometrics
+│   │   ├── Performance/             # ProMotion monitoring
+│   │   ├── Accessibility/           # WCAG compliance
+│   │   └── ...                      # 20 more modules
+│   ├── Features/                    # 24 feature modules
+│   │   ├── Feed/                    # Main food feed
+│   │   ├── Map/                     # Map discovery (PostGIS)
+│   │   ├── Messaging/               # Real-time chat
+│   │   ├── Listing/                 # Create/manage listings
+│   │   ├── Forum/                   # Community forums
+│   │   ├── Challenges/              # Gamified challenges
+│   │   ├── Reviews/                 # Rating system
+│   │   ├── Donation/                # Food donations
+│   │   └── ...                      # 16 more features
+│   └── Resources/                   # Assets, strings
+├── Darwin/                          # iOS build (Xcode)
+├── Android/                         # Android build (Gradle)
+└── supabase/                        # Backend (symlink)
 ```
 
 ---
 
 ## Key Innovations
 
-### 1. Swift-on-Android at Scale
+### 1. Skip Fuse at Production Scale
 
-While Swift on Android exists in nightly preview, there are almost no production examples beyond toy apps. FoodShare Android demonstrates:
+Skip Fuse is a new framework for writing cross-platform apps in Swift. FoodShare is one of the largest Skip Fuse apps in existence:
 
-- **19 production bridges** covering validation, ML, sync, search, geo, and more
-- **swift-java migration** from manual JNI to official tooling
-- **Cross-compilation** with automated build scripts
-- **Real-world workarounds** for SDK edge cases (documented and contributed upstream)
+- **584 Swift files** compiling to both iOS and Android
+- **24 feature modules** with full native UI on both platforms
+- **137 design components** that render as SwiftUI on iOS and Jetpack Compose on Android
+- **Platform-specific guards** (`#if !SKIP`) for iOS-only APIs with cross-platform alternatives
 
-### 2. Community-First Approach
+### 2. Full-Stack Solo Development
 
-We didn't just build -- we contributed back:
+Claude Code enabled a single developer to build and ship every layer:
 
-- **PR #1281** to swift-org-website: Android troubleshooting guide
-- **Forum case study** on Swift Forums (response from Swift team member ktoso)
-- **4 issue contributions** to swift-android-sdk, swift-corelibs-foundation, swift-android-examples
-- **Workarounds documented** for 8 known issues
+- **Frontend:** 24 features with native UI, offline support, real-time updates
+- **Backend:** 35 Edge Functions with auth, search, AI, geocoding, notifications
+- **Infrastructure:** Caching, sync, analytics, accessibility, localization, security
+- **Design:** 137-component design system with 8 themes and 120Hz animations
 
 ### 3. Claude Code as Force Multiplier
 
-A single developer built what would typically require a team:
+A single developer built what would typically require a team of 4-6 engineers:
 
-- 19 implementation phases completed
-- 200+ Kotlin files generated
-- 19 Swift bridges with matching JNI exports
-- Comprehensive documentation and architecture docs
-- Community contributions drafted and submitted
+- ~198K lines of Swift code in one week
+- Consistent architecture across 584 files with zero pattern drift
+- Full design system, networking layer, and backend -- not just UI screens
+- Cross-platform compatibility handled proactively, not as an afterthought
 
 ---
 
@@ -230,25 +204,21 @@ A single developer built what would typically require a team:
 
 ### Prerequisites
 
-- Android Studio Ladybug+
-- JDK 17, Android SDK 35
-- Swift 6.0+ with Android SDK
+- Xcode 16+ (iOS)
+- Android Studio Ladybug+ (Android)
+- Swift 6.1
 
 ### Quick Start
 
 ```bash
-git clone https://github.com/Foodshareclub/foodshare-android.git
-cd foodshare-android
+git clone https://github.com/Foodshareclub/foodshare-app.git
+cd foodshare-app
 
-# Set up Supabase credentials
-echo "SUPABASE_URL=https://api.foodshare.club" > local.properties
-echo "SUPABASE_ANON_KEY=your-key" >> local.properties
+# iOS
+open Darwin/FoodShare.xcodeproj
 
-# Build Swift for Android
-./gradlew buildSwiftRelease
-
-# Build and run
-./gradlew installDebug
+# Android
+cd Android && ./gradlew installDebug
 ```
 
 ---
@@ -257,17 +227,16 @@ echo "SUPABASE_ANON_KEY=your-key" >> local.properties
 
 | Resource | URL |
 |----------|-----|
-| Android Repo | https://github.com/Foodshareclub/foodshare-android |
+| Cross-Platform Repo | https://github.com/Foodshareclub/foodshare-app |
 | iOS Repo | https://github.com/Foodshareclub/foodshare-ios |
 | Web App | https://github.com/Foodshareclub/foodshare |
-| Forum Case Study | https://forums.swift.org/t/case-study-sharing-swift-domain-logic-between-ios-and-android-with-foodsharecore/83948 |
-| PR to swift-org | https://github.com/swiftlang/swift-org-website/pull/1281 |
+| Backend | https://github.com/Foodshareclub/foodshare-backend |
 
 ---
 
 ## Team
 
-**Tarlan (organicnz)** -- Solo developer
+**Tarlan Isaev (organicnz)** -- Solo developer
 Built with Claude Code (Opus 4.6)
 
 ---
@@ -276,27 +245,10 @@ Built with Claude Code (Opus 4.6)
 
 | Criteria | Weight | How We Address It |
 |----------|--------|-------------------|
-| **Impact** | 25% | Solves real food waste problem; brings Android users (72% of market) to the platform; advances Swift-on-Android ecosystem with community contributions |
-| **Opus 4.6 Use** | 25% | Claude Code designed the architecture, generated all 19 JNI bridges, built 37 modules, drafted community PRs -- went far beyond basic code generation |
-| **Depth & Execution** | 20% | 19 implementation phases; migrated from manual JNI to swift-java; delta sync with CRDTs; ML recommendations; DBSCAN clustering -- genuine engineering depth |
-| **Demo** | 30% | Working app with live Supabase backend; real-time validation, search, maps, chat; code walkthrough showing shared Swift core |
-
----
-
-## Submission Checklist
-
-- [ ] 3-minute demo video (YouTube/Loom)
-- [ ] GitHub repository link (open source)
-- [ ] Written summary (100-200 words)
-- [ ] Deadline: Feb 16, 3:00 PM EST
-
-### Written Summary (for submission)
-
-FoodShare Android is a full-featured food-sharing app built entirely with Claude Code during the hackathon. It pioneers **Swift-on-Android** at production scale -- sharing 95% of business logic with the existing iOS app through 19 cross-platform Swift bridges compiled via JNI.
-
-Claude Code served as a true development partner: designing the MVVM + Clean Architecture, generating all Swift-Kotlin JNI bridges (including migration to the official swift-java tooling), building 37 core infrastructure modules, and drafting community contributions to the Swift ecosystem. The result is 17 feature screens, offline-first sync with CRDTs, ML-powered recommendations, NLP search, PostGIS-backed maps, and a custom Liquid Glass design system.
-
-This project demonstrates that Claude Code can make bleeding-edge cross-platform architectures accessible to solo developers, turning what would be a multi-month team effort into a hackathon-achievable reality.
+| **Impact** | 25% | Solves real food waste problem; reaches both iOS and Android users from a single codebase; demonstrates Skip Fuse at production scale |
+| **Opus 4.6 Use** | 25% | Claude Code designed the architecture, built all 24 features, 29 core modules, 137 design components, and 35 Edge Functions -- primary development tool throughout |
+| **Depth & Execution** | 20% | 584 files, ~198K lines, 24 features, real-time messaging, offline sync, 21-language i18n, custom design system, self-hosted backend -- genuine engineering depth |
+| **Demo** | 30% | Working cross-platform app with live Supabase backend; real-time features, map discovery, chat, gamification; code walkthrough showing single codebase → two platforms |
 
 ---
 
@@ -309,8 +261,6 @@ This project demonstrates that Claude Code can make bleeding-edge cross-platform
 | 3rd Place | $10,000 API Credits |
 | Most Creative Opus 4.6 Exploration | $5,000 API Credits |
 | The "Keep Thinking" Prize | $5,000 API Credits |
-
-**Target prizes:** 1st Place + Most Creative Opus 4.6 Exploration (Swift-on-Android is an unexpected capability showcase)
 
 ---
 

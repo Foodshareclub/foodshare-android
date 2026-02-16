@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  UserLocationOverrideManager.swift
 //  Foodshare
@@ -330,3 +331,4 @@ extension UserLocationOverrideManager {
         }
     }
 }
+#endif

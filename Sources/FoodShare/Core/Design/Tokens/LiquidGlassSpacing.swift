@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 enum Spacing {
     // MARK: - Base Unit (8pt grid)

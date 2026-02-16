@@ -1,3 +1,4 @@
+#if !SKIP
 // MARK: - NotificationPreferences.swift
 // Enterprise Notification Preferences Domain Models
 // FoodShare iOS - Clean Architecture Domain Layer
@@ -83,12 +84,14 @@ public enum NotificationChannel: String, Codable, CaseIterable, Sendable {
     case push
     case email
     case sms
+    case inApp = "in_app"
 
     public var displayName: String {
         switch self {
         case .push: "Push"
         case .email: "Email"
         case .sms: "SMS"
+        case .inApp: "In-App"
         }
     }
 
@@ -97,6 +100,7 @@ public enum NotificationChannel: String, Codable, CaseIterable, Sendable {
         case .push: "Mobile and browser notifications"
         case .email: "Email notifications"
         case .sms: "Text message notifications"
+        case .inApp: "In-app message notifications"
         }
     }
 
@@ -105,6 +109,7 @@ public enum NotificationChannel: String, Codable, CaseIterable, Sendable {
         case .push: "bell.badge.fill"
         case .email: "envelope.fill"
         case .sms: "text.bubble.fill"
+        case .inApp: "app.badge.fill"
         }
     }
 }
@@ -146,6 +151,26 @@ public enum NotificationFrequency: String, Codable, CaseIterable, Sendable {
         case .daily: "sun.max.fill"
         case .weekly: "calendar"
         case .never: "bell.slash.fill"
+        }
+    }
+
+    public var titleKey: String {
+        switch self {
+        case .instant: "email_preferences.frequency.instant.title"
+        case .hourly: "email_preferences.frequency.hourly.title"
+        case .daily: "email_preferences.frequency.daily.title"
+        case .weekly: "email_preferences.frequency.weekly.title"
+        case .never: "email_preferences.frequency.never.title"
+        }
+    }
+
+    public var descriptionKey: String {
+        switch self {
+        case .instant: "email_preferences.frequency.instant.description"
+        case .hourly: "email_preferences.frequency.hourly.description"
+        case .daily: "email_preferences.frequency.daily.description"
+        case .weekly: "email_preferences.frequency.weekly.description"
+        case .never: "email_preferences.frequency.never.description"
         }
     }
 }
@@ -471,201 +496,4 @@ public struct EnableDNDRequest: Codable, Sendable {
     }
 }
 
-// MARK: - Mock Data
-
-#if DEBUG
-    extension NotificationPreferences {
-        /// Mock notification preferences for previews and testing
-        public static var mock: NotificationPreferences {
-            NotificationPreferences(
-                settings: NotificationGlobalSettings(
-                    pushEnabled: true,
-                    emailEnabled: true,
-                    smsEnabled: false,
-                    phoneNumber: nil,
-                    phoneVerified: false,
-                    quietHours: QuietHours(enabled: false, start: "22:00", end: "08:00"),
-                    dnd: DoNotDisturb(enabled: false, until: nil),
-                    digest: DigestSettings(dailyEnabled: true, dailyTime: "09:00", weeklyEnabled: true, weeklyDay: 1),
-                ),
-                preferences: [
-                    "posts": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "email": CategoryPreferenceData(enabled: true, frequency: "daily"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "chats": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "email": CategoryPreferenceData(enabled: false, frequency: "never"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "comments": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "email": CategoryPreferenceData(enabled: true, frequency: "daily"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "social": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "hourly"),
-                        "email": CategoryPreferenceData(enabled: true, frequency: "daily"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "forum": [
-                        "push": CategoryPreferenceData(enabled: false, frequency: "never"),
-                        "email": CategoryPreferenceData(enabled: true, frequency: "daily"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "challenges": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "email": CategoryPreferenceData(enabled: false, frequency: "never"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "system": [
-                        "push": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "email": CategoryPreferenceData(enabled: true, frequency: "instant"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                    "marketing": [
-                        "push": CategoryPreferenceData(enabled: false, frequency: "never"),
-                        "email": CategoryPreferenceData(enabled: false, frequency: "never"),
-                        "sms": CategoryPreferenceData(enabled: false, frequency: "never"),
-                    ],
-                ],
-            )
-        }
-    }
-
-    /// Mock repository for notification preferences (for previews and testing)
-    public final class MockNotificationPreferencesRepository: NotificationPreferencesRepository, @unchecked Sendable {
-        public var mockPreferences: NotificationPreferences = .mock
-        public var shouldFail = false
-        public var delay: TimeInterval = 0
-
-        public init() {}
-
-        public func fetchPreferences() async throws -> NotificationPreferences {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            return mockPreferences
-        }
-
-        public func updateSettings(_ settings: UpdateSettingsRequest) async throws -> NotificationGlobalSettings {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            // Apply updates
-            if let pushEnabled = settings.push_enabled {
-                mockPreferences.settings.pushEnabled = pushEnabled
-            }
-            if let emailEnabled = settings.email_enabled {
-                mockPreferences.settings.emailEnabled = emailEnabled
-            }
-            if let smsEnabled = settings.sms_enabled {
-                mockPreferences.settings.smsEnabled = smsEnabled
-            }
-
-            return mockPreferences.settings
-        }
-
-        public func updatePreference(_ preference: CategoryPreference) async throws {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            // Update mock data
-            var categoryPrefs = mockPreferences.preferences[preference.category.rawValue] ?? [:]
-            categoryPrefs[preference.channel.rawValue] = NotificationPreferences.CategoryPreferenceData(
-                enabled: preference.enabled,
-                frequency: preference.frequency.rawValue,
-            )
-            mockPreferences.preferences[preference.category.rawValue] = categoryPrefs
-        }
-
-        public func updatePreferences(_ preferences: [CategoryPreference]) async throws {
-            for preference in preferences {
-                try await updatePreference(preference)
-            }
-        }
-
-        public func enableDND(_ request: EnableDNDRequest) async throws -> DoNotDisturb {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            let until: Date?
-            if let hours = request.duration_hours {
-                until = Date().addingTimeInterval(Double(hours) * 3600)
-            } else if let untilString = request.until {
-                let formatter = ISO8601DateFormatter()
-                until = formatter.date(from: untilString)
-            } else {
-                until = nil
-            }
-
-            let dnd = DoNotDisturb(enabled: true, until: until)
-            mockPreferences.settings.dnd = dnd
-            return dnd
-        }
-
-        public func disableDND() async throws {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            mockPreferences.settings.dnd = DoNotDisturb(enabled: false, until: nil)
-        }
-
-        public func initiatePhoneVerification(phoneNumber: String) async throws {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.networkError(underlying: URLError(.notConnectedToInternet))
-            }
-
-            mockPreferences.settings.phoneNumber = phoneNumber
-        }
-
-        public func verifyPhone(phoneNumber: String, code: String) async throws -> Bool {
-            if delay > 0 {
-                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            }
-
-            if shouldFail {
-                throw NotificationPreferencesError.phoneVerificationFailed
-            }
-
-            // Simulate successful verification if code is "123456"
-            if code == "123456" {
-                mockPreferences.settings.phoneVerified = true
-                mockPreferences.settings.phoneNumber = phoneNumber
-                return true
-            }
-
-            throw NotificationPreferencesError.phoneVerificationFailed
-        }
-    }
 #endif

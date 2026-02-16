@@ -13,7 +13,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Parallax Configuration
 
@@ -111,7 +110,7 @@ struct ParallaxLayer: Identifiable {
 
 /// Preference key for tracking scroll offset
 struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+    nonisolated(unsafe) static var defaultValue: CGFloat = 0
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
@@ -340,45 +339,57 @@ extension View {
 // MARK: - Preview
 
 #if DEBUG
-    #Preview("Parallax Effects") {
-        ParallaxScrollView(backgroundSpeed: 0.3) {
-            // Background
-            LinearGradient(
-                colors: [
+    private struct ParallaxPreviewContent: View {
+        var body: some View {
+            ParallaxScrollView(backgroundSpeed: 0.3) {
+                // Background
+                let colors: [Color] = [
                     Color.DesignSystem.primary.opacity(0.3),
-                    Color.DesignSystem.secondary.opacity(0.2)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing,
-            )
-        } content: {
-            VStack(spacing: Spacing.lg) {
-                // Stretchy header
-                ZStack {
-                    Color.DesignSystem.primary.opacity(0.5)
-                    Text("Pull Down")
-                        .font(Font.DesignSystem.displayMedium)
-                        .foregroundStyle(.white)
+                    Color.DesignSystem.brandGreen.opacity(0.2)
+                ]
+                LinearGradient(
+                    colors: colors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } content: {
+                VStack(spacing: Spacing.lg) {
+                    parallaxHeader
+                    parallaxCards
+                    Spacer(minLength: 200)
                 }
-                .parallaxHeader(height: 200, minHeight: 100)
-
-                // Cards with different parallax speeds
-                ForEach(0 ..< 10) { index in
-                    HStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.DesignSystem.primary.opacity(0.2))
-                            .frame(height: 100)
-                            .overlay(
-                                Text("Card \(index + 1)")
-                                    .font(Font.DesignSystem.headlineSmall),
-                            )
-                    }
-                    .padding(.horizontal, Spacing.lg)
-                    .parallax(speed: 0.1 * CGFloat(index % 3 + 1))
-                }
-
-                Spacer(minLength: 200)
             }
         }
+
+        private var parallaxHeader: some View {
+            ZStack {
+                Color.DesignSystem.primary.opacity(0.5)
+                Text("Pull Down")
+                    .font(Font.DesignSystem.displayMedium)
+                    .foregroundStyle(.white)
+            }
+            .parallaxHeader(height: 200, minHeight: 100)
+        }
+
+        private var parallaxCards: some View {
+            ForEach(0 ..< 10, id: \.self) { index in
+                let speed: CGFloat = 0.1 * CGFloat(index % 3 + 1)
+                HStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.DesignSystem.primary.opacity(0.2))
+                        .frame(height: 100)
+                        .overlay(
+                            Text("Card \(index + 1)")
+                                .font(Font.DesignSystem.headlineSmall)
+                        )
+                }
+                .padding(.horizontal, Spacing.lg)
+                .parallax(speed: speed)
+            }
+        }
+    }
+
+    #Preview("Parallax Effects") {
+        ParallaxPreviewContent()
     }
 #endif

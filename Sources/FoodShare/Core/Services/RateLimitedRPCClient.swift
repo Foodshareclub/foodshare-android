@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  RateLimitedRPCClient.swift
 //  Foodshare
@@ -12,7 +13,6 @@
 //  - Automatic audit logging of sensitive operations
 //  - Circuit breaker pattern for failing services
 //
-
 import Foundation
 import OSLog
 import Supabase
@@ -418,9 +418,7 @@ actor RateLimitedRPCClient: RateLimitedRPCClientProtocol {
 }
 
 // MARK: - Helper Types
-
-/// Empty response for void RPC calls
-private struct EmptyResponse: Decodable {}
+// Note: EmptyResponse is defined in BaseSupabaseRepository.swift
 
 // MARK: - AnyJSON Encoding Helper
 
@@ -512,4 +510,5 @@ extension RateLimitedRPCClient {
             shouldFail = false
         }
     }
+#endif
 #endif

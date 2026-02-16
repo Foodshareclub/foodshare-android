@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ImagesAPIService.swift
 //  Foodshare
@@ -37,3 +38,4 @@ struct ImageUploadResponse: Codable {
 struct ImageOptimizeResponse: Codable {
     let url: String
 }
+#endif

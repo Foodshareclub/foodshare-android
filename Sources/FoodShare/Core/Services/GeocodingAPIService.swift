@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  GeocodingAPIService.swift
 //  Foodshare
@@ -33,3 +34,4 @@ struct ReverseGeocodingResponse: Codable {
     let city: String?
     let country: String?
 }
+#endif

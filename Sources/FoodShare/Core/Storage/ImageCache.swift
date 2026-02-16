@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 #if !SKIP
 import UIKit
@@ -142,3 +143,4 @@ extension String {
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 }
+#endif

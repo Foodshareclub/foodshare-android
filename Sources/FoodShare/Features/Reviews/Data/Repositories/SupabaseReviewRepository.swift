@@ -6,7 +6,6 @@
 //  Uses ReviewAPIService (Edge Function) as primary path with direct Supabase fallback
 //
 
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase

@@ -7,7 +7,6 @@
 //  and GPU-accelerated rendering for silky smooth 120fps performance
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - ProMotion Animation Presets
@@ -73,6 +72,7 @@ public enum ProMotionAnimation {
     public static let exit = Animation.interpolatingSpring(stiffness: 350, damping: 28)
 }
 
+#if !SKIP
 // MARK: - TimelineView Animation Controller
 
 /// Frame-perfect animation controller using TimelineView
@@ -728,3 +728,4 @@ public final class AnimationContext {
 // MARK: - Preview
 // Preview disabled due to Swift 6.2 compilation issues
 // #Preview("ProMotion Animations") { ... }
+#endif // !SKIP

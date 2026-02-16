@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  BiometricSetupPromptView.swift
 //  Foodshare
@@ -7,9 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareSecurity
-import FoodShareDesignSystem
-import FoodShareSecurity
 
 #if DEBUG
     import Inject
@@ -196,3 +194,4 @@ struct BiometricSetupPromptView: View {
         onSkip: {},
     )
 }
+#endif

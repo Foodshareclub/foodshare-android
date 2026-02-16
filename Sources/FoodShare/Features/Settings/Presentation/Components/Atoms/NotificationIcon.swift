@@ -21,11 +21,11 @@ import SwiftUI
 ///     size: .medium
 /// )
 /// ```
-public struct NotificationIcon: View {
+struct NotificationIcon: View {
     // MARK: - Size
 
     /// Predefined size variants
-    public enum Size {
+    enum Size {
         case small
         case medium
         case large
@@ -70,7 +70,7 @@ public struct NotificationIcon: View {
     ///   - gradientColors: Array of colors for gradient (defaults to green-blue)
     ///   - size: Size variant
     ///   - badgeCount: Optional badge count to display
-    public init(
+    init(
         systemName: String,
         gradientColors: [Color] = [.DesignSystem.brandGreen, .DesignSystem.brandBlue],
         size: Size = .medium,
@@ -84,7 +84,7 @@ public struct NotificationIcon: View {
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         ZStack(alignment: .topTrailing) {
             // Icon container
             ZStack {
@@ -128,6 +128,7 @@ public struct NotificationIcon: View {
     }
 }
 
+#if !SKIP
 // MARK: - Category Convenience
 
 extension NotificationIcon {
@@ -137,7 +138,7 @@ extension NotificationIcon {
     ///   - category: The notification category
     ///   - size: Size variant
     ///   - badgeCount: Optional badge count
-    public init(category: NotificationCategory, size: Size = .medium, badgeCount: Int? = nil) {
+    init(category: NotificationCategory, size: Size = .medium, badgeCount: Int? = nil) {
         let colors = category.gradientColors
         self.init(
             systemName: category.icon,
@@ -153,7 +154,7 @@ extension NotificationIcon {
     ///   - channel: The notification channel
     ///   - size: Size variant
     ///   - badgeCount: Optional badge count
-    public init(channel: NotificationChannel, size: Size = .medium, badgeCount: Int? = nil) {
+    init(channel: NotificationChannel, size: Size = .medium, badgeCount: Int? = nil) {
         let colors = channel.gradientColors
         self.init(
             systemName: channel.icon,
@@ -170,7 +171,7 @@ extension NotificationCategory {
     fileprivate var gradientColors: [Color] {
         switch self {
         case .posts:
-            [.DesignSystem.brandGreen, .DesignSystem.greenLight]
+            [.DesignSystem.brandGreen, .DesignSystem.brandTeal]
         case .forum:
             [.DesignSystem.brandBlue, .DesignSystem.blueLight]
         case .challenges:
@@ -198,12 +199,16 @@ extension NotificationChannel {
             [.DesignSystem.brandBlue, .DesignSystem.accentPurple]
         case .sms:
             [.DesignSystem.accentPurple, .DesignSystem.accentPink]
+        case .inApp:
+            [.DesignSystem.brandBlue, .DesignSystem.brandGreen]
         }
     }
 }
+#endif
 
 // MARK: - Preview
 
+#if !SKIP
 #Preview("Icon Sizes") {
     VStack(spacing: Spacing.xl) {
         // Size variants
@@ -318,6 +323,7 @@ extension NotificationChannel {
     .padding(Spacing.lg)
     .background(Color.DesignSystem.background)
 }
+#endif
 
 #Preview("Custom Icons") {
     VStack(spacing: Spacing.lg) {

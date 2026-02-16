@@ -1,4 +1,3 @@
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Forum Post Detail View
@@ -9,7 +8,7 @@ struct ForumPostDetailView: View {
     let repository: ForumRepository
 
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State private var comments: [ForumComment] = []
     @State private var isLoadingComments = false
@@ -81,7 +80,9 @@ struct ForumPostDetailView: View {
             }
             .navigationTitle(t.t("forum.discussion"))
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(t.t("common.close")) { dismiss() }
@@ -672,7 +673,11 @@ struct ForumPostDetailView: View {
 
             // Auto-dismiss after 3 seconds
             Task {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(3 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(3))
+                #endif
                 await MainActor.run {
                     showErrorToast = false
                 }
@@ -761,7 +766,11 @@ struct ForumPostDetailView: View {
             showErrorToast = true
 
             Task {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(3 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(3))
+                #endif
                 await MainActor.run {
                     showErrorToast = false
                 }
@@ -1087,8 +1096,10 @@ struct ForumPostDetailView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([PresentationDetent.medium])
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
     }
 }
 
@@ -1538,7 +1549,9 @@ struct ReplyCommentSheet: View {
             }
             .navigationTitle(isQuoteReply ? t.t("forum.quote_reply") : t.t("common.reply"))
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(t.t("common.cancel")) {
@@ -1548,8 +1561,10 @@ struct ReplyCommentSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
         .onAppear {
             isTextFieldFocused = true
         }
@@ -1831,7 +1846,9 @@ struct EditCommentSheet: View {
             }
             .navigationTitle(t.t("forum.edit_comment"))
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(t.t("common.cancel")) {
@@ -1841,8 +1858,10 @@ struct EditCommentSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
         .onAppear {
             editedText = comment?.content ?? ""
             isTextFieldFocused = true

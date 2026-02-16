@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Coral theme with coral and peach colors
 struct CoralTheme: Theme {

@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -17,7 +16,7 @@ import FoodShareDesignSystem
 struct InviteView: View {
     
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     // MARK: - State
 
@@ -388,7 +387,11 @@ final class InviteViewModel {
         HapticManager.success()
 
         Task {
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000_000))
+            #else
             try? await Task.sleep(for: .seconds(2))
+            #endif
             linkCopied = false
         }
     }

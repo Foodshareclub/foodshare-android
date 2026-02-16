@@ -6,7 +6,6 @@
 //  Refactored into smaller components
 //
 
-import FoodShareDesignSystem
 import Supabase
 import SwiftUI
 
@@ -48,7 +47,9 @@ struct ChallengesView: View {
     /// Feature flag manager - using @State to observe changes
     @State private var featureFlagManager = FeatureFlagManager.shared
 
+    #if !SKIP
     @Namespace private var modeAnimation
+    #endif
     @Environment(AppState.self) private var appState
     @Environment(GuestManager.self) private var guestManager
     @Environment(\.translationService) private var t
@@ -157,7 +158,9 @@ struct ChallengesView: View {
                 viewModeButton(for: mode)
             }
         }
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
         .padding(Spacing.xs)
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
@@ -188,7 +191,9 @@ struct ChallengesView: View {
         } label: {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: mode.icon)
+                    #if !SKIP
                     .symbolEffect(.bounce, value: isSelected)
+                    #endif
                 Text(mode.title(using: t))
             }
             .font(.DesignSystem.labelSmall)
@@ -207,7 +212,9 @@ struct ChallengesView: View {
                                     endPoint: .trailing,
                                 ),
                             )
+                            #if !SKIP
                             .matchedGeometryEffect(id: "activePill", in: modeAnimation)
+                            #endif
                             .shadow(color: .DesignSystem.brandGreen.opacity(0.4), radius: 8, y: 2)
                     }
                 },
@@ -431,51 +438,5 @@ struct ChallengesView: View {
     #Preview {
         ChallengesView(viewModel: ChallengesViewModel(repository: MockChallengeRepository()))
             .environment(AppState())
-    }
-
-    final class MockChallengeRepository: ChallengeRepository {
-        func fetchPublishedChallenges() async throws -> [Challenge] {
-            Challenge.sampleChallenges
-        }
-
-        func fetchUserChallenges(userId: UUID) async throws -> [ChallengeWithStatus] {
-            []
-        }
-
-        func fetchUserChallengesWithCounts(userId: UUID) async throws -> UserChallengesWithCountsResult {
-            .empty
-        }
-
-        func fetchChallenge(id: Int, userId: UUID) async throws -> ChallengeWithStatus {
-            ChallengeWithStatus(challenge: .fixture(), activity: nil, userId: userId)
-        }
-
-        func acceptChallenge(challengeId: Int, userId: UUID) async throws -> ChallengeActivity {
-            .fixture()
-        }
-
-        func completeChallenge(challengeId: Int, userId: UUID) async throws -> ChallengeActivity {
-            .fixture()
-        }
-
-        func rejectChallenge(challengeId: Int, userId: UUID) async throws -> ChallengeActivity {
-            .fixture()
-        }
-
-        func fetchLeaderboard(challengeId: Int, limit: Int) async throws -> [ChallengeLeaderboardEntry] {
-            [
-                .fixture(nickname: "FoodHero", rank: 1, isCompleted: true),
-                .fixture(nickname: "ShareMaster", rank: 2, isCompleted: true),
-                .fixture(nickname: "GreenGiver", rank: 3, isCompleted: true),
-            ]
-        }
-
-        func toggleChallengeLike(challengeId: Int, profileId: UUID) async throws -> (isLiked: Bool, likeCount: Int) {
-            (true, 33)
-        }
-
-        func hasLikedChallenge(challengeId: Int, profileId: UUID) async throws -> Bool {
-            false
-        }
     }
 #endif

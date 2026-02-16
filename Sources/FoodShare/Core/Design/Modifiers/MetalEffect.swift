@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MetalEffect.swift
 //  Foodshare
@@ -7,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - MetalEffect Enum
 
@@ -277,3 +277,4 @@ extension MetalEffect {
         ])
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  LayerErrors.swift
 //  Foodshare
@@ -27,6 +28,7 @@
 //  ```
 //
 
+#if !SKIP
 import Foundation
 
 // MARK: - Typed Throws Protocol
@@ -266,7 +268,7 @@ public enum RepositoryError: TypedError {
 
 extension RepositoryError {
     /// Create from NetworkError
-    public static func from(_ error: NetworkError) -> RepositoryError {
+    static func from(_ error: NetworkError) -> RepositoryError {
         switch error {
         case .noInternetConnection:
             .networkUnavailable
@@ -298,7 +300,7 @@ extension RepositoryError {
     }
 
     /// Create from DatabaseError
-    public static func from(_ error: DatabaseError) -> RepositoryError {
+    static func from(_ error: DatabaseError) -> RepositoryError {
         switch error {
         case let .connectionFailed(reason):
             .networkUnavailable
@@ -855,3 +857,5 @@ extension RepositoryError: RetryableError {}
 extension UseCaseError: RetryableError {}
 extension ViewModelError: RetryableError {}
 extension PersistenceError: RetryableError {}
+#endif
+#endif

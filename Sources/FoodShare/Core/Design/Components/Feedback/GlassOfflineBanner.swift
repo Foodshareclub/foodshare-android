@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Enhanced Glass Offline Banner
 
@@ -33,9 +32,16 @@ struct GlassOfflineBanner: View {
 
     private var lastSyncText: String? {
         guard let date = lastSyncedAt else { return nil }
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return t.t("status.last_synced", args: ["time": formatter.localizedString(for: date, relativeTo: Date())])
+        #else
+        let interval = Date().timeIntervalSince(date)
+        let minutes = Int(interval / 60)
+        let timeStr = minutes < 60 ? "\(minutes)m ago" : "\(minutes / 60)h ago"
+        return t.t("status.last_synced", args: ["time": timeStr])
+        #endif
     }
 
     var body: some View {
@@ -70,7 +76,7 @@ struct GlassOfflineBanner: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
         .overlay(glassOverlay)
         .shadow(color: Color.DesignSystem.warning.opacity(0.2), radius: 12, y: 6)
-        .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
+        .shadow(color: Color.black.opacity(0.08), radius: 6, y: 3)
         .onAppear {
             startAnimations()
         }
@@ -236,7 +242,7 @@ struct GlassRetryButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .brightness(configuration.isPressed ? 0.1 : 0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -535,9 +541,15 @@ struct GlassCacheStatusBanner: View {
     }
 
     private func formatRelativeDate(_ date: Date) -> String {
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
+        #else
+        let interval = Date().timeIntervalSince(date)
+        let minutes = Int(interval / 60)
+        return minutes < 60 ? "\(minutes)m ago" : "\(minutes / 60)h ago"
+        #endif
     }
 }
 
@@ -548,7 +560,7 @@ struct GlassIconButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.9 : 1.0)
             .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ChatMetalEffects.swift
 //  Foodshare
@@ -8,7 +9,6 @@
 
 import MetalKit
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Conditional Glow Modifier
 
@@ -873,3 +873,4 @@ struct GlassConversationRow: View {
     .background(Color.DesignSystem.background)
     .preferredColorScheme(.dark)
 }
+#endif

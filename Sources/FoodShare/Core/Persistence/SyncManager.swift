@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SyncManager.swift
 //  Foodshare
@@ -23,7 +24,6 @@ import Observation
 import OSLog
 import Supabase
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Sync State
 
@@ -1266,3 +1266,4 @@ extension View {
         modifier(OfflineIndicator(syncManager: syncManager))
     }
 }
+#endif

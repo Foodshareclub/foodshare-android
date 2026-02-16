@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Ocean theme with blue and cyan colors
 struct OceanTheme: Theme {

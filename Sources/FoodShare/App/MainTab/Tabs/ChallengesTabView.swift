@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Challenges Tab View
 
@@ -92,7 +91,9 @@ struct ChallengesTabView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.DesignSystem.background)
         .navigationTitle(t.t("tabs.challenges"))
+        #if !SKIP
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        #endif
     }
 
     private func setupChallengesViewModel() async {

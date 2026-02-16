@@ -9,7 +9,6 @@
 import MapKit
 #endif
 import SwiftUI
-import FoodShareDesignSystem
 
 
 

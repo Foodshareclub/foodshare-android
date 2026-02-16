@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Context Menu Modifier
 

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PushNotificationService.swift
 //  Foodshare
@@ -269,3 +270,4 @@ extension PushNotificationService {
         )
     }
 }
+#endif

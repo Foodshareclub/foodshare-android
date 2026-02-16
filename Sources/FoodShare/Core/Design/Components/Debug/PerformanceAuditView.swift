@@ -18,7 +18,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
 
@@ -573,28 +572,7 @@ import FoodShareDesignSystem
         }
     }
 
-    extension Notification.Name {
-        static let deviceDidShake = Notification.Name("deviceDidShake")
-    }
-
-    struct ShakeDetector: ViewModifier {
-        let action: () -> Void
-
-        func body(content: Content) -> some View {
-            content
-                #if !SKIP
-                .onReceive(NotificationCenter.default.publisher(for: .deviceDidShake)) { _ in
-                    action()
-                }
-                #endif
-        }
-    }
-
-    extension View {
-        func onShake(perform action: @escaping () -> Void) -> some View {
-            modifier(ShakeDetector(action: action))
-        }
-    }
+    // onShake and deviceDidShake are defined in LocalizationEnvironment.swift
 
     // MARK: - Preview
 

@@ -272,12 +272,7 @@ actor SupabaseRealtimeService: RealtimeService {
                 // Extract ID from old record
                 if let idValue = action.oldRecord["id"] {
                     // Handle AnyJSON type properly
-                    let idString: String? = switch idValue {
-                    case let .string(str):
-                        str
-                    default:
-                        nil
-                    }
+                    let idString: String? = "\(idValue)"
 
                     if let idString,
                        let id = UUID(uuidString: idString) {

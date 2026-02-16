@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ForumNotificationsView.swift
 //  Foodshare
@@ -7,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -593,4 +593,5 @@ struct NotificationSettingsSheet: View {
         func deleteNotification(id: UUID) async throws {}
         func deleteReadNotifications(profileId: UUID) async throws {}
     }
+#endif
 #endif

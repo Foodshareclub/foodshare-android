@@ -8,7 +8,6 @@
 // TODO: Migrate to api-v1-challenges when backend endpoint is created.
 // No corresponding Edge Function exists. Direct Supabase access is acceptable.
 
-import FoodShareRepository
 import Foundation
 import Supabase
 

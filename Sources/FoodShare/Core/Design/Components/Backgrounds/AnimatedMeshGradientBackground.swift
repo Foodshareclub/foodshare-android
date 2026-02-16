@@ -7,13 +7,14 @@
 //  Requires iOS 18+ for MeshGradient support
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Animated mesh gradient background with lava-lamp style color morphing
 /// Uses TimelineView for frame-perfect animations at 120Hz on ProMotion displays
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedMeshGradientBackground: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
 
     var body: some View {
         TimelineView(.animation) { timeline in
@@ -85,8 +86,9 @@ struct AnimatedMeshGradientBackground: View {
 
 /// Blue/Cyan variant of the animated mesh gradient
 /// Optimized for authentication and onboarding screens
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedBlueCyanMeshBackground: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
 
     var body: some View {
         TimelineView(.animation) { timeline in
@@ -139,6 +141,7 @@ struct AnimatedBlueCyanMeshBackground: View {
 
 /// Foodshare brand colors mesh gradient (Pink/Teal)
 /// Premium animated background for main app screens
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedBrandMeshBackground: View {
     var body: some View {
         TimelineView(.animation) { timeline in
@@ -191,6 +194,7 @@ struct AnimatedBrandMeshBackground: View {
 
 /// Green/Cyan eco-friendly mesh gradient
 /// For sustainability and eco-themed screens
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedEcoMeshBackground: View {
     var body: some View {
         TimelineView(.animation) { timeline in
@@ -238,14 +242,17 @@ struct AnimatedEcoMeshBackground: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Animated Mesh Gradient") {
     AnimatedMeshGradientBackground()
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Blue/Cyan Mesh Gradient") {
     AnimatedBlueCyanMeshBackground()
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Brand Mesh Gradient") {
     AnimatedBrandMeshBackground()
 }
@@ -254,6 +261,7 @@ struct AnimatedEcoMeshBackground: View {
 
 /// Green/Blue nature mesh gradient (matches Show Map button)
 /// For auth and primary action screens
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedNatureMeshBackground: View {
     var body: some View {
         TimelineView(.animation) { timeline in
@@ -301,10 +309,13 @@ struct AnimatedNatureMeshBackground: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Eco Mesh Gradient") {
     AnimatedEcoMeshBackground()
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Nature Mesh Gradient") {
     AnimatedNatureMeshBackground()
 }
+#endif

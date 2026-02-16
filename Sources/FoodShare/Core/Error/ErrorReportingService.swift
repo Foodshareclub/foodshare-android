@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ErrorReportingService.swift
 //  Foodshare
@@ -471,7 +472,7 @@ public func withErrorCaptureOrNil<T: Sendable>(
     file: String = #file,
     function: String = #function,
     line: Int = #line,
-    _ body: () async throws -> T,
+    _ body: @Sendable () async throws -> T,
 ) async -> T? {
     await ErrorReportingService.shared.captureOrNil(
         operation: operation,
@@ -481,3 +482,4 @@ public func withErrorCaptureOrNil<T: Sendable>(
         body,
     )
 }
+#endif

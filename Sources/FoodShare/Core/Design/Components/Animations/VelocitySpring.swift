@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Velocity Spring
 
@@ -271,7 +270,11 @@ public struct SwipeToDismissModifier: ViewModifier {
         }
 
         Task { @MainActor in
+            #if !SKIP
             try? await Task.sleep(for: .milliseconds(300))
+            #else
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            #endif
             isPresented = false
         }
     }

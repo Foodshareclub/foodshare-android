@@ -15,7 +15,6 @@ import Foundation
 import Observation
 import OSLog
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Error Presentation State
 
@@ -237,7 +236,7 @@ protocol ErrorPresenting: AnyObject, Observable {
 
 extension ErrorPresenting {
     /// Present an error with automatic categorization
-    func presentError(_ error: Error, context: ErrorContext = .general) {
+    func presentError(_ error: Error, context: ErrorPresentationContext = .general) {
         let appError = (error as? AppError) ?? AppError.from(error)
         let presentation = ErrorPresentationFactory.create(for: appError, context: context)
         errorState = presentation
@@ -308,10 +307,10 @@ extension ErrorPresenting {
     }
 }
 
-// MARK: - Error Context
+// MARK: - Error Presentation Context
 
 /// Context in which an error occurred (affects presentation)
-enum ErrorContext: String, Sendable {
+enum ErrorPresentationContext: String, Sendable {
     case general
     case authentication
     case network
@@ -328,7 +327,7 @@ enum ErrorContext: String, Sendable {
 enum ErrorPresentationFactory {
     private static let logger = Logger(subsystem: Constants.bundleIdentifier, category: "ErrorPresentation")
 
-    static func create(for error: AppError, context: ErrorContext) -> ErrorPresentationState {
+    static func create(for error: AppError, context: ErrorPresentationContext) -> ErrorPresentationState {
         logger.debug("Creating presentation for: \(error.localizedDescription), context: \(context.rawValue)")
 
         switch error {
@@ -413,7 +412,7 @@ enum ErrorPresentationFactory {
     /// Localized version of error presentation factory
     @MainActor
     static func create(for error: AppError, context: ErrorContext, using t: EnhancedTranslationService) -> ErrorPresentationState {
-        logger.debug("Creating localized presentation for: \(error.localizedDescription), context: \(context.rawValue)")
+        logger.debug("Creating localized presentation for: \(error.localizedDescription), context: \(context)")
 
         switch error {
         // Network errors - show banner with retry

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CategoriesCache.swift
 //  Foodshare
@@ -164,3 +165,4 @@ extension CategoriesCache {
         return Dictionary(uniqueKeysWithValues: allCategories.map { ($0.id, $0.name) })
     }
 }
+#endif

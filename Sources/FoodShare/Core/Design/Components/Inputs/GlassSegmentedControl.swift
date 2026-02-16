@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Segmented Control
 
@@ -16,9 +15,11 @@ struct GlassSegmentedControl<T: Hashable>: View {
     let options: [T]
     let label: (T) -> String
 
+    #if !SKIP
     @Namespace private var segmentNamespace
+    #endif
     @State private var segmentWidths: [T: CGFloat] = [:]
-    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
     init(
         selection: Binding<T>,
@@ -88,7 +89,9 @@ struct GlassSegmentedControl<T: Hashable>: View {
                 .background {
                     if selection == option {
                         selectedBackground
+                            #if !SKIP
                             .matchedGeometryEffect(id: "selectedSegment", in: segmentNamespace)
+                            #endif
                     }
                 }
         }
@@ -137,15 +140,18 @@ struct GlassSegmentedControl<T: Hashable>: View {
 // MARK: - Preference Key for Segment Widths
 
 private struct SegmentWidthPreferenceKey: PreferenceKey {
-    static var defaultValue: [AnyHashable: CGFloat] = [:]
+    nonisolated(unsafe) static var defaultValue: [AnyHashable: CGFloat] = [:]
 
     static func reduce(value: inout [AnyHashable: CGFloat], nextValue: () -> [AnyHashable: CGFloat]) {
-        value.merge(nextValue()) { _, new in new }
+        for (key, val) in nextValue() {
+            value[key] = val
+        }
     }
 }
 
 // MARK: - Glass Segmented Control (Raw Representable)
 
+#if !SKIP
 extension GlassSegmentedControl where T: CaseIterable & RawRepresentable, T.RawValue == String {
     /// Convenience initializer for enums with String raw values
     init(selection: Binding<T>) {
@@ -156,6 +162,7 @@ extension GlassSegmentedControl where T: CaseIterable & RawRepresentable, T.RawV
         )
     }
 }
+#endif
 
 // MARK: - Compact Variant
 
@@ -164,7 +171,9 @@ struct GlassSegmentedControlCompact<T: Hashable>: View {
     let options: [T]
     let icon: (T) -> String
 
+    #if !SKIP
     @Namespace private var namespace
+    #endif
 
     var body: some View {
         HStack(spacing: Spacing.xxs) {
@@ -187,7 +196,9 @@ struct GlassSegmentedControlCompact<T: Hashable>: View {
                             if selection == option {
                                 Circle()
                                     .fill(Color.DesignSystem.accentBlue.opacity(0.15))
+                                    #if !SKIP
                                     .matchedGeometryEffect(id: "compact", in: namespace)
+                                    #endif
                             }
                         }
                 }

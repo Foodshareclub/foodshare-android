@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MFAEnrollmentView.swift
 //  Foodshare
@@ -8,7 +9,6 @@
 
 import CoreImage.CIFilterBuiltins
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -516,7 +516,9 @@ struct MFAEnrollmentView: View {
                                 endPoint: .bottomTrailing,
                             ),
                         )
+                        #if !SKIP
                         .symbolEffect(.pulse, options: .repeating, isActive: mfaService.isLoading)
+                        #endif
                 }
 
                 Text(t.t("settings.mfa.enter_code_title"))
@@ -845,7 +847,9 @@ private struct BounceSymbolEffectModifier: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 18.0, *) {
             content
+                #if !SKIP
                 .symbolEffect(.bounce, value: isAnimating)
+                #endif
                 .onAppear { isAnimating = true }
         } else {
             // Fallback: simple scale animation
@@ -862,3 +866,4 @@ private struct BounceSymbolEffectModifier: ViewModifier {
 #Preview {
     MFAEnrollmentView()
 }
+#endif

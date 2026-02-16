@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  IPGeolocationMetrics.swift
 //  Foodshare
@@ -347,3 +348,4 @@ extension IPGeolocationMetrics {
         return true
     }
 }
+#endif

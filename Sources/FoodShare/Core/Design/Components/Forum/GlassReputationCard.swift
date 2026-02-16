@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Reputation Card
 
@@ -33,7 +32,9 @@ struct GlassReputationCard: View {
         self.onTap = onTap
     }
 
+    #if !SKIP
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    #endif
 
     var body: some View {
         Button {
@@ -62,11 +63,13 @@ struct GlassReputationCard: View {
                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                     .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
             )
-            .shadow(color: .black.opacity(0.1), radius: 20, y: 10)
+            .shadow(color: Color.black.opacity(0.1), radius: 20, y: 10)
         }
         .buttonStyle(CardPressStyle())
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
+        #endif
     }
 
     // MARK: - Header Section
@@ -314,6 +317,7 @@ struct GlassReputationCard: View {
 
     @ViewBuilder
     private var cardBackground: some View {
+        #if !SKIP
         if reduceTransparency {
             Color(uiColor: .systemBackground)
                 .opacity(0.95)
@@ -321,6 +325,10 @@ struct GlassReputationCard: View {
             Color.clear
                 .background(.ultraThinMaterial)
         }
+        #else
+        Color.clear
+            .background(.ultraThinMaterial)
+        #endif
     }
 
     // MARK: - Accessibility
@@ -435,7 +443,7 @@ struct GlassReputationRing: View {
                         lineCap: .round,
                     ),
                 )
-                .rotationEffect(.degrees(-90))
+                .rotationEffect(Angle.degrees(-90))
 
             // Center content
             VStack(spacing: 2) {

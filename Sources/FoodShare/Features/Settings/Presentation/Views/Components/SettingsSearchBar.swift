@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Glass-styled search bar for filtering settings
 struct SettingsSearchBar: View {

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PayloadEncryption.swift
 //  FoodShare
@@ -256,7 +257,7 @@ actor PayloadEncryption {
 
     private func fetchServerPublicKey() async throws -> ServerKeyConfig {
         guard let supabaseURL = AppEnvironment.supabaseURL else {
-            throw EncryptionError.keyFetchFailed("Supabase URL not configured")
+            throw PayloadEncryptionError.networkError("Supabase URL not configured")
         }
         
         let url = URL(string: "\(supabaseURL)/functions/v1/get-server-key")!
@@ -268,11 +269,11 @@ actor PayloadEncryption {
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw EncryptionError.keyFetchFailed("Invalid response")
+                throw PayloadEncryptionError.networkError("Invalid response")
             }
             
             guard httpResponse.statusCode == 200 else {
-                throw EncryptionError.keyFetchFailed("Server returned status \(httpResponse.statusCode)")
+                throw PayloadEncryptionError.networkError("Server returned status \(httpResponse.statusCode)")
             }
             
             let config = try JSONDecoder().decode(ServerKeyConfig.self, from: data)
@@ -286,8 +287,7 @@ actor PayloadEncryption {
                 publicKey: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", // 32-byte placeholder
                 keyId: "embedded-v1",
                 expiresAt: Date().addingTimeInterval(365 * 24 * 60 * 60), // 1 year
-                minAppVersion: "3.0.0",
-                algorithm: "X25519"
+                minAppVersion: "3.0.0"
             )
         }
     }
@@ -391,4 +391,5 @@ extension PayloadEncryption {
             return decrypted == testData
         }
     }
+#endif
 #endif

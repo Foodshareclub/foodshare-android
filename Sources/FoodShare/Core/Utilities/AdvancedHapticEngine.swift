@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AdvancedHapticEngine.swift
 //  FoodShare
@@ -586,3 +587,4 @@ extension View {
         modifier(AdvancedHapticModifier(pattern: pattern))
     }
 }
+#endif

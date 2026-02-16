@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AccessibilityManager.swift
 //  Foodshare
@@ -419,3 +420,4 @@ extension AccessibilityManager {
         AccessibilityStateView()
     }
 }
+#endif

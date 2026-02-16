@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  APIClient.swift
 //  Foodshare
@@ -55,7 +56,7 @@ actor APIClient {
 
     init(supabase: SupabaseClient) {
         self.supabase = supabase
-        self.baseURL = "\(supabase.supabaseURL.absoluteString)/functions/v1"
+        self.baseURL = "\(AppEnvironment.supabaseURL ?? "https://api.foodshare.club")/functions/v1"
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
@@ -266,15 +267,7 @@ actor APIClient {
 
 // MARK: - Supporting Types
 
-enum HTTPMethod: String {
-    case get = "GET"
-    case post = "POST"
-    case put = "PUT"
-    case delete = "DELETE"
-}
-
 struct EmptyBody: Encodable {}
-struct EmptyResponse: Decodable {}
 
 // MARK: - Legacy APIError (kept for backward compatibility during migration)
 
@@ -289,3 +282,4 @@ enum APIError: LocalizedError {
         }
     }
 }
+#endif

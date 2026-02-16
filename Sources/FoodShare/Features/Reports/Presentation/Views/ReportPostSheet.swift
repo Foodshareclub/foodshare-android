@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ReportPostSheet.swift
 //  Foodshare
@@ -6,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct ReportPostSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -271,6 +271,7 @@ private struct ReasonButton: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     ReportPostSheet(
         viewModel: ReportViewModel(
@@ -281,24 +282,5 @@ private struct ReasonButton: View {
         ),
     )
 }
-
-// MARK: - Mock Repository
-
-private final class MockReportRepository: ReportRepository, @unchecked Sendable {
-    func submitReport(_ input: CreateReportInput, reporterId: UUID) async throws -> Report {
-        try await Task.sleep(for: .seconds(1))
-        return Report(
-            id: 1,
-            postId: input.postId,
-            reporterId: reporterId,
-            reason: input.reason,
-            description: input.description,
-            status: .pending,
-            createdAt: Date(),
-        )
-    }
-
-    func hasUserReportedPost(postId: Int, userId: UUID) async throws -> Bool {
-        false
-    }
-}
+#endif
+#endif

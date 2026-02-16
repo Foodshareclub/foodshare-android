@@ -11,13 +11,12 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Edit Profile View
 
 struct EditProfileView: View {
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State var viewModel: EditProfileViewModel
 
@@ -89,11 +88,19 @@ struct EditProfileView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .onAppear {
                             Task {
+                                #if SKIP
+                                try? await Task.sleep(nanoseconds: UInt64(1.5 * 1_000_000_000))
+                                #else
                                 try? await Task.sleep(for: .seconds(1.5))
+                                #endif
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                     viewModel.showSuccessToast = false
                                 }
+                                #if SKIP
+                                try? await Task.sleep(nanoseconds: UInt64(0.3 * 1_000_000_000))
+                                #else
                                 try? await Task.sleep(for: .seconds(0.3))
+                                #endif
                                 dismiss()
                             }
                         }

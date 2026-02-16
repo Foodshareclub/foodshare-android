@@ -7,12 +7,11 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Full Search Sheet (Airbnb-style)
 
 struct FeedSearchSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Binding var searchText: String
     @FocusState private var isSearchFocused: Bool
@@ -157,7 +156,9 @@ struct FeedSearchSheet: View {
                 isSearchFocused = true
             }
         }
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
     }
 
     private var searchTabTitle: String {

@@ -1,18 +1,13 @@
-# Lefthook Configuration for Foodshare Android (Swift + Kotlin Hybrid)
+# Lefthook Configuration for FoodShare Cross-Platform (Skip Fuse)
 # Git hooks automation using foodshare-hooks Rust CLI
 #
-# This project uses Swift on Android for shared domain logic
-# with Kotlin/Compose for the UI layer.
+# This project builds iOS + Android from a single Swift codebase
+# using Skip Fuse for cross-platform transpilation.
 #
 # Installation:
-#   brew install lefthook ktlint swiftformat swiftlint
+#   brew install lefthook swiftformat swiftlint
 #   cargo install --path tools
 #   lefthook install
-#
-# Swift on Android requirements:
-#   - Swift toolchain (https://swift.org/download/)
-#   - Android NDK r27d+
-#   - swift-java for JNI bindings (brew tap apple/swift && brew install swift-java)
 #
 # Documentation: https://github.com/evilmartians/lefthook
 
@@ -20,9 +15,9 @@
 pre-commit:
   parallel: true
   commands:
-    # 1. Auto-fix Kotlin and Swift code (format + lint --fix)
+    # 1. Auto-fix Swift code (format + lint --fix)
     auto-fix:
-      glob: "*.{kt,kts,swift}"
+      glob: "*.swift"
       run: foodshare-hooks fix --staged --stage {staged_files}
       stage_fixed: true
 
@@ -120,24 +115,45 @@ scripts:
       fix:
         run: foodshare-hooks fix
 
-  # Swift on Android scripts
-  swift-build:
+  # Validate Swift code
+  validate:
     runner: bash
     commands:
-      build:
-        run: foodshare-hooks swift-build --target all
+      all:
+        run: foodshare-hooks validate --show-suggestions
+      architecture:
+        run: foodshare-hooks validate architecture --show-suggestions
+      design:
+        run: foodshare-hooks validate design --show-suggestions
 
-  swift-bindings:
+  # Dependency graph analysis
+  deps-graph:
     runner: bash
     commands:
-      generate:
-        run: foodshare-hooks swift-java generate
+      text:
+        run: foodshare-hooks deps-graph
+      dot:
+        run: foodshare-hooks deps-graph --format dot --output deps.dot
+      mermaid:
+        run: foodshare-hooks deps-graph --format mermaid
 
-  swift-test:
+  # Bundle size tracking
+  bundle-track:
     runner: bash
     commands:
-      test:
-        run: foodshare-hooks swift-test --host
+      analyze:
+        run: foodshare-hooks bundle-track --per-module
+      compare:
+        run: foodshare-hooks bundle-track --baseline bundle-baseline.json
+
+  # Security audit
+  audit:
+    runner: bash
+    commands:
+      full:
+        run: foodshare-hooks audit --check-deps --show-info
+      secrets:
+        run: foodshare-hooks audit --fail-on-high
 
 # Output configuration
 output:

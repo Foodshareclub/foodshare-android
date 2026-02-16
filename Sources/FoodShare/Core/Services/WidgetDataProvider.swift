@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  WidgetDataProvider.swift
 //  Foodshare
@@ -378,3 +379,4 @@ struct ActiveChallengeDTO: Codable {
     let reward: String
     let category: String
 }
+#endif

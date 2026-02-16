@@ -7,7 +7,6 @@
 //  Enhanced: January 2026 - Enterprise notification center with dropdown
 //
 
-import FoodShareDesignSystem
 import Supabase
 import SwiftUI
 
@@ -146,7 +145,7 @@ struct MainTabView: View {
                     userId: userId,
                 ),
             )
-            .presentationDetents([.large])
+            .presentationDetents([PresentationDetent.large])
         }
     }
 
@@ -359,7 +358,7 @@ struct MainTabSheetsModifier: ViewModifier {
         content
             .sheet(isPresented: Bindable(appState).showAuthentication) {
                 AuthView()
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
                     .interactiveDismissDisabled(false)
             }
             .sheet(isPresented: $showCreateListingSheet) {
@@ -383,8 +382,10 @@ struct MainTabSheetsModifier: ViewModifier {
     private var guestUpgradeSheet: some View {
         if let feature = guestManager.restrictedFeature {
             GuestUpgradePromptView(feature: feature)
-                .presentationDetents([.large])
+                .presentationDetents([PresentationDetent.large])
+                #if !SKIP
                 .presentationDragIndicator(.visible)
+                #endif
         }
     }
 }
@@ -405,26 +406,26 @@ struct DeepLinkSheetsModifier: ViewModifier {
         content
             .sheet(isPresented: $showNotificationsSheet) {
                 NotificationsSettingsView()
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
             }
             .sheet(isPresented: $showDonationSheet) {
                 DonationView()
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
             }
             .sheet(isPresented: $showHelpSheet) {
                 HelpView()
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
             }
             .sheet(isPresented: $showFeedbackSheet) {
                 feedbackSheet
             }
             .sheet(isPresented: $showPrivacySheet) {
                 LegalDocumentView(type: LegalDocumentView.LegalDocumentType.privacy)
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
             }
             .sheet(isPresented: $showTermsSheet) {
                 LegalDocumentView(type: LegalDocumentView.LegalDocumentType.terms)
-                    .presentationDetents([.large])
+                    .presentationDetents([PresentationDetent.large])
             }
     }
 
@@ -437,7 +438,7 @@ struct DeepLinkSheetsModifier: ViewModifier {
                 defaultEmail: appState.currentUser?.email ?? "",
             ),
         )
-        .presentationDetents([.large])
+        .presentationDetents([PresentationDetent.large])
     }
 }
 
@@ -472,7 +473,7 @@ struct NotificationCenterModifier: ViewModifier {
     @Binding var showNotificationsFullSheet: Bool
     let onNotificationTap: (UserNotification) -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
     func body(content: Content) -> some View {
         content

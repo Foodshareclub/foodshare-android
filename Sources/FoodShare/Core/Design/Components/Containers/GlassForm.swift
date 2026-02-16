@@ -5,7 +5,6 @@
 //  Liquid Glass v26 Form Container Component with grouped sections
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Glass Form

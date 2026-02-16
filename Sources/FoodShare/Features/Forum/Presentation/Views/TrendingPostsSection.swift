@@ -6,7 +6,6 @@
 //  Part of Forum UI improvements
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Trending Posts Section
@@ -33,7 +32,9 @@ struct TrendingPostsSection: View {
                                 endPoint: .bottomTrailing,
                             ),
                         )
+                        #if !SKIP
                         .symbolEffect(.pulse, options: .repeating)
+                        #endif
 
                     Text(t.t("forum.trending"))
                         .font(.DesignSystem.bodyMedium)
@@ -73,7 +74,9 @@ struct TrendingPostsSection: View {
                 }
                 .padding(.horizontal, Spacing.xs)
             }
+            #if !SKIP
             .scrollTargetBehavior(.viewAligned)
+            #endif
         }
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 10)
@@ -172,7 +175,9 @@ private struct TrendingPostCard: View {
                         Text("\(likeCount)")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(isLiked ? Color.DesignSystem.brandPink : Color.DesignSystem.textSecondary)
+                            #if !SKIP
                             .contentTransition(.numericText())
+                            #endif
                     }
 
                     // Comments count

@@ -131,6 +131,8 @@ public struct CategoryPreferencesSection: View {
                             viewModel.isEmailAvailable
                         case .sms:
                             viewModel.isSMSAvailable
+                        case .inApp:
+                            true
                         }
                     },
                 )

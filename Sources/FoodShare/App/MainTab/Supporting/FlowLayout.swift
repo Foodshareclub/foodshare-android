@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Flow Layout
 
@@ -14,18 +13,18 @@ struct FlowLayout: Layout {
     var spacing: CGFloat = Spacing.sm
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let sizes = subviews.map { $0.sizeThatFits(ProposedViewSize.unspecified) }
         return layout(sizes: sizes, containerWidth: proposal.width ?? 0).size
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let sizes = subviews.map { $0.sizeThatFits(ProposedViewSize.unspecified) }
         let offsets = layout(sizes: sizes, containerWidth: bounds.width).offsets
 
         for (offset, subview) in zip(offsets, subviews) {
             subview.place(
                 at: CGPoint(x: bounds.minX + offset.x, y: bounds.minY + offset.y),
-                proposal: .unspecified,
+                proposal: ProposedViewSize.unspecified,
             )
         }
     }

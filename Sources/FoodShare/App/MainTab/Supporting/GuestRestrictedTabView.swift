@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Inline view shown in tabs when guests try to access restricted features
 struct GuestRestrictedTabView: View {
@@ -115,7 +114,9 @@ struct GuestRestrictedTabView: View {
                 .font(.DesignSystem.bodyLarge)
                 .foregroundColor(.DesignSystem.textSecondary)
                 .multilineTextAlignment(.center)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
 
             Text(t.t("guest.restricted.message"))
                 .font(.DesignSystem.bodyMedium)

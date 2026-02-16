@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AuditLogger.swift
 //  Foodshare
@@ -148,7 +149,7 @@ struct AuditEvent: Codable, Sendable {
     let resourceType: String?
     let resourceId: String?
     let metadata: [String: String]
-    let deviceInfo: DeviceInfo
+    let deviceInfo: AuditDeviceInfo
     let success: Bool
     let errorMessage: String?
 
@@ -170,14 +171,14 @@ struct AuditEvent: Codable, Sendable {
         self.resourceType = resourceType
         self.resourceId = resourceId
         self.metadata = metadata
-        self.deviceInfo = DeviceInfo.current
+        self.deviceInfo = AuditDeviceInfo.current
         self.success = success
         self.errorMessage = errorMessage
     }
 }
 
 /// Device information for audit context
-struct DeviceInfo: Codable, Sendable {
+struct AuditDeviceInfo: Codable, Sendable {
     let deviceId: String
     let deviceModel: String
     let osVersion: String
@@ -186,8 +187,8 @@ struct DeviceInfo: Codable, Sendable {
     let timezone: String
 
     #if !SKIP
-    static var current: DeviceInfo {
-        DeviceInfo(
+    static var current: AuditDeviceInfo {
+        AuditDeviceInfo(
             deviceId: UIDevice.current.identifierForVendor?.uuidString ?? "unknown",
             deviceModel: UIDevice.current.model,
             osVersion: UIDevice.current.systemVersion,
@@ -197,8 +198,8 @@ struct DeviceInfo: Codable, Sendable {
         )
     }
     #else
-    static var current: DeviceInfo {
-        DeviceInfo(
+    static var current: AuditDeviceInfo {
+        AuditDeviceInfo(
             deviceId: UUID().uuidString,
             deviceModel: "Android",
             osVersion: "unknown",
@@ -248,6 +249,10 @@ protocol AuditLoggerProtocol: Sendable {
 /// await logger.log(operation: .listingCreated, userId: user.id, resourceType: "listing", resourceId: listing.id)
 /// ```
 actor AuditLogger: AuditLoggerProtocol {
+    nonisolated static let shared: AuditLogger = {
+        AuditLogger(supabase: MainActor.assumeIsolated { AuthenticationService.shared.supabase })
+    }()
+
     private let supabase: SupabaseClient
     private let osLogger: Logger
     private let batchSize: Int
@@ -359,57 +364,77 @@ actor AuditLogger: AuditLoggerProtocol {
         }
     }
 
+    /// Encodable record format for Supabase RPC submission
+    private struct AuditEventRecord: Encodable {
+        let id: String
+        let timestamp: String
+        let operation: String
+        let category: String
+        let severity: String
+        let success: Bool
+        let device_info: AuditDeviceInfoRecord
+        let user_id: String?
+        let resource_type: String?
+        let resource_id: String?
+        let metadata: [String: String]?
+        let error_message: String?
+
+        struct AuditDeviceInfoRecord: Encodable {
+            let device_id: String
+            let device_model: String
+            let os_version: String
+            let app_version: String
+            let locale: String
+            let timezone: String
+        }
+    }
+
+    /// Wrapper for the RPC params
+    private struct LogAuditEventsParams: Encodable {
+        let events: [AuditEventRecord]
+    }
+
     private func sendEvents(_ events: [AuditEvent]) async throws {
-        // Convert to database format
-        let records = events.map { event -> [String: Any] in
-            var record: [String: Any] = [
-                "id": event.id.uuidString,
-                "timestamp": ISO8601DateFormatter().string(from: event.timestamp),
-                "operation": event.operation.rawValue,
-                "category": event.category.rawValue,
-                "severity": event.severity.rawValue,
-                "success": event.success,
-                "device_info": [
-                    "device_id": event.deviceInfo.deviceId,
-                    "device_model": event.deviceInfo.deviceModel,
-                    "os_version": event.deviceInfo.osVersion,
-                    "app_version": event.deviceInfo.appVersion,
-                    "locale": event.deviceInfo.locale,
-                    "timezone": event.deviceInfo.timezone
-                ]
-            ]
+        let formatter = ISO8601DateFormatter()
 
-            if let userId = event.userId {
-                record["user_id"] = userId.uuidString
-            }
-            if let resourceType = event.resourceType {
-                record["resource_type"] = resourceType
-            }
-            if let resourceId = event.resourceId {
-                record["resource_id"] = resourceId
-            }
-            if !event.metadata.isEmpty {
-                record["metadata"] = event.metadata
-            }
-            if let errorMessage = event.errorMessage {
-                record["error_message"] = errorMessage
-            }
-
-            return record
+        // Convert to Encodable database format
+        let records = events.map { event -> AuditEventRecord in
+            AuditEventRecord(
+                id: event.id.uuidString,
+                timestamp: formatter.string(from: event.timestamp),
+                operation: event.operation.rawValue,
+                category: event.category.rawValue,
+                severity: event.severity.rawValue,
+                success: event.success,
+                device_info: AuditEventRecord.AuditDeviceInfoRecord(
+                    device_id: event.deviceInfo.deviceId,
+                    device_model: event.deviceInfo.deviceModel,
+                    os_version: event.deviceInfo.osVersion,
+                    app_version: event.deviceInfo.appVersion,
+                    locale: event.deviceInfo.locale,
+                    timezone: event.deviceInfo.timezone
+                ),
+                user_id: event.userId?.uuidString,
+                resource_type: event.resourceType,
+                resource_id: event.resourceId,
+                metadata: event.metadata.isEmpty ? nil : event.metadata,
+                error_message: event.errorMessage
+            )
         }
 
         // Insert via RPC for proper server-side handling
-        try await supabase.rpc("log_audit_events", params: ["events": records]).execute()
+        try await supabase.rpc("log_audit_events", params: LogAuditEventsParams(events: records)).execute()
     }
 
     private func persistEvents() {
         guard !eventQueue.isEmpty else { return }
 
+        let eventsToStore = self.eventQueue
         Task {
             do {
                 // Use encrypted storage for sensitive audit events
-                try await secureStorage.store(eventQueue, forKey: persistenceKey)
-                osLogger.debug("Persisted \(eventQueue.count) audit events with encryption")
+                try await secureStorage.store(eventsToStore, forKey: persistenceKey)
+                osLogger.debug("Persisted \(eventsToStore.count) audit events with encryption")
             } catch {
                 osLogger.error("Failed to persist audit events: \(error.localizedDescription)")
                 // Fallback: try to persist minimal info without sensitive data
@@ -611,4 +636,5 @@ extension AuditLogger {
             loggedEvents.filter { $0.userId == userId }
         }
     }
+#endif
 #endif

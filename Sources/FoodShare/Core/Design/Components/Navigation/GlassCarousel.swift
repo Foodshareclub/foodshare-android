@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Carousel
 
@@ -49,7 +48,7 @@ struct GlassCarousel<Item: Identifiable, Content: View>: View {
     @State private var dragOffset: CGFloat = 0
     @State private var autoAdvanceTimer: Timer?
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -181,7 +180,7 @@ struct GlassCarousel<Item: Identifiable, Content: View>: View {
 
                 // Haptic feedback
                 if newPage != currentPage {
-                    #if os(iOS)
+                    #if !SKIP
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
                     #endif

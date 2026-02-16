@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  UpstashRedisClient.swift
 //  Foodshare
@@ -487,4 +488,5 @@ actor UpstashRedisClientImpl: UpstashRedisClient {
             return results
         }
     }
+#endif
 #endif

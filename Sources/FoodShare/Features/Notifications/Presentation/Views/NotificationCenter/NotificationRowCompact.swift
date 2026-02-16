@@ -6,7 +6,6 @@
 //  Liquid Glass v27 design with swipe actions
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Notification Row Compact
@@ -26,7 +25,7 @@ struct NotificationRowCompact: View {
 
     @State private var offset: CGFloat = 0
     @State private var isPressed = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Constants
 
@@ -266,7 +265,7 @@ struct NotificationRowCompact: View {
     VStack(spacing: Spacing.sm) {
         NotificationRowCompact(
             notification: .fixture(
-                type: .newMessage,
+                type: NotificationType.newMessage,
                 title: "New message from Sarah",
                 body: "Is the pasta still available?",
                 isRead: false,
@@ -278,7 +277,7 @@ struct NotificationRowCompact: View {
 
         NotificationRowCompact(
             notification: .fixture(
-                type: .arrangementConfirmed,
+                type: NotificationType.arrangementConfirmed,
                 title: "Pickup confirmed!",
                 body: "Your request has been confirmed",
                 isRead: true,
@@ -290,7 +289,7 @@ struct NotificationRowCompact: View {
 
         NotificationRowCompact(
             notification: .fixture(
-                type: .newListingNearby,
+                type: NotificationType.newListingNearby,
                 title: "New food nearby!",
                 body: "Fresh vegetables 0.3 miles away",
                 isRead: false,
@@ -302,7 +301,7 @@ struct NotificationRowCompact: View {
 
         NotificationRowCompact(
             notification: .fixture(
-                type: .challengeCompleted,
+                type: NotificationType.challengeCompleted,
                 title: "Challenge Complete!",
                 isRead: false,
             ),

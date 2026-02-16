@@ -7,8 +7,8 @@
 //  Requires iOS 18+ for MeshGradient support
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 struct AuthBackground: View {
     /// Background style variant
@@ -106,15 +106,19 @@ struct AuthBackground: View {
 
     @ViewBuilder
     private var meshGradientLayer: some View {
-        switch style {
-        case .blueCyan:
-            AnimatedBlueCyanMeshBackground()
-        case .brand:
-            AnimatedBrandMeshBackground()
-        case .eco:
-            AnimatedEcoMeshBackground()
-        case .nature:
-            AnimatedNatureMeshBackground()
+        if #available(iOS 18.0, *) {
+            switch style {
+            case .blueCyan:
+                AnimatedBlueCyanMeshBackground()
+            case .brand:
+                AnimatedBrandMeshBackground()
+            case .eco:
+                AnimatedEcoMeshBackground()
+            case .nature:
+                AnimatedNatureMeshBackground()
+            }
+        } else {
+            classicOrbBackground
         }
     }
 
@@ -255,3 +259,4 @@ struct AuthBackground: View {
 #Preview("Orbs - Brand (Pink/Teal)") {
     AuthBackground(useMeshGradient: false, style: .brand)
 }
+#endif

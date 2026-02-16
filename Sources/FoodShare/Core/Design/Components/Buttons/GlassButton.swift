@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Scale Button Style
 
@@ -35,7 +34,7 @@ struct ScaleButtonStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.92 : 1.0)
             .brightness(configuration.isPressed ? 0.03 : 0)
             // ProMotion 120Hz optimized: interpolating spring for instant response
-            .animation(.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, isPressed in
                 if isPressed {
                     triggerHaptic()
@@ -66,7 +65,7 @@ struct GlassButton: View {
     let isLoading: Bool
     let action: () -> Void
 
-    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
     enum ButtonStyle {
         case primary      // Foodshare brand (Pink/Teal gradient)

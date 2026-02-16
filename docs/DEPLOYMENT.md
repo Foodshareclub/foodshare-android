@@ -21,7 +21,7 @@
 
 ### 1. Configure Secrets
 
-Create `foodshare-android/Skip.env.local`:
+Create `foodshare-app/Skip.env.local`:
 ```bash
 SUPABASE_URL=https://api.foodshare.club
 SUPABASE_KEY=your_public_key_here
@@ -37,7 +37,7 @@ In Xcode:
 
 ### 3. Android Signing
 
-Create `foodshare-android/Android/app/keystore.properties`:
+Create `foodshare-app/Android/app/keystore.properties`:
 ```properties
 storeFile=../release.keystore
 storePassword=your_store_password
@@ -59,7 +59,7 @@ keytool -genkey -v -keystore release.keystore \
 
 #### 1. Archive
 ```bash
-cd foodshare-android/Darwin
+cd foodshare-app/Darwin
 xcodebuild -workspace ../Project.xcworkspace \
   -scheme FoodShare \
   -configuration Release \
@@ -92,7 +92,7 @@ fastlane beta
 
 #### 1. Build AAB
 ```bash
-cd foodshare-android/Android
+cd foodshare-app/Android
 ./gradlew bundleRelease
 ```
 
@@ -223,7 +223,7 @@ Analytics.logEvent("listing_viewed", parameters: ["id": listingId])
 ### Build Fails
 ```bash
 # Clean build
-cd foodshare-android
+cd foodshare-app
 rm -rf .build
 swift build
 ```
@@ -293,5 +293,5 @@ cd Android
 
 ---
 
-**Last Updated**: 2026-02-12
+**Last Updated**: 2026-02-16
 **Version**: 1.0.0

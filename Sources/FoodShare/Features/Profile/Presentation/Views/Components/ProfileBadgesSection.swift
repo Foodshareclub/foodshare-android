@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Badges Section
 
@@ -139,100 +138,3 @@ struct BadgesContent: View {
     }
 }
 
-// MARK: - Glass Badge Item
-
-struct GlassBadgeItem: View {
-    let badge: Badge
-    let isEarned: Bool
-    let isFeatured: Bool
-    let progress: Double?
-    let onTap: (() -> Void)?
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        Button(action: { onTap?() }) {
-            VStack(spacing: Spacing.xs) {
-                badgeIcon
-
-                Text(badge.name)
-                    .font(.LiquidGlass.captionSmall)
-                    .foregroundStyle(isEarned ? Color.DesignSystem.text : Color.DesignSystem.textTertiary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-        }
-        .buttonStyle(.plain)
-        .opacity(isEarned ? 1.0 : 0.5)
-        .accessibilityLabel("\(badge.name), \(isEarned ? "earned" : "locked")")
-    }
-
-    // MARK: - Badge Icon
-
-    private var badgeIcon: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    isEarned
-                        ? LinearGradient(
-                            colors: [badge.color.opacity(0.3), badge.color.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        : LinearGradient(
-                            colors: [Color.DesignSystem.glassBackground, Color.DesignSystem.glassBackground.opacity(0.5)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                )
-                .frame(width: 48, height: 48)
-
-            if isEarned {
-                Image(systemName: badge.icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(badge.color)
-            } else {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.DesignSystem.textTertiary)
-            }
-
-            if isFeatured && isEarned {
-                featuredIndicator
-            }
-        }
-    }
-
-    // MARK: - Featured Indicator
-
-    private var featuredIndicator: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Image(systemName: "star.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.yellow)
-                    .padding(3)
-                    .background(Color.DesignSystem.surface)
-                    .clipShape(Circle())
-            }
-            Spacer()
-        }
-        .frame(width: 48, height: 48)
-    }
-}
-
-// MARK: - Badge Model Extensions
-
-extension Badge {
-    /// Returns the appropriate color for the badge type
-    var color: Color {
-        switch category {
-        case "sharing": return .DesignSystem.brandOrange
-        case "receiving": return .DesignSystem.success
-        case "community": return .DesignSystem.brandBlue
-        case "special": return .DesignSystem.brandPink
-        default: return .DesignSystem.themed.primary
-        }
-    }
-}

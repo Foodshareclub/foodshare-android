@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Original Foodshare brand theme with pink and teal
 struct BrandTheme: Theme {

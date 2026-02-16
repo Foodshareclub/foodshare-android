@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct AppIconPickerView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
 

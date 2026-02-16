@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SecureString.swift
 //  FoodShare
@@ -338,3 +339,4 @@ extension Data {
         }
     }
 }
+#endif

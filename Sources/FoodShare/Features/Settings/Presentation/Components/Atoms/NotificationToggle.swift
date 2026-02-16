@@ -21,7 +21,7 @@ import SwiftUI
 /// )
 /// .accessibilityLabel("Enable post notifications")
 /// ```
-public struct NotificationToggle: View {
+struct NotificationToggle: View {
     // MARK: - Properties
 
     /// The binding to the toggle state
@@ -49,7 +49,7 @@ public struct NotificationToggle: View {
     ///   - isLoading: Whether the toggle is in a loading state
     ///   - accentColor: Custom accent color (defaults to brand green)
     ///   - isDisabled: Whether the toggle is disabled
-    public init(
+    init(
         isOn: Binding<Bool>,
         isLoading: Bool = false,
         accentColor: Color = .DesignSystem.brandGreen,
@@ -63,7 +63,7 @@ public struct NotificationToggle: View {
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             // Base toggle
             Toggle("", isOn: $isOn)

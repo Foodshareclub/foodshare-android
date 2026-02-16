@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct AccessibilitySettingsView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     // Accessibility settings
@@ -20,7 +19,7 @@ struct AccessibilitySettingsView: View {
     @AppStorage("increase_contrast") private var increaseContrast = false
 
     // System accessibility state
-    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion: Bool
     @Environment(\.accessibilityDifferentiateWithoutColor) private var systemDifferentiateWithoutColor
 
     var body: some View {
@@ -101,7 +100,9 @@ struct AccessibilitySettingsView: View {
                     title: t.t("high_contrast"),
                     isOn: $highContrast
                 )
+                #if !SKIP
                 .sensoryFeedback(.selection, trigger: highContrast)
+                #endif
 
                 Text(t.t("high_contrast_description"))
                     .font(.DesignSystem.caption)
@@ -119,7 +120,9 @@ struct AccessibilitySettingsView: View {
                     title: t.t("larger_text"),
                     isOn: $largerText
                 )
+                #if !SKIP
                 .sensoryFeedback(.selection, trigger: largerText)
+                #endif
 
                 Text(t.t("larger_text_description"))
                     .font(.DesignSystem.caption)
@@ -137,7 +140,9 @@ struct AccessibilitySettingsView: View {
                     title: t.t("button_shapes"),
                     isOn: $buttonShapes
                 )
+                #if !SKIP
                 .sensoryFeedback(.selection, trigger: buttonShapes)
+                #endif
 
                 Text(t.t("button_shapes_description"))
                     .font(.DesignSystem.caption)
@@ -155,7 +160,9 @@ struct AccessibilitySettingsView: View {
                     title: t.t("increase_contrast"),
                     isOn: $increaseContrast
                 )
+                #if !SKIP
                 .sensoryFeedback(.selection, trigger: increaseContrast)
+                #endif
 
                 Text(t.t("increase_contrast_description"))
                     .font(.DesignSystem.caption)
@@ -179,7 +186,9 @@ struct AccessibilitySettingsView: View {
                     title: t.t("reduce_animations"),
                     isOn: $reduceAnimations
                 )
+                #if !SKIP
                 .sensoryFeedback(.selection, trigger: reduceAnimations)
+                #endif
 
                 Text(t.t("reduce_animations_description"))
                     .font(.DesignSystem.caption)
@@ -305,7 +314,9 @@ struct AccessibilitySettingsView: View {
             Text(t.t("accessibility_info_description"))
                 .font(.DesignSystem.caption)
                 .foregroundStyle(Color.DesignSystem.textTertiary)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)

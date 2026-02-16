@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AppIconOption.swift
 //  Foodshare
@@ -140,3 +141,4 @@ private func colorFromHex(_ hex: String) -> Color? {
 
     return Color(red: red, green: green, blue: blue)
 }
+#endif

@@ -6,7 +6,6 @@
 //  Enhanced with Instagram-style like button animations
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Trending Item Card

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ChatAPIService.swift
 //  Foodshare
@@ -101,7 +102,7 @@ actor ChatAPIService {
         if mode == "food" {
             return try await getFoodRoom(roomId: roomId, limit: limit)
         }
-        return try await getRoom(roomId: roomId, limit: limit)
+        return try await getRoom(roomId: roomId, limit: limit, messagesBefore: nil)
     }
 
     /// Update room with optional mode parameter
@@ -245,3 +246,4 @@ struct SuccessResponse: Codable, Sendable {
     let success: Bool
     let address: String?
 }
+#endif

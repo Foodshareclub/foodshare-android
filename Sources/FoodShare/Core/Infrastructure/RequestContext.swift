@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Request context that flows through async operations using TaskLocal
 /// Eliminates the need to pass userId and locale through every function parameter
@@ -89,7 +92,7 @@ public struct DeviceInfo: Sendable {
     
     /// Create device info from current device
     public static func current() -> DeviceInfo {
-        #if !SKIP
+        #if canImport(UIKit)
         DeviceInfo(
             model: UIDevice.current.model,
             systemVersion: UIDevice.current.systemVersion,
@@ -98,10 +101,10 @@ public struct DeviceInfo: Sendable {
         )
         #else
         DeviceInfo(
-            model: "Android",
+            model: "Unknown",
             systemVersion: "unknown",
-            appVersion: "unknown",
-            buildNumber: "unknown"
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+            buildNumber: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
         )
         #endif
     }
@@ -112,7 +115,7 @@ public struct DeviceInfo: Sendable {
 extension RequestContext {
     /// Create context from current app state
     @MainActor
-    public static func fromAppState(_ appState: AppState) -> RequestContext {
+    static func fromAppState(_ appState: AppState) -> RequestContext {
         RequestContext(
             userId: appState.currentUser?.id,
             locale: EnhancedTranslationService.shared.currentLocale,

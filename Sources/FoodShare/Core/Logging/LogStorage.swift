@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  LogStorage.swift
 //  Foodshare
@@ -404,3 +405,4 @@ enum LogStorageError: Error, LocalizedError {
         }
     }
 }
+#endif

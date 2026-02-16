@@ -8,7 +8,6 @@
 
 import Kingfisher
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassImageCarousel: View {
     let imageURLs: [URL]

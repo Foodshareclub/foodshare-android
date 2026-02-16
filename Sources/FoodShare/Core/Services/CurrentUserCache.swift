@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CurrentUserCache.swift
 //  Foodshare
@@ -164,3 +165,4 @@ extension CurrentUserCache {
         profile?.searchRadiusKm
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ErrorContext.swift
 //  Foodshare
@@ -389,3 +390,4 @@ extension Error {
         return CapturedError(error: self, context: context, severity: severity)
     }
 }
+#endif

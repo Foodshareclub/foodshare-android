@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Error View
 
@@ -251,9 +250,9 @@ struct GlassErrorView: View {
 // MARK: - Inline Error Banner
 
 /// Compact inline error banner with recovery options and animated states
-struct GlassErrorBanner: View {
+struct GlassInlineErrorBanner: View {
     let message: String
-    let context: ErrorContext?
+    let context: BannerErrorContext?
     let style: BannerStyle
     let retryAfter: TimeInterval?
     let action: (() -> Void)?
@@ -289,7 +288,7 @@ struct GlassErrorBanner: View {
     }
 
     /// Additional context about what failed
-    struct ErrorContext {
+    struct BannerErrorContext {
         let operation: String // What was the user trying to do
         let reason: String? // Why it failed
         let suggestion: String? // What to do next
@@ -300,24 +299,24 @@ struct GlassErrorBanner: View {
             self.suggestion = suggestion
         }
 
-        static func network(_ operation: String) -> ErrorContext {
-            ErrorContext(
+        static func network(_ operation: String) -> BannerErrorContext {
+            BannerErrorContext(
                 operation: operation,
                 reason: "No internet connection",
                 suggestion: "Check your connection and try again"
             )
         }
 
-        static func server(_ operation: String) -> ErrorContext {
-            ErrorContext(
+        static func server(_ operation: String) -> BannerErrorContext {
+            BannerErrorContext(
                 operation: operation,
                 reason: "Server temporarily unavailable",
                 suggestion: "Please wait a moment and retry"
             )
         }
 
-        static func permission(_ operation: String) -> ErrorContext {
-            ErrorContext(
+        static func permission(_ operation: String) -> BannerErrorContext {
+            BannerErrorContext(
                 operation: operation,
                 reason: "Access denied",
                 suggestion: "Sign in to continue"
@@ -327,7 +326,7 @@ struct GlassErrorBanner: View {
 
     init(
         _ message: String,
-        context: ErrorContext? = nil,
+        context: BannerErrorContext? = nil,
         style: BannerStyle = .error,
         retryAfter: TimeInterval? = nil,
         action: (() -> Void)? = nil,
@@ -397,9 +396,11 @@ struct GlassErrorBanner: View {
                 startCountdown(Int(retryAfter))
             }
         }
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint(action != nil ? "Double tap to retry" : "")
+        #endif
     }
 
     // MARK: - Subviews
@@ -429,7 +430,9 @@ struct GlassErrorBanner: View {
                     .font(.DesignSystem.captionSmall)
                     .fontWeight(.medium)
                     .foregroundColor(style.color)
+                    #if !SKIP
                     .monospacedDigit()
+                    #endif
 
                 CircularProgressView(progress: countdownProgress)
                     .frame(width: 16, height: 16)
@@ -452,7 +455,7 @@ struct GlassErrorBanner: View {
                     isVisible = false
                 }
                 Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(200))
+                    try? await Task.sleep(nanoseconds: 200_000_000)
                     dismissAction()
                 }
             } label: {
@@ -509,7 +512,7 @@ struct GlassErrorBanner: View {
 
         // Delay slightly to show loading state
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(300))
+            try? await Task.sleep(nanoseconds: 300_000_000)
             action()
             isRetrying = false
         }
@@ -543,24 +546,24 @@ private struct CircularProgressView: View {
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(Color.DesignSystem.brandOrange, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 0.5), value: progress)
+                .rotationEffect(Angle.degrees(-90))
+                .animation(Animation.linear(duration: 0.5), value: progress)
         }
     }
 }
 
 // MARK: - Convenience Initializers
 
-extension GlassErrorBanner {
+extension GlassInlineErrorBanner {
     /// Create a rate-limited error banner with countdown
     static func rateLimited(
         retryAfter: TimeInterval,
         operation: String,
         onRetry: @escaping () -> Void
-    ) -> GlassErrorBanner {
-        GlassErrorBanner(
+    ) -> GlassInlineErrorBanner {
+        GlassInlineErrorBanner(
             "Too many requests",
-            context: ErrorContext(
+            context: BannerErrorContext(
                 operation: "While \(operation)",
                 reason: "Rate limit exceeded",
                 suggestion: "Please wait before trying again"
@@ -576,8 +579,8 @@ extension GlassErrorBanner {
         operation: String,
         onRetry: @escaping () -> Void,
         onDismiss: (() -> Void)? = nil
-    ) -> GlassErrorBanner {
-        GlassErrorBanner(
+    ) -> GlassInlineErrorBanner {
+        GlassInlineErrorBanner(
             "Connection failed",
             context: .network(operation),
             style: .error,
@@ -590,8 +593,8 @@ extension GlassErrorBanner {
     static func serverError(
         operation: String,
         onRetry: @escaping () -> Void
-    ) -> GlassErrorBanner {
-        GlassErrorBanner(
+    ) -> GlassInlineErrorBanner {
+        GlassInlineErrorBanner(
             "Server error",
             context: .server(operation),
             style: .warning,
@@ -794,9 +797,9 @@ extension View {
                 .font(.DesignSystem.headlineSmall)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            GlassErrorBanner("Failed to load data. Please try again.", action: {})
-            GlassErrorBanner("Low storage space", style: .warning)
-            GlassErrorBanner("New version available", style: .info)
+            GlassInlineErrorBanner("Failed to load data. Please try again.", action: {})
+            GlassInlineErrorBanner("Low storage space", style: .warning)
+            GlassInlineErrorBanner("New version available", style: .info)
 
             Divider()
                 .padding(.vertical)

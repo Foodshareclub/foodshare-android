@@ -1,11 +1,10 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Scroll Offset Reader
 
 /// Preference key for tracking scroll offset
 public struct ScrollOffsetKey: PreferenceKey {
-    public static var defaultValue: CGFloat = 0
+    nonisolated(unsafe) public static var defaultValue: CGFloat = 0
 
     public static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()

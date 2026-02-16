@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  IPGeolocationService.swift
 //  Foodshare
@@ -743,3 +744,4 @@ extension IPGeolocationService {
         IPGeolocationService(configuration: configuration)
     }
 }
+#endif

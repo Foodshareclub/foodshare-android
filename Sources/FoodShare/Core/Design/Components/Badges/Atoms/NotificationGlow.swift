@@ -18,7 +18,6 @@
 //  - Blur radius control for depth effect
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 /// A pulsing glow effect for notification indicators following Liquid Glass design principles.
@@ -41,7 +40,7 @@ struct NotificationGlow: View {
     @State private var scale: CGFloat = 1.0
     @State private var opacity = 0.4
     @State private var animationTask: Task<Void, Never>?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         Group {
@@ -78,7 +77,11 @@ struct NotificationGlow: View {
                     scale = scaleRange.upperBound
                     opacity = opacityRange.lowerBound
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(duration / 2 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(duration / 2))
+                #endif
 
                 guard !Task.isCancelled else { break }
 
@@ -87,7 +90,11 @@ struct NotificationGlow: View {
                     scale = scaleRange.lowerBound
                     opacity = opacityRange.upperBound
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(duration / 2 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(duration / 2))
+                #endif
             }
         }
     }

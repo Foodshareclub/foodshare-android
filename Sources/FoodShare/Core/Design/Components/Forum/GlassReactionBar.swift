@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Reaction Bar
 
@@ -19,8 +18,10 @@ struct GlassReactionBar: View {
     let onReactionTap: (ReactionType) async -> Void
     let onLongPress: (() -> Void)?
 
+    #if !SKIP
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    #endif
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     @State private var showingPicker = false
     @State private var selectedReaction: ReactionType?
@@ -69,7 +70,7 @@ struct GlassReactionBar: View {
                 totalCountView
             }
         }
-        .popover(isPresented: $showingPicker) {
+        .sheet(isPresented: $showingPicker) {
             ReactionPicker(
                 reactions: ReactionType.all,
                 userReactions: summary.userReactionTypeIds,
@@ -80,7 +81,9 @@ struct GlassReactionBar: View {
                     }
                 },
             )
+            #if !SKIP
             .presentationCompactAdaptation(.popover)
+            #endif
         }
     }
 
@@ -91,8 +94,10 @@ struct GlassReactionBar: View {
             .font(.DesignSystem.caption)
             .fontWeight(.medium)
             .foregroundStyle(Color.DesignSystem.textSecondary)
+            #if !SKIP
             .contentTransition(.numericText())
             .monospacedDigit()
+            #endif
     }
 
     // MARK: - Actions
@@ -122,7 +127,7 @@ private struct ReactionChip: View {
     let isAnimating: Bool
     let onTap: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
     @State private var showParticles = false
     @State private var animationPhase: CGFloat = 0
 
@@ -131,7 +136,7 @@ private struct ReactionChip: View {
             ZStack {
                 // Particle burst overlay
                 if showParticles {
-                    ParticleBurstView(emoji: reaction.reactionType.emoji)
+                    ReactionParticleBurstView(emoji: reaction.reactionType.emoji)
                         .allowsHitTesting(false)
                 }
 
@@ -139,9 +144,9 @@ private struct ReactionChip: View {
                     Text(reaction.reactionType.emoji)
                         .font(.system(size: 16))
                         .scaleEffect(isAnimating ? 1.4 : 1.0)
-                        .rotationEffect(.degrees(isAnimating ? 15 : 0))
+                        .rotationEffect(Angle.degrees(isAnimating ? 15 : 0))
                         .animation(
-                            reduceMotion ? .none : .spring(response: 0.25, dampingFraction: 0.4, blendDuration: 0.1),
+                            reduceMotion ? Animation?.none : Animation.spring(response: 0.25, dampingFraction: 0.4, blendDuration: 0.1),
                             value: isAnimating,
                         )
 
@@ -154,8 +159,10 @@ private struct ReactionChip: View {
                                     ? Color.DesignSystem.primary
                                     : Color.DesignSystem.textSecondary,
                             )
+                            #if !SKIP
                             .contentTransition(.numericText())
                             .monospacedDigit()
+                            #endif
                     }
                 }
                 .padding(.horizontal, Spacing.sm)
@@ -202,7 +209,11 @@ private struct ReactionChip: View {
     private func triggerParticles() {
         showParticles = true
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(600 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(600))
+            #endif
             showParticles = false
         }
     }
@@ -210,7 +221,7 @@ private struct ReactionChip: View {
 
 // MARK: - Particle Burst View
 
-private struct ParticleBurstView: View {
+private struct ReactionParticleBurstView: View {
     let emoji: String
 
     @State private var particles: [Particle] = []
@@ -317,7 +328,7 @@ private struct ReactionPickerItem: View {
     let onTap: () -> Void
     let onHover: (Bool) -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         Button(action: onTap) {
@@ -326,7 +337,7 @@ private struct ReactionPickerItem: View {
                 .scaleEffect(isHovered ? 1.2 : 1.0)
                 .offset(y: isHovered ? -4 : 0)
                 .animation(
-                    reduceMotion ? .none : .spring(response: 0.25, dampingFraction: 0.6),
+                    reduceMotion ? Animation?.none : Animation.spring(response: 0.25, dampingFraction: 0.6),
                     value: isHovered,
                 )
         }
@@ -336,7 +347,9 @@ private struct ReactionPickerItem: View {
             Circle()
                 .fill(isSelected ? Color.DesignSystem.primary.opacity(0.2) : Color.clear),
         )
+        #if !SKIP
         .onHover(perform: onHover)
+        #endif
         .accessibilityLabel(reaction.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
@@ -386,7 +399,7 @@ struct GlassReactionButton: View {
 
     @State private var isAnimating = false
     @State private var showMicroParticles = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         Button(action: {
@@ -399,13 +412,21 @@ struct GlassReactionButton: View {
             if !reduceMotion {
                 showMicroParticles = true
                 Task { @MainActor in
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(400 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(400))
+                    #endif
                     showMicroParticles = false
                 }
             }
 
             Task { @MainActor in
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(250 * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(250))
+                #endif
                 withAnimation(.spring(response: 0.15, dampingFraction: 0.6)) {
                     isAnimating = false
                 }
@@ -432,8 +453,10 @@ struct GlassReactionButton: View {
                                     ? Color.DesignSystem.primary
                                     : Color.DesignSystem.textTertiary,
                             )
+                            #if !SKIP
                             .contentTransition(.numericText())
                             .monospacedDigit()
+                            #endif
                     }
                 }
                 .padding(.horizontal, Spacing.xs)

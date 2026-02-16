@@ -12,24 +12,24 @@
 //  - Achievement unlocks
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Burst Configuration
 
-public struct ParticleBurstConfiguration: Sendable {
-    public let particleCount: Int
-    public let colors: [Color]
-    public let minSize: CGFloat
-    public let maxSize: CGFloat
-    public let minVelocity: CGFloat
-    public let maxVelocity: CGFloat
-    public let duration: TimeInterval
-    public let fadeOutDuration: TimeInterval
-    public let gravity: CGFloat
-    public let spread: Double // Angle spread in radians (2π = full circle)
+struct ParticleBurstConfiguration: Sendable {
+    let particleCount: Int
+    let colors: [Color]
+    let minSize: CGFloat
+    let maxSize: CGFloat
+    let minVelocity: CGFloat
+    let maxVelocity: CGFloat
+    let duration: TimeInterval
+    let fadeOutDuration: TimeInterval
+    let gravity: CGFloat
+    let spread: Double // Angle spread in radians (2π = full circle)
 
-    public init(
+    init(
         particleCount: Int = 12,
         colors: [Color] = [.DesignSystem.brandGreen, .DesignSystem.brandPink, .DesignSystem.brandTeal],
         minSize: CGFloat = 4,
@@ -54,9 +54,9 @@ public struct ParticleBurstConfiguration: Sendable {
     }
 
     // Preset configurations
-    public static let `default` = ParticleBurstConfiguration()
+    static let `default` = ParticleBurstConfiguration()
 
-    public static let subtle = ParticleBurstConfiguration(
+    static let subtle = ParticleBurstConfiguration(
         particleCount: 6,
         minSize: 3,
         maxSize: 5,
@@ -65,7 +65,7 @@ public struct ParticleBurstConfiguration: Sendable {
         duration: 0.4,
     )
 
-    public static let celebration = ParticleBurstConfiguration(
+    static let celebration = ParticleBurstConfiguration(
         particleCount: 24,
         minSize: 5,
         maxSize: 12,
@@ -75,7 +75,7 @@ public struct ParticleBurstConfiguration: Sendable {
         fadeOutDuration: 0.4,
     )
 
-    public static let heart = ParticleBurstConfiguration(
+    static let heart = ParticleBurstConfiguration(
         particleCount: 8,
         colors: [.DesignSystem.brandPink, .red, .DesignSystem.brandPink.opacity(0.7)],
         minSize: 6,
@@ -87,7 +87,7 @@ public struct ParticleBurstConfiguration: Sendable {
         spread: .pi * 2,
     )
 
-    public static let spark = ParticleBurstConfiguration(
+    static let spark = ParticleBurstConfiguration(
         particleCount: 16,
         colors: [.yellow, .orange, .white],
         minSize: 2,
@@ -99,7 +99,7 @@ public struct ParticleBurstConfiguration: Sendable {
         gravity: 50,
     )
 
-    public static let confetti = ParticleBurstConfiguration(
+    static let confetti = ParticleBurstConfiguration(
         particleCount: 20,
         colors: [.red, .orange, .yellow, .green, .blue, .purple, .pink],
         minSize: 4,
@@ -129,7 +129,7 @@ struct BurstParticle: Identifiable {
 
 // MARK: - Particle Burst View
 
-public struct ParticleBurstView: View {
+struct ParticleBurstView: View {
     let origin: CGPoint
     let config: ParticleBurstConfiguration
     let onComplete: (() -> Void)?
@@ -138,7 +138,7 @@ public struct ParticleBurstView: View {
     @State private var startTime: Date = .now
     @State private var isActive = false
 
-    public init(
+    init(
         origin: CGPoint,
         config: ParticleBurstConfiguration = .default,
         onComplete: (() -> Void)? = nil,
@@ -148,7 +148,7 @@ public struct ParticleBurstView: View {
         self.onComplete = onComplete
     }
 
-    public var body: some View {
+    var body: some View {
         TimelineView(.animation) { timeline in
             Canvas { context, _ in
                 let elapsed = timeline.date.timeIntervalSince(startTime)
@@ -317,7 +317,7 @@ struct ParticleBurstModifier: ViewModifier {
 }
 
 struct BurstFramePreferenceKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
+    nonisolated(unsafe) static var defaultValue: CGRect = .zero
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         value = nextValue()
     }
@@ -360,7 +360,7 @@ struct TapParticleBurstModifier: ViewModifier {
 
 extension View {
     /// Trigger a particle burst when the binding becomes true
-    public func particleBurst(
+    func particleBurst(
         trigger: Binding<Bool>,
         config: ParticleBurstConfiguration = .default,
         position: ParticleBurstModifier.BurstPosition = .center,
@@ -369,7 +369,7 @@ extension View {
     }
 
     /// Create a particle burst at tap location
-    public func tapBurst(
+    func tapBurst(
         config: ParticleBurstConfiguration = .subtle,
         action: @escaping () -> Void = {},
     ) -> some View {
@@ -377,12 +377,12 @@ extension View {
     }
 
     /// Quick celebration burst (for like/save buttons)
-    public func celebrationBurst(trigger: Binding<Bool>) -> some View {
+    func celebrationBurst(trigger: Binding<Bool>) -> some View {
         particleBurst(trigger: trigger, config: .celebration)
     }
 
     /// Heart burst (for like buttons specifically)
-    public func heartBurst(trigger: Binding<Bool>) -> some View {
+    func heartBurst(trigger: Binding<Bool>) -> some View {
         particleBurst(trigger: trigger, config: .heart)
     }
 }
@@ -391,19 +391,19 @@ extension View {
 
 /// Controller for manually triggering bursts at specific locations
 @MainActor @Observable
-public final class ParticleBurstController {
-    public struct ActiveBurst: Identifiable {
-        public let id = UUID()
-        public let origin: CGPoint
-        public let config: ParticleBurstConfiguration
-        public let startTime: Date
+final class ParticleBurstController {
+    struct ActiveBurst: Identifiable {
+        let id = UUID()
+        let origin: CGPoint
+        let config: ParticleBurstConfiguration
+        let startTime: Date
     }
 
-    public var activeBursts: [ActiveBurst] = []
+    var activeBursts: [ActiveBurst] = []
 
-    public init() {}
+    init() {}
 
-    public func trigger(at origin: CGPoint, config: ParticleBurstConfiguration = .default) {
+    func trigger(at origin: CGPoint, config: ParticleBurstConfiguration = .default) {
         let burst = ActiveBurst(origin: origin, config: config, startTime: .now)
         activeBursts.append(burst)
 
@@ -415,20 +415,20 @@ public final class ParticleBurstController {
         }
     }
 
-    public func removeBurst(id: UUID) {
+    func removeBurst(id: UUID) {
         activeBursts.removeAll { $0.id == id }
     }
 }
 
 /// View that renders all active bursts from a controller
-public struct ParticleBurstOverlay: View {
+struct ParticleBurstOverlay: View {
     let controller: ParticleBurstController
 
-    public init(controller: ParticleBurstController) {
+    init(controller: ParticleBurstController) {
         self.controller = controller
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             ForEach(controller.activeBursts) { burst in
                 ParticleBurstView(
@@ -539,3 +539,4 @@ public struct ParticleBurstOverlay: View {
             .preferredColorScheme(.dark)
     }
 #endif
+#endif // !SKIP

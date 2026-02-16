@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Primary button with Foodshare brand gradient and optional loading state
 struct PrimaryButton: View {
@@ -18,7 +17,7 @@ struct PrimaryButton: View {
     private let isLoading: Bool
     private let isEnabled: Bool
 
-    @Environment(\.isEnabled) private var environmentIsEnabled
+    @Environment(\.isEnabled) private var environmentIsEnabled: Bool
 
     // MARK: - Initialization
 
@@ -43,7 +42,7 @@ struct PrimaryButton: View {
             HStack(spacing: Spacing.sm) {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                         .scaleEffect(0.8)
                 } else if let icon {
                     Image(systemName: icon)
@@ -217,7 +216,7 @@ private struct PrimaryScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 20), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 20), value: configuration.isPressed)
     }
 }
 

@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - GlassDetailSection
 
@@ -22,7 +21,7 @@ struct GlassDetailSection<Header: View, Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     @State private var hasAppeared = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -121,37 +120,22 @@ private struct ConditionalMetalGlow: ViewModifier {
     let color: Color
 
     func body(content: Content) -> some View {
+        #if !SKIP
         if enabled {
             content.metalEffect(.glow(color: color, intensity: 0.3))
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
 
 // MARK: - Convenience Initializers
 
-extension GlassDetailSection where Header == EmptyView {
-    /// Creates a section without a header
-    init(
-        index: Int,
-        sectionsAppeared: Binding<Bool>,
-        useMetalGlow: Bool = false,
-        glowColor: Color = Color.DesignSystem.brandGreen,
-        cornerRadius: CGFloat = CornerRadius.large,
-        @ViewBuilder content: @escaping () -> Content,
-    ) {
-        self.init(
-            index: index,
-            sectionsAppeared: sectionsAppeared,
-            useMetalGlow: useMetalGlow,
-            glowColor: glowColor,
-            cornerRadius: cornerRadius,
-            header: { EmptyView() },
-            content: content,
-        )
-    }
-}
+// Note: Skip cannot handle generic-constrained extensions with constructors.
+// Use GlassDetailSection(index:sectionsAppeared:header:content:) with header: { EmptyView() } instead.
 
 // MARK: - GlassDetailSection with Title
 
@@ -296,18 +280,24 @@ extension GlassDetailSection {
             GlassDetailSection(
                 index: 3,
                 sectionsAppeared: $sectionsAppeared,
-            ) {
-                Text("This section has no header")
-                    .font(.DesignSystem.bodyMedium)
-                    .foregroundColor(.DesignSystem.textSecondary)
-            }
+                header: { EmptyView() },
+                content: {
+                    Text("This section has no header")
+                        .font(.DesignSystem.bodyMedium)
+                        .foregroundColor(.DesignSystem.textSecondary)
+                }
+            )
         }
         .padding(Spacing.md)
     }
     .background(Color.DesignSystem.background)
     .onAppear {
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(300))
+            #endif
             sectionsAppeared = true
         }
     }

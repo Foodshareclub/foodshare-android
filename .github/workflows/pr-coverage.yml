@@ -1,0 +1,237 @@
+name: PR Coverage Report
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: pr-coverage-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+  XCODE_VERSION: "16.0"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Coverage Diff: Run tests, extract per-file coverage, post PR comment
+  # ---------------------------------------------------------------------------
+  coverage-diff:
+    name: Coverage Report
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-coverage-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-coverage-
+            ${{ runner.os }}-spm-
+
+      - name: Resolve packages
+        run: swift package resolve
+
+      - name: Run tests with coverage
+        run: |
+          swift test \
+            --enable-code-coverage \
+            --parallel \
+            2>&1 | tee test-output.log
+
+      - name: Extract coverage data
+        id: coverage
+        run: |
+          # Find the profdata and binary
+          PROFDATA=$(find .build -name "default.profdata" -type f 2>/dev/null | head -1)
+          BINARY=$(find .build/debug -name "FoodSharePackageTests.xctest" -o -name "*.xctest" 2>/dev/null | head -1)
+
+          if [ -z "$PROFDATA" ] || [ -z "$BINARY" ]; then
+            echo "Coverage data not found, skipping coverage report"
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_coverage=true" >> "$GITHUB_OUTPUT"
+
+          # Generate JSON coverage report
+          xcrun llvm-cov export \
+            "$BINARY" \
+            -instr-profile="$PROFDATA" \
+            -format=text \
+            -summary-only \
+            > coverage-summary.json 2>/dev/null || true
+
+          # Generate per-file coverage report
+          xcrun llvm-cov report \
+            "$BINARY" \
+            -instr-profile="$PROFDATA" \
+            > coverage-report.txt 2>/dev/null || true
+
+          # Extract overall coverage percentage
+          TOTAL_COVERAGE=$(xcrun llvm-cov report \
+            "$BINARY" \
+            -instr-profile="$PROFDATA" \
+            2>/dev/null | tail -1 | awk '{print $NF}' | tr -d '%' || echo "0")
+
+          echo "total_coverage=${TOTAL_COVERAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Get changed Swift files coverage
+        id: changed_coverage
+        if: steps.coverage.outputs.has_coverage == 'true'
+        run: |
+          # Get list of changed Swift files in this PR
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.swift' | grep -v Tests/ || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed Swift source files"
+            echo "changed_report=No changed Swift source files to report coverage for." >> "$GITHUB_OUTPUT"
+            echo "threshold_passed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PROFDATA=$(find .build -name "default.profdata" -type f 2>/dev/null | head -1)
+          BINARY=$(find .build/debug -name "FoodSharePackageTests.xctest" -o -name "*.xctest" 2>/dev/null | head -1)
+
+          # Build per-file coverage for changed files
+          REPORT="| File | Coverage | Status |\n|------|----------|--------|\n"
+          THRESHOLD_FAILED=false
+
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              FILE_COV=$(xcrun llvm-cov report \
+                "$BINARY" \
+                -instr-profile="$PROFDATA" \
+                "$file" 2>/dev/null | tail -1 | awk '{print $NF}' | tr -d '%' || echo "0")
+
+              if [ -z "$FILE_COV" ] || [ "$FILE_COV" = "0" ]; then
+                FILE_COV="0.00"
+              fi
+
+              # Check 70% threshold
+              PASSES=$(echo "$FILE_COV >= 70" | bc -l 2>/dev/null || echo "0")
+              if [ "$PASSES" = "1" ]; then
+                STATUS="pass"
+              else
+                STATUS="warn"
+                THRESHOLD_FAILED=true
+              fi
+
+              SHORT_FILE=$(basename "$file")
+              REPORT="${REPORT}| \`${SHORT_FILE}\` | ${FILE_COV}% | ${STATUS} |\n"
+            fi
+          done <<< "$CHANGED_FILES"
+
+          # Escape for GITHUB_OUTPUT
+          EOF_MARKER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
+          echo "changed_report<<${EOF_MARKER}" >> "$GITHUB_OUTPUT"
+          echo -e "$REPORT" >> "$GITHUB_OUTPUT"
+          echo "${EOF_MARKER}" >> "$GITHUB_OUTPUT"
+
+          if [ "$THRESHOLD_FAILED" = "true" ]; then
+            echo "threshold_passed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "threshold_passed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post coverage comment
+        if: steps.coverage.outputs.has_coverage == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const totalCoverage = '${{ steps.coverage.outputs.total_coverage }}';
+            const changedReport = `${{ steps.changed_coverage.outputs.changed_report }}`;
+            const thresholdPassed = '${{ steps.changed_coverage.outputs.threshold_passed }}' === 'true';
+
+            const coverageNum = parseFloat(totalCoverage) || 0;
+            let coverageIcon = '';
+            if (coverageNum >= 80) coverageIcon = ':green_circle:';
+            else if (coverageNum >= 70) coverageIcon = ':yellow_circle:';
+            else coverageIcon = ':red_circle:';
+
+            const thresholdStatus = thresholdPassed
+              ? ':white_check_mark: All changed files meet the 70% coverage threshold.'
+              : ':warning: Some changed files are below the 70% coverage threshold.';
+
+            const body = `## Coverage Report ${coverageIcon}
+
+            **Overall Coverage:** ${totalCoverage}%
+            **Threshold:** 70% per changed file
+
+            ### Changed Files
+
+            ${changedReport}
+
+            ${thresholdStatus}
+
+            ---
+            *Generated by PR Coverage workflow*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('## Coverage Report')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Upload coverage to Codecov
+        if: steps.coverage.outputs.has_coverage == 'true'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-summary.json
+          flags: swift-tests
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage-summary.json
+            coverage-report.txt
+            test-output.log
+          retention-days: 14
+
+      - name: Check coverage threshold
+        if: steps.coverage.outputs.has_coverage == 'true' && steps.changed_coverage.outputs.threshold_passed == 'false'
+        run: |
+          echo "::warning::Some changed files are below the 70% coverage threshold"
+          echo "Review the coverage report in the PR comment for details."

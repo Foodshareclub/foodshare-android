@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  FeedbackView.swift
 //  Foodshare
@@ -6,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -234,6 +234,7 @@ struct FeedbackView: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     FeedbackView(
         viewModel: FeedbackViewModel(
@@ -244,23 +245,5 @@ struct FeedbackView: View {
         ),
     )
 }
-
-// MARK: - Mock Repository
-
-private final class MockFeedbackRepository: FeedbackRepository, @unchecked Sendable {
-    func submitFeedback(_ input: CreateFeedbackInput, userId: UUID?) async throws -> Feedback {
-        try await Task.sleep(for: .seconds(1))
-        return Feedback(
-            id: UUID(),
-            profileId: userId,
-            name: input.name,
-            email: input.email,
-            subject: input.subject,
-            message: input.message,
-            feedbackType: input.feedbackType,
-            status: .new,
-            createdAt: Date(),
-            updatedAt: Date(),
-        )
-    }
-}
+#endif
+#endif

@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Midnight theme with indigo and purple colors
 struct MidnightTheme: Theme {

@@ -5,7 +5,6 @@
 //  Extracted challenge leaderboard section
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct ChallengeLeaderboardSection: View {

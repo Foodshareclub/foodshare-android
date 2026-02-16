@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Share Button
 
@@ -224,7 +223,7 @@ struct CopyLinkButton: View {
 
         // Reset after delay
         Task { @MainActor in
-            try? await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
             copied = false
         }
     }
@@ -257,12 +256,14 @@ struct EngagementBar: View {
     var body: some View {
         HStack(spacing: 12) {
             // Like button
+            #if !SKIP
             LikeButton(
                 postId: item.id,
                 initialLikeCount: initialLikeCount,
                 initialIsLiked: initialIsLiked,
                 size: .medium
             )
+            #endif
             
             Spacer()
             

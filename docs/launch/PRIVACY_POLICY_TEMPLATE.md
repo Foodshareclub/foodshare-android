@@ -1,6 +1,6 @@
 # Privacy Policy Template for FoodShare
 
-**Last Updated: February 11, 2026**
+**Last Updated: February 16, 2026**
 
 ## Introduction
 

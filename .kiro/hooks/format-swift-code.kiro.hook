@@ -1,0 +1,16 @@
+{
+  "enabled": false,
+  "name": "Format Swift Code",
+  "description": "Format Swift files using SwiftFormat on save",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Format the Swift file according to Swift style guidelines:\n\n1. Run swiftformat if available\n2. If swiftformat is not installed, apply standard formatting:\n   - Consistent indentation (4 spaces)\n   - Proper spacing around operators\n   - Remove trailing whitespace\n   - Organize imports alphabetically\n3. Report any formatting changes made"
+  }
+}

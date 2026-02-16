@@ -6,7 +6,6 @@
 //  Enhanced version of DetailStatPill with number counter animation
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct GlassStatPill: View {
@@ -49,7 +48,9 @@ struct GlassStatPill: View {
                     .font(.DesignSystem.bodyMedium)
                     .fontWeight(.semibold)
                     .foregroundColor(isHighlighted ? iconColor : .DesignSystem.text)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
             } else {
                 Text(value)
                     .font(.DesignSystem.bodyMedium)
@@ -62,7 +63,9 @@ struct GlassStatPill: View {
                 Text(label)
                     .font(.DesignSystem.captionSmall)
                     .foregroundColor(.DesignSystem.textTertiary)
+                    #if !SKIP
                     .fixedSize(horizontal: true, vertical: false)
+                    #endif
             }
         }
         .padding(.horizontal, Spacing.sm)
@@ -75,8 +78,10 @@ struct GlassStatPill: View {
                         .stroke(isHighlighted ? iconColor.opacity(0.25) : Color.clear, lineWidth: 1),
                 ),
         )
-        .accessibilityElement(children: .ignore)
+        #if !SKIP
+        .accessibilityElement(children: AccessibilityChildBehavior.ignore)
         .accessibilityLabel("\(value) \(label ?? icon)")
+        #endif
         .opacity(hasAppeared ? 1 : 0)
         .scaleEffect(hasAppeared ? 1 : 0.9)
         .onAppear {
@@ -87,7 +92,11 @@ struct GlassStatPill: View {
                 }
                 // Animate the number after appearing
                 Task { @MainActor in
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(200 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(200))
+                    #endif
                     withAnimation(.interpolatingSpring(stiffness: 100, damping: 15)) {
                         displayValue = value
                     }

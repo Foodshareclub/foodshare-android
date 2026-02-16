@@ -6,7 +6,6 @@
 //  Liquid Glass v26 design with ProMotion 120Hz optimization
 //
 
-import FoodShareDesignSystem
 import Kingfisher
 import SwiftUI
 
@@ -1004,6 +1003,7 @@ private struct ShuffleSparkles: View {
     private let timer = Timer.publish(every: 0.016, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        #if !SKIP
         Canvas { context, size in
             for particle in particles {
                 let rect = CGRect(
@@ -1050,6 +1050,7 @@ private struct ShuffleSparkles: View {
                 return p
             }
         }
+        #endif
     }
 
     private func addParticle() {
@@ -1233,7 +1234,9 @@ struct CardDeckHeader: View {
                 .padding(.vertical, Spacing.xs)
                 .background(.ultraThinMaterial)
                 .clipShape(Capsule())
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentIndex)
         }
     }

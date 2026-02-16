@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AttestationAPIService.swift
 //  Foodshare
@@ -30,3 +31,4 @@ struct AttestationResponse: Codable {
 struct VerificationResponse: Codable {
     let valid: Bool
 }
+#endif

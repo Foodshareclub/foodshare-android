@@ -8,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Toast View
 
@@ -59,12 +58,13 @@ struct GlassToast: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .overlay(glassOverlay)
         .shadow(color: notification.style.color.opacity(0.2), radius: 12, y: 4)
-        .shadow(color: .black.opacity(0.1), radius: 8, y: 2)
+        .shadow(color: Color.black.opacity(0.1), radius: 8, y: 2)
         .offset(y: offset)
         .opacity(opacity)
         .drawingGroup() // GPU rasterization for glass effects
         .gesture(dismissGesture)
         // MARK: - Accessibility
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(notification.action != nil
@@ -74,8 +74,9 @@ struct GlassToast: View {
             .accessibilityAction(.escape) {
                 dismissWithAnimation()
             }
+        #endif
             .onAppear {
-                withAnimation(.interpolatingSpring(stiffness: 250, damping: 22)) {
+                withAnimation(Animation.interpolatingSpring(stiffness: 250, damping: 22)) {
                     offset = 0
                     opacity = 1
                 }
@@ -229,7 +230,7 @@ struct GlassToast: View {
                 if value.translation.height < -50 {
                     dismissWithAnimation()
                 } else {
-                    withAnimation(.interpolatingSpring(stiffness: 300, damping: 22)) {
+                    withAnimation(Animation.interpolatingSpring(stiffness: 300, damping: 22)) {
                         offset = 0
                     }
                 }
@@ -238,12 +239,12 @@ struct GlassToast: View {
 
     private func dismissWithAnimation() {
         HapticManager.light()
-        withAnimation(.interpolatingSpring(stiffness: 350, damping: 25)) {
+        withAnimation(Animation.interpolatingSpring(stiffness: 350, damping: 25)) {
             offset = -100
             opacity = 0
         }
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(nanoseconds: 250_000_000)
             onDismiss()
         }
     }
@@ -269,7 +270,7 @@ struct ToastContainer: View {
         }
         .padding(.horizontal, Spacing.md)
         .padding(.top, Spacing.sm)
-        .animation(.interpolatingSpring(stiffness: 300, damping: 25), value: errorService.toasts.count)
+        .animation(Animation.interpolatingSpring(stiffness: 300, damping: 25), value: errorService.toasts.count)
     }
 }
 
@@ -354,7 +355,7 @@ extension View {
                     }
                     .padding(.horizontal, Spacing.md)
                     .padding(.top, Spacing.sm)
-                    .animation(.interpolatingSpring(stiffness: 300, damping: 25), value: toasts.count)
+                    .animation(Animation.interpolatingSpring(stiffness: 300, damping: 25), value: toasts.count)
 
                     Spacer()
                 }

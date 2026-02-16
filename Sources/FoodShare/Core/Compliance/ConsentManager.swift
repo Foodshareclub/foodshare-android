@@ -26,7 +26,6 @@
 import Foundation
 import OSLog
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Consent Types
 
@@ -179,7 +178,7 @@ public final class ConsentManager {
     public static let shared = ConsentManager()
 
     // Current privacy policy version - increment when policy changes
-    public static let currentPolicyVersion = "1.0.0"
+    nonisolated public static let currentPolicyVersion = "1.0.0"
 
     // MARK: - Published State
 
@@ -285,11 +284,16 @@ public final class ConsentManager {
         await saveState()
 
         // Log audit event
-        await AuditLogger.shared.log(.consentChanged(
-            type: type.rawValue,
-            granted: granted,
-            source: source.rawValue,
-        ))
+        #if !SKIP
+        await AuditLogger.shared.log(
+            operation: AuditOperation.consentUpdated,
+            metadata: [
+                "type": type.rawValue,
+                "granted": String(granted),
+                "source": source.rawValue,
+            ]
+        )
+        #endif
 
         // Sync to backend
         await syncConsentToBackend(type: type, granted: granted)
@@ -321,7 +325,12 @@ public final class ConsentManager {
 
         await saveState()
 
-        await AuditLogger.shared.log(.policyAccepted(version: Self.currentPolicyVersion))
+        #if !SKIP
+        await AuditLogger.shared.log(
+            operation: AuditOperation.consentUpdated,
+            metadata: ["policyVersion": Self.currentPolicyVersion]
+        )
+        #endif
 
         logger.info("Policy version \(Self.currentPolicyVersion) accepted")
     }
@@ -363,7 +372,7 @@ public final class ConsentManager {
 
             try await supabase.rpc("update_user_consent", params: [
                 "p_consent_type": type.rawValue,
-                "p_granted": granted,
+                "p_granted": String(granted),
                 "p_policy_version": Self.currentPolicyVersion
             ]).execute()
         } catch {
@@ -378,7 +387,7 @@ public final class ConsentManager {
 public struct ConsentSettingsView: View {
     @Environment(\.translationService) private var t
     @Bindable var consentManager = ConsentManager.shared
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     public init() {}
 

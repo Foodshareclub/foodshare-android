@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AnalyticsAPIService.swift
 //  Foodshare
@@ -15,11 +16,8 @@ actor AnalyticsAPIService {
         self.client = client
     }
     
-    func track(event: String, properties: [String: Any] = [:]) async throws {
-        let _: EmptyResponse = try await client.post("api-v1-analytics/track", body: [
-            "event": event,
-            "properties": properties
-        ])
+    func track(event: String, properties: [String: String] = [:]) async throws {
+        let _: EmptyResponse = try await client.post("api-v1-analytics/track", body: TrackEventBody(event: event, properties: properties))
     }
     
     func getStats(userId: String) async throws -> UserStats {
@@ -27,8 +25,8 @@ actor AnalyticsAPIService {
     }
 }
 
-struct UserStats: Codable {
-    let totalPosts: Int
-    let totalViews: Int
-    let totalLikes: Int
+private struct TrackEventBody: Encodable {
+    let event: String
+    let properties: [String: String]
 }
+#endif

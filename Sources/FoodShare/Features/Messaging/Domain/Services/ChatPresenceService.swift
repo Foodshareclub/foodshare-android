@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ChatPresenceService.swift
 //  Foodshare
@@ -345,4 +346,5 @@ actor SupabaseChatPresenceService: ChatPresenceService {
             .online
         }
     }
+#endif
 #endif

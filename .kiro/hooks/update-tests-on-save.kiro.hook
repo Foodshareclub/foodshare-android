@@ -1,0 +1,19 @@
+{
+  "enabled": false,
+  "name": "Update Tests on Save",
+  "description": "Automatically update and run related tests when Swift files are saved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "FoodShare/**/*.swift"
+    ],
+    "excludePatterns": [
+      "**/Tests/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A Swift file was just saved. Please:\n\n1. Check if there are corresponding test files in FoodShareTests/\n2. If tests exist, review them to ensure they cover the recent changes\n3. Suggest any new test cases that should be added\n4. Run the tests using: xcodebuild test -scheme FoodShare -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'\n\nOnly make minimal, necessary updates to keep tests in sync."
+  }
+}

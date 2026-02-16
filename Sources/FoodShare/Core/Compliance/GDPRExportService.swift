@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  GDPRExportService.swift
 //  FoodShare
@@ -533,7 +534,7 @@ public actor GDPRExportService {
                     consentType: record.type.rawValue,
                     granted: record.granted,
                     timestamp: record.timestamp,
-                    version: record.version,
+                    version: record.policyVersion,
                 )
             }
         }
@@ -655,19 +656,4 @@ public enum GDPRExportError: LocalizedError, Sendable {
     }
 }
 
-// MARK: - Consent Record (for preferences)
-
-struct ConsentRecord: Codable {
-    let type: ConsentType
-    let granted: Bool
-    let timestamp: Date
-    let version: String?
-
-    enum ConsentType: String, Codable {
-        case analytics
-        case marketing
-        case thirdParty
-        case locationTracking
-        case personalization
-    }
-}
+#endif

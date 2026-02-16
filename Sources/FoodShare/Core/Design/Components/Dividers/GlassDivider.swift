@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassDivider: View {
     let style: DividerStyle

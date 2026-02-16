@@ -6,7 +6,6 @@
 //  Features: Real-time sync, optimistic UI, retry logic, offline queue, analytics
 //
 
-import FoodShareArchitecture
 import Foundation
 import Observation
 import OSLog

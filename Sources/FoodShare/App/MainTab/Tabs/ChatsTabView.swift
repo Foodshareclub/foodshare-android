@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Chats Tab View
 
@@ -24,9 +23,11 @@ struct ChatsTabView: View {
             // Guest mode: Show guest-specific upgrade prompt
             if guestManager.isGuestMode {
                 NavigationStack {
-                    GuestRestrictedTabView(feature: .messaging)
+                    GuestRestrictedTabView(feature: GuestRestrictedFeature.messaging)
                         .navigationTitle(t.t("tabs.chats"))
+                        #if !SKIP
                         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                        #endif
                 }
             } else if appState.currentUser?.id != nil {
                 if let viewModel = messagingViewModel {
@@ -36,14 +37,18 @@ struct ChatsTabView: View {
                     NavigationStack {
                         loadingView
                             .navigationTitle(t.t("tabs.chats"))
+                            #if !SKIP
                             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                            #endif
                     }
                 }
             } else {
                 NavigationStack {
                     SignInPromptView.messaging()
                         .navigationTitle(t.t("tabs.chats"))
+                        #if !SKIP
                         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                        #endif
                 }
             }
         }

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  KeychainHelper.swift
 //  Foodshare
@@ -221,3 +222,4 @@ actor KeychainHelper {
         return query
     }
 }
+#endif

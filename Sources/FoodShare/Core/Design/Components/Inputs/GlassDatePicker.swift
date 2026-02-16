@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Date Picker
 
@@ -18,7 +17,7 @@ struct GlassDatePicker: View {
     let range: ClosedRange<Date>?
 
     @State private var isExpanded = false
-    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.translationService) private var t
 
     init(
@@ -122,8 +121,8 @@ struct GlassDatePicker: View {
             if isExpanded {
                 pickerContent
                     .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: .top)),
-                        removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
+                        insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: UnitPoint.top)),
+                        removal: .opacity.combined(with: .scale(scale: 0.95, anchor: UnitPoint.top))
                     ))
             }
         }
@@ -142,7 +141,9 @@ struct GlassDatePicker: View {
                     in: range,
                     displayedComponents: displayedComponents
                 )
+                #if !SKIP
                 .datePickerStyle(.graphical)
+                #endif
                 .labelsHidden()
             } else {
                 DatePicker(
@@ -150,7 +151,9 @@ struct GlassDatePicker: View {
                     selection: $selection,
                     displayedComponents: displayedComponents
                 )
+                #if !SKIP
                 .datePickerStyle(.graphical)
+                #endif
                 .labelsHidden()
             }
 

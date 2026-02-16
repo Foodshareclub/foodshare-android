@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 /// Database-related errors with Sendable conformance for safe concurrent usage
@@ -102,3 +103,4 @@ enum DatabaseError: LocalizedError, Sendable {
         }
     }
 }
+#endif

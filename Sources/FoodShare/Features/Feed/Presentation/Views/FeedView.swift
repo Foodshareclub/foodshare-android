@@ -7,7 +7,6 @@
 //  Liquid Glass v27 design system with GPU-accelerated rendering
 //
 
-import FoodShareDesignSystem
 import OSLog
 import SwiftUI
 

@@ -5,7 +5,6 @@
 //  Detail view for a community fridge
 //
 
-import FoodShareDesignSystem
 #if !SKIP
 import MapKit
 #endif
@@ -15,7 +14,7 @@ struct CommunityFridgeDetailView: View {
 
     @Environment(\.translationService) private var t
     let fridge: CommunityFridge
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.openURL) private var openURL
     @State private var showReportIssue = false
     @State private var reportIssueType: ReportIssueType?
@@ -23,7 +22,7 @@ struct CommunityFridgeDetailView: View {
     @State private var isLoading = true
     @State private var displayDescription = ""
     @State private var isDescriptionTranslated = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     enum ReportIssueType: String, CaseIterable, Identifiable {
         case damaged = "Fridge Damaged"
@@ -87,7 +86,11 @@ struct CommunityFridgeDetailView: View {
                 displayDescription = fridge.description ?? ""
 
                 // Brief skeleton display for smooth transition
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(300))
+                #endif
                 withAnimation(reduceMotion ? .none : .easeOut(duration: 0.2)) {
                     isLoading = false
                 }
@@ -445,7 +448,7 @@ struct ReportIssueSheet: View {
     @Environment(\.translationService) private var t
     let fridge: CommunityFridge
     let issueType: CommunityFridgeDetailView.ReportIssueType
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var description = ""
     @State private var isSubmitting = false
     @State private var showSuccess = false
@@ -536,7 +539,11 @@ struct ReportIssueSheet: View {
         isSubmitting = true
         // Simulate API call
         Task {
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(1 * 1_000_000_000))
+            #else
             try? await Task.sleep(for: .seconds(1))
+            #endif
             await MainActor.run {
                 isSubmitting = false
                 showSuccess = true

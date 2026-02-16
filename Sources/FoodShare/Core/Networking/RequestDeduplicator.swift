@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  RequestDeduplicator.swift
 //  Foodshare
@@ -349,3 +350,4 @@ actor ThrottledRequest<T: Sendable> {
         pendingResult = nil
     }
 }
+#endif

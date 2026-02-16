@@ -6,7 +6,6 @@
 //  with 3-layer caching (Memory -> Database -> LLM)
 //
 
-import FoodShareDesignSystem
 import OSLog
 import Supabase
 import SwiftUI
@@ -94,16 +93,10 @@ struct AutoTranslateModifier: ViewModifier {
 
             guard !Task.isCancelled else { return }
 
-            translatedText = result.translatedText
-                logger.debug("AutoTranslate success for \(self.contentType): \(text.prefix(30))...")
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    translatedText = text
-                    isTranslated = true
-                }
-            } else {
-                logger.warning("AutoTranslate failed: \(result.error ?? "unknown")")
-                translatedText = originalText
-                isTranslated = false
+            logger.debug("AutoTranslate success for \(self.contentType): \(originalText.prefix(30))...")
+            withAnimation(.easeInOut(duration: 0.2)) {
+                translatedText = result.translatedText
+                isTranslated = true
             }
         } catch {
             guard !Task.isCancelled else { return }

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SearchAPIService.swift
 //  Foodshare
@@ -86,3 +87,4 @@ struct SearchItemDTO: Codable, Identifiable, Sendable {
     let images: [String]?
     let postType: String?
 }
+#endif

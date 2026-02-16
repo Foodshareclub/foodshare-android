@@ -9,7 +9,6 @@
 #if !SKIP
 import CoreData
 #endif
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase
@@ -47,7 +46,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
     // MARK: - Cache Policy Selection
 
     /// Determines the appropriate cache policy based on network state
-    private var currentCachePolicy: CachePolicy {
+    private var currentCachePolicy: OfflineCachePolicy {
         if networkMonitor.isOffline {
             .cacheOnly
         } else if networkMonitor.isConstrained {

@@ -6,7 +6,6 @@
 //  Liquid Glass v26 design system
 //
 
-import FoodShareDesignSystem
 #if !SKIP
 import MapKit
 #endif
@@ -21,7 +20,7 @@ struct FoodItemDetailView: View {
 
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var viewModel: FoodItemDetailViewModel
     @State private var showContactSheet = false
     @State private var showReportSheet = false
@@ -41,7 +40,7 @@ struct FoodItemDetailView: View {
     @State private var showImageViewer = false
     @State private var sectionsAppeared = false
     @State private var isLoading = true
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(item: FoodItem) {
         _displayDescription = State(initialValue: FoodItem.cleanDescription(item.postDescription))
@@ -167,7 +166,11 @@ struct FoodItemDetailView: View {
         }
         .task {
             // Brief skeleton display for smooth transition
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(300))
+            #endif
             withAnimation(reduceMotion ? .none : .easeOut(duration: 0.2)) {
                 isLoading = false
             }
@@ -620,7 +623,7 @@ struct FoodItemDetailView: View {
 struct ContactSellerSheet: View {
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     let item: FoodItem
     let onRoomCreated: ((Room) -> Void)?
 
@@ -832,7 +835,7 @@ struct QuickMessageChip: View {
 
 struct ReportItemSheet: View {
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     let itemId: Int
     @State private var selectedReason: ReportReason?
     @State private var additionalInfo = ""

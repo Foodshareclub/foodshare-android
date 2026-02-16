@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  NonceGenerator.swift
 //  Foodshare
@@ -137,3 +138,4 @@ extension Data {
         NonceGenerator.sha256Base64(self)
     }
 }
+#endif

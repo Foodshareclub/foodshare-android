@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassDetailSkeleton: View {
     var style: SkeletonStyle = .foodItem

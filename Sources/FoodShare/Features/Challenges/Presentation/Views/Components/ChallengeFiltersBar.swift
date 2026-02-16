@@ -5,7 +5,6 @@
 //  Extracted challenge filter chips component
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct ChallengeFiltersBar: View {
@@ -33,7 +32,9 @@ struct ChallengeFiltersBar: View {
             .padding(.horizontal, Spacing.md)
         }
         .scrollBounceBehavior(.basedOnSize)
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
         .padding(.top, Spacing.sm)
     }
 

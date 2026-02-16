@@ -7,14 +7,15 @@
 //  120Hz ProMotion optimized animations
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct GlassTabBar<Tab: Hashable>: View {
     @Binding var selectedTab: Tab
     let tabs: [GlassTabItem<Tab>]
 
+    #if !SKIP
     @Namespace private var animation
+    #endif
     @State private var breathingPhase: Double = 0
     @State private var previousTab: Tab?
 
@@ -65,7 +66,9 @@ struct GlassTabBar<Tab: Hashable>: View {
                         Circle()
                             .fill(Color.DesignSystem.brandGreen)
                             .frame(width: 48, height: 48)
+                            #if !SKIP
                             .matchedGeometryEffect(id: "tabBackground", in: animation)
+                            #endif
                             .shadow(
                                 color: .DesignSystem.brandGreen.opacity(0.4 + 0.2 * sin(breathingPhase)),
                                 radius: 8 + 4 * sin(breathingPhase),
@@ -206,7 +209,7 @@ extension View {
 // MARK: - Mini Floating Action Bar
 
 struct GlassActionBar: View {
-    let actions: [GlassActionItem]
+    let actions: [GlassActionBarItem]
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -251,7 +254,7 @@ struct GlassActionBar: View {
     }
 }
 
-struct GlassActionItem: Identifiable {
+struct GlassActionBarItem: Identifiable {
     let id = UUID()
     let icon: String
     let title: String?
@@ -310,9 +313,9 @@ struct GlassActionItem: Identifiable {
         Spacer()
 
         GlassActionBar(actions: [
-            GlassActionItem(icon: "map.fill", title: "Map", color: .DesignSystem.brandBlue) {},
-            GlassActionItem(icon: "plus.circle.fill", title: "Add", color: .DesignSystem.brandGreen) {},
-            GlassActionItem(icon: "slider.horizontal.3", title: "Filter", color: .DesignSystem.brandOrange) {},
+            GlassActionBarItem(icon: "map.fill", title: "Map", color: .DesignSystem.brandBlue) {},
+            GlassActionBarItem(icon: "plus.circle.fill", title: "Add", color: .DesignSystem.brandGreen) {},
+            GlassActionBarItem(icon: "slider.horizontal.3", title: "Filter", color: .DesignSystem.brandOrange) {},
         ])
 
         Spacer()

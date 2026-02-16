@@ -6,7 +6,6 @@
 //  CareEcho-inspired blue/cyan gradient effects and layered glass styling
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct GlassTextField: View {

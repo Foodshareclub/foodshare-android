@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockActivityRepository.swift
 //  Foodshare
@@ -39,40 +40,5 @@ import Foundation
             cachedActivities = activities
         }
     }
-
-    // MARK: - Sample Data
-
-    extension ActivityItem {
-        static var sampleActivities: [ActivityItem] {
-            [
-                ActivityItem(
-                    id: 1,
-                    type: .listing,
-                    title: "New listing posted",
-                    subtitle: "Fresh vegetables available",
-                    timestamp: Date().addingTimeInterval(-3600),
-                    imageUrl: nil,
-                    metadata: [:],
-                ),
-                ActivityItem(
-                    id: 2,
-                    type: .challenge,
-                    title: "Challenge completed",
-                    subtitle: "Zero Waste Week completed!",
-                    timestamp: Date().addingTimeInterval(-7200),
-                    imageUrl: nil,
-                    metadata: [:],
-                ),
-                ActivityItem(
-                    id: 3,
-                    type: .message,
-                    title: "New message",
-                    subtitle: "You have a new message from FoodHero",
-                    timestamp: Date().addingTimeInterval(-10800),
-                    imageUrl: nil,
-                    metadata: [:],
-                )
-            ]
-        }
-    }
+#endif
 #endif

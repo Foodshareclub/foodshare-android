@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Profile Stats Section
 
@@ -80,7 +79,7 @@ struct ProfileStatItem: View {
     @State private var isPulsing = false
     @State private var hasAnimated = false
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     private var numericValue: Int? {
         if let dotIndex = value.firstIndex(of: ".") {

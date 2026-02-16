@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Badge Grid
 
@@ -70,7 +69,7 @@ struct GlassBadgeItem: View {
     @State private var showGlow = false
     @State private var showCelebration = false
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         Button {
@@ -110,7 +109,11 @@ struct GlassBadgeItem: View {
             // Trigger celebration for newly earned badges
             if isNewlyEarned, !reduceMotion {
                 Task { @MainActor in
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(300))
+                    #endif
                     showCelebration.toggle()
                     HapticManager.success()
                 }

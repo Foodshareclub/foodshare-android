@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockFeedRepository.swift
 //  Foodshare
@@ -172,4 +173,5 @@ import Foundation
             )
         }
     }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  DeviceCheckService.swift
 //  Foodshare
@@ -309,4 +310,5 @@ extension DeviceCheckService {
             )
         }
     }
+#endif
 #endif

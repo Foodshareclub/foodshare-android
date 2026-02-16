@@ -6,7 +6,6 @@
 //  ProMotion 120Hz optimized ring animation for notification indicators
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Pulsing Ring Animation
@@ -27,7 +26,7 @@ struct PulsingRingAnimation: View {
     let ringCount: Int
 
     @State private var animationPhase: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         isActive: Bool,
@@ -104,7 +103,7 @@ struct ContinuousPulsingRing: View {
 
     @State private var scale: CGFloat = 1.0
     @State private var opacity: CGFloat = 0.8
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         isActive: Bool,
@@ -174,7 +173,7 @@ struct GlowPulseEffect: View {
 
     @State private var glowOpacity: CGFloat = 0.3
     @State private var glowScale: CGFloat = 1.0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         isActive: Bool,

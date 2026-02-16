@@ -9,8 +9,6 @@
 #if !SKIP
 import CoreData
 #endif
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase
@@ -40,7 +38,7 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         super.init(supabase: supabase, subsystem: "com.flutterflow.foodshare", category: "ProfileRepository")
     }
 
-    private var currentCachePolicy: CachePolicy {
+    private var currentCachePolicy: OfflineCachePolicy {
         if networkMonitor.isOffline {
             .cacheOnly
         } else if networkMonitor.isConstrained {
@@ -165,12 +163,10 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         )
 
         do {
-            try await AsyncHelpers.withRetry { [supabase] in
-                _ = try await supabase
-                    .from("profiles")
-                    .upsert(defaultProfile, onConflict: "id", ignoreDuplicates: true)
-                    .execute()
-            }
+            _ = try await supabase
+                .from("profiles")
+                .upsert(defaultProfile, onConflict: "id", ignoreDuplicates: true)
+                .execute()
             logger.info("Default profile created successfully")
         } catch {
             // Profile might already exist (race condition) - just fetch it
@@ -178,9 +174,7 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         }
 
         // Wait a moment for database triggers to complete (profile_stats creation)
-        try await AsyncHelpers.withTimeout(seconds: 0.5) {
-            try await Task.sleep(nanoseconds: 500_000_000)
-        }
+        try await Task.sleep(nanoseconds: 500_000_000)
 
         // Fetch the profile we just created using the same two-query approach
         return try await fetchProfile(userId: userId)
@@ -296,13 +290,11 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
             avatarUrl: avatarUrl,
         )
 
-        try await AsyncHelpers.withRetry {
-            _ = try await self.supabase
-                .from("profiles")
-                .update(updateDTO)
-                .eq("id", value: userId.uuidString)
-                .execute()
-        }
+        _ = try await supabase
+            .from("profiles")
+            .update(updateDTO)
+            .eq("id", value: userId.uuidString)
+            .execute()
 
         logger.info("Profile updated via Supabase fallback for user: \(userId.uuidString)")
 
@@ -327,10 +319,8 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         }
 
         // Fallback: Single RPC call
-        return try await AsyncHelpers.withRetry {
-            let params = UserStatsParams(pUserId: userId)
-            return try await self.executeRPC("get_user_stats", params: params)
-        }
+        let params = UserStatsParams(pUserId: userId)
+        return try await executeRPC("get_user_stats", params: params)
     }
 
     func uploadAvatar(userId: UUID, imageData: Data) async throws -> String {
@@ -349,19 +339,17 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         let filename = "\(userId.uuidString)-avatar.jpg"
         let path = "avatars/\(filename)"
 
-        try await AsyncHelpers.withRetry(maxAttempts: 5) { [supabase] in
-            _ = try await supabase.storage
-                .from("avatars")
-                .upload(
-                    path,
-                    data: imageData,
-                    options: FileOptions(
-                        cacheControl: "3600",
-                        contentType: "image/jpeg",
-                        upsert: true,
-                    ),
-                )
-        }
+        _ = try await supabase.storage
+            .from("avatars")
+            .upload(
+                path,
+                data: imageData,
+                options: FileOptions(
+                    cacheControl: "3600",
+                    contentType: "image/jpeg",
+                    upsert: true,
+                ),
+            )
 
         let publicURL = try supabase.storage
             .from("avatars")
@@ -379,13 +367,11 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
         // Clamp radius to valid range
         let clampedRadius = max(1, min(800, radiusKm))
 
-        try await AsyncHelpers.withRetry {
-            _ = try await self.supabase
-                .from("profiles")
-                .update(["search_radius_km": clampedRadius])
-                .eq("id", value: userId.uuidString)
-                .execute()
-        }
+        _ = try await supabase
+            .from("profiles")
+            .update(["search_radius_km": clampedRadius])
+            .eq("id", value: userId.uuidString)
+            .execute()
 
         logger.info("Search radius updated to \(clampedRadius)km for user: \(userId.uuidString)")
     }
@@ -535,15 +521,13 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
             longitude: address.longitude,
         )
 
-        let result: Address = try await AsyncHelpers.withRetry {
-            try await self.supabase
-                .from("user_addresses")
-                .upsert(dto, onConflict: "profile_id")
-                .select()
-                .single()
-                .execute()
-                .value
-        }
+        let result: Address = try await supabase
+            .from("user_addresses")
+            .upsert(dto, onConflict: "profile_id")
+            .select()
+            .single()
+            .execute()
+            .value
 
         logger.info("Address upserted via Supabase fallback for profile: \(profileId.uuidString)")
         return result
@@ -553,13 +537,11 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
     func deleteAddress(profileId: UUID) async throws {
         logger.debug("Deleting address for profile: \(profileId.uuidString)")
 
-        try await AsyncHelpers.withRetry {
-            _ = try await self.supabase
-                .from("user_addresses")
-                .delete()
-                .eq("profile_id", value: profileId.uuidString)
-                .execute()
-        }
+        _ = try await supabase
+            .from("user_addresses")
+            .delete()
+            .eq("profile_id", value: profileId.uuidString)
+            .execute()
 
         logger.info("Address deleted for profile: \(profileId.uuidString)")
     }
@@ -575,12 +557,10 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
             reason: reason,
         )
 
-        try await AsyncHelpers.withRetry {
-            _ = try await self.supabase
-                .from("blocked_users")
-                .insert(blockDTO)
-                .execute()
-        }
+        _ = try await supabase
+            .from("blocked_users")
+            .insert(blockDTO)
+            .execute()
 
         logger.info("User blocked successfully")
     }
@@ -588,14 +568,12 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
     func unblockUser(userId: UUID, blockedUserId: UUID) async throws {
         logger.debug("Unblocking user \(blockedUserId.uuidString) by \(userId.uuidString)")
 
-        try await AsyncHelpers.withRetry {
-            _ = try await self.supabase
-                .from("blocked_users")
-                .delete()
-                .eq("user_id", value: userId.uuidString)
-                .eq("blocked_user_id", value: blockedUserId.uuidString)
-                .execute()
-        }
+        _ = try await supabase
+            .from("blocked_users")
+            .delete()
+            .eq("user_id", value: userId.uuidString)
+            .eq("blocked_user_id", value: blockedUserId.uuidString)
+            .execute()
 
         logger.info("User unblocked successfully")
     }

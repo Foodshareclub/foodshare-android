@@ -6,8 +6,6 @@
 //  Uses RealtimeChannelManager for proper channel lifecycle management
 //
 
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase

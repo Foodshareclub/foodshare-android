@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Impact Stats Section
 
@@ -157,7 +156,7 @@ struct ImpactMetricView: View {
     let color: Color
 
     @State private var isAnimating = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         VStack(spacing: Spacing.xs) {
@@ -170,7 +169,9 @@ struct ImpactMetricView: View {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(color)
+                    #if !SKIP
                     .symbolEffect(.pulse, options: .repeating, value: isAnimating)
+                    #endif
             }
             .onAppear {
                 guard !reduceMotion else { return }

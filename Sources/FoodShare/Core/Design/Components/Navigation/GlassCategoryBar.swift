@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Generic Glass Category Bar
 
@@ -18,7 +17,7 @@ struct GlassCategoryBar<Category: Hashable & Identifiable>: View where Category:
     let localizedTitleProvider: ((Category) -> String)?
 
     @State private var scrollOffset: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
     @Environment(\.translationService) private var t
 
     init(
@@ -68,7 +67,9 @@ struct GlassCategoryBar<Category: Hashable & Identifiable>: View where Category:
             .contentShape(Rectangle())
         }
         .scrollBounceBehavior(.basedOnSize)
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
         .background(categoryBarBackground)
     }
 
@@ -82,7 +83,7 @@ struct GlassCategoryBar<Category: Hashable & Identifiable>: View where Category:
 /// A scroll-friendly button style that uses `configuration.isPressed` instead of DragGesture
 /// to avoid interfering with parent ScrollView gestures
 struct GlassCategoryChipButtonStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -103,7 +104,7 @@ struct GlassCategoryChip: View {
     var color: Color = .DesignSystem.brandGreen
     let action: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         Button(action: {
@@ -139,7 +140,9 @@ struct GlassCategoryChip: View {
                     Image(systemName: icon)
                         .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(isSelected ? .white : color)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: isSelected)
+                        #endif
                 }
 
                 // Label

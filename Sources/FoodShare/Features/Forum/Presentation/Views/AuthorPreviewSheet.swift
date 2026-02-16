@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Author Preview Sheet
 
@@ -16,7 +15,7 @@ struct AuthorPreviewSheet: View {
     let repository: ForumRepository
     let onViewProfile: () -> Void
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @State private var userStats: ForumUserStats?
     @State private var badges: [UserBadgeWithDetails] = []
@@ -34,7 +33,9 @@ struct AuthorPreviewSheet: View {
                     .offset(y: hasAppeared ? 0 : 20)
             }
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(t.t("common.done")) {
@@ -44,8 +45,10 @@ struct AuthorPreviewSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
+        #endif
         .task {
             await loadAuthorData()
         }

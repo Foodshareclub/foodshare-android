@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SecurityScoreService.swift
 //  Foodshare
@@ -7,9 +8,8 @@
 //
 
 import Foundation
-import FoodShareSecurity
+import LocalAuthentication
 import SwiftUI
-import FoodShareSecurity
 
 // MARK: - Security Score Level
 
@@ -139,10 +139,32 @@ final class SecurityScoreService {
         }
     }
 
+    /// Get the biometric icon name using LocalAuthentication directly
+    private func biometricIconName() -> String {
+        let context = LAContext()
+        var error: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            return "lock.shield"
+        }
+        switch context.biometryType {
+        case .faceID: return "faceid"
+        case .touchID: return "touchid"
+        case .opticID: return "opticid"
+        @unknown default: return "lock.shield"
+        }
+    }
+
+    /// Check if biometric authentication is available
+    private func isBiometricAvailable() -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+    }
+
     /// Get all security check items
     func getSecurityChecks() -> [SecurityCheckItem] {
-        let biometricService = BiometricAuth.shared
         let privacyService = PrivacyProtectionService.shared
+        let biometricAvailable = isBiometricAvailable()
 
         return [
             // Biometrics (25 points)
@@ -150,9 +172,9 @@ final class SecurityScoreService {
                 id: "biometrics",
                 title: "Biometric Authentication",
                 description: "Use Face ID or Touch ID to unlock the app",
-                icon: biometricService.availableBiometricType.iconName,
+                icon: biometricIconName(),
                 points: 25,
-                isEnabled: biometricService.isBiometricEnabled,
+                isEnabled: biometricAvailable && AppLockService.shared.isEnabled,
                 action: .enableBiometrics
             ),
 
@@ -218,7 +240,7 @@ final class SecurityScoreService {
                 description: "Require authentication for critical actions",
                 icon: "hand.raised.fill",
                 points: 10,
-                isEnabled: biometricService.requireBiometricForSensitiveActions,
+                isEnabled: false,
                 action: .enableSensitiveActionProtection
             )
         ]
@@ -234,3 +256,4 @@ final class SecurityScoreService {
         getSecurityChecks().filter { $0.isEnabled }
     }
 }
+#endif

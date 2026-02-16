@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Toggle
 
@@ -173,6 +172,7 @@ struct GlassToggleSwitch: View {
             }
             HapticManager.selection()
         }
+        #if !SKIP
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -186,6 +186,7 @@ struct GlassToggleSwitch: View {
                     }
                 },
         )
+        #endif
     }
 }
 

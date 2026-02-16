@@ -12,7 +12,7 @@ import UIKit
 
 struct CameraImagePicker: UIViewControllerRepresentable {
     @Binding var capturedImage: UIImage?
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()

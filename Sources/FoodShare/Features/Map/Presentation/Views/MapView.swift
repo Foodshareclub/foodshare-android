@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MapView.swift
 //  Foodshare
@@ -9,7 +10,6 @@
 #if !SKIP
 import CoreLocation
 #endif
-import FoodShareDesignSystem
 #if !SKIP
 import MapKit
 #endif
@@ -431,7 +431,9 @@ struct LiquidGlassItemCountBadge: View {
                         endPoint: .bottomTrailing,
                     ),
                 )
+                #if !SKIP
                 .symbolEffect(.pulse.byLayer, options: .repeating)
+                #endif
 
             Text("\(count) items nearby")
                 .font(.DesignSystem.bodySmall)
@@ -524,7 +526,9 @@ struct LiquidGlassMapMarker: View {
                             ))
                             : AnyShapeStyle(Color.DesignSystem.text),
                     )
+                    #if !SKIP
                     .symbolEffect(.bounce, value: isSelected)
+                    #endif
             }
 
             // Pointer
@@ -1362,3 +1366,4 @@ struct MapItemDetailSheet: View {
     MapView(feedRepository: DependencyContainer.preview.feedRepository)
         .environment(AppState())
 }
+#endif

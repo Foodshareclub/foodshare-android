@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -357,7 +356,9 @@ struct StatCard: View {
                 .font(.DesignSystem.displaySmall)
                 .fontWeight(.bold)
                 .foregroundColor(.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             Text(title)
                 .font(.DesignSystem.caption)
@@ -392,7 +393,9 @@ struct AdminActivityCard: View {
                     .font(.DesignSystem.titleMedium)
                     .fontWeight(.bold)
                     .foregroundColor(.DesignSystem.text)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
 
                 Text(title)
                     .font(.DesignSystem.caption)
@@ -474,6 +477,7 @@ struct AdminRingChart: View {
     }
 
     var body: some View {
+        #if !SKIP
         Canvas { context, size in
             let center = CGPoint(x: size.width / 2, y: size.height / 2)
             let outerRadius = min(size.width, size.height) / 2 - 8
@@ -518,6 +522,7 @@ struct AdminRingChart: View {
                 animationProgress = 1.0
             }
         }
+        #endif
     }
 
     private func drawRing(context: GraphicsContext, center: CGPoint, radius: CGFloat, width: CGFloat, progress: Double, color: Color) {

@@ -6,14 +6,13 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
 struct NotificationsView: View {
 
     @Bindable var viewModel: NotificationsViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     init(viewModel: NotificationsViewModel) {
@@ -84,7 +83,7 @@ struct NotificationsView: View {
     private var notificationsList: some View {
         ScrollView {
             LazyVStack(spacing: Spacing.sm) {
-                ForEach(viewModel.items) { notification in
+                ForEach(viewModel.notifications) { notification in
                     notificationRowView(notification)
                 }
                 loadMoreTrigger

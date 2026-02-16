@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PerformanceMonitor.swift
 //  FoodShare
@@ -444,3 +445,4 @@ extension PerformanceMonitor {
         MeasurementToken(operation: operation, type: type, metadata: metadata)
     }
 }
+#endif

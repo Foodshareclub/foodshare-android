@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - GlassHorizontalScroll
 
@@ -23,7 +22,7 @@ struct GlassHorizontalScroll<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     @State private var scrollOffset: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -88,7 +87,9 @@ struct GlassHorizontalScroll<Content: View>: View {
             .scrollTargetLayout()
             .background(scrollOffsetReader)
         }
+        #if !SKIP
         .scrollTargetBehavior(.viewAligned)
+        #endif
         .onChange(of: scrollOffset) { _, newValue in
             onScrollOffsetChange?(newValue)
         }
@@ -99,12 +100,12 @@ struct GlassHorizontalScroll<Content: View>: View {
     private var scrollOffsetReader: some View {
         GeometryReader { proxy in
             Color.clear.preference(
-                key: ScrollOffsetPreferenceKey.self,
+                key: HorizontalScrollOffsetPreferenceKey.self,
                 value: proxy.frame(in: .named("scroll")).minX
             )
         }
         .frame(height: 0)
-        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+        .onPreferenceChange(HorizontalScrollOffsetPreferenceKey.self) { value in
             scrollOffset = -value
         }
     }
@@ -112,7 +113,7 @@ struct GlassHorizontalScroll<Content: View>: View {
 
 // MARK: - Scroll Offset Preference Key
 
-private struct ScrollOffsetPreferenceKey: PreferenceKey {
+private struct HorizontalScrollOffsetPreferenceKey: PreferenceKey {
     nonisolated(unsafe) static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()

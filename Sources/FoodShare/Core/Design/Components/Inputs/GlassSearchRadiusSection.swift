@@ -6,7 +6,6 @@
 //  Used in FilterSheet, EditProfileView, and SettingsView
 //
 
-import FoodShareDesignSystem
 import OSLog
 import SwiftUI
 
@@ -136,7 +135,9 @@ struct GlassSearchRadiusSection: View {
                 Text("\(radiusDisplayValue) \(distanceUnit.symbol)")
                     .font(.DesignSystem.bodyMedium)
                     .foregroundColor(.DesignSystem.textSecondary)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
                     .animation(ProMotionAnimation.smooth, value: radiusLocalized)
             }
 
@@ -168,9 +169,11 @@ struct GlassSearchRadiusSection: View {
             .accessibilityValue("\(radiusDisplayValue) \(distanceUnit.symbol)")
         }
         .padding(Spacing.md)
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Search radius: \(radiusDisplayValue) \(distanceUnit.symbol)")
         .accessibilityHint("Adjust slider to change search radius")
+        #endif
     }
 
     // MARK: - Radius Display
@@ -186,7 +189,9 @@ struct GlassSearchRadiusSection: View {
                         endPoint: .trailing,
                     ),
                 )
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
                 .animation(ProMotionAnimation.smooth, value: radiusLocalized)
                 .scaleEffect(sliderIsActive ? 1.05 : 1.0)
                 .animation(ProMotionAnimation.bouncy, value: sliderIsActive)
@@ -196,8 +201,10 @@ struct GlassSearchRadiusSection: View {
                 .foregroundColor(.DesignSystem.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .center)
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Search radius: \(radiusDisplayValue) \(distanceUnit.symbol)")
+        #endif
     }
 
     // MARK: - Slider Section
@@ -243,7 +250,9 @@ struct GlassSearchRadiusSection: View {
                     .foregroundColor(.DesignSystem.textTertiary)
                     .accessibilityLabel("Maximum radius: \(distanceUnit.format(distanceUnit.maxSliderValue))")
             }
+            #if !SKIP
             .accessibilityElement(children: .contain)
+            #endif
         }
     }
 

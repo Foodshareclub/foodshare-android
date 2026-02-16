@@ -1,4 +1,4 @@
-import FoodShareRepository
+#if !SKIP
 import Foundation
 import OSLog
 import Supabase
@@ -29,7 +29,7 @@ final class SupabaseForumCommentRepository: BaseSupabaseRepository, @unchecked S
     func createComment(_ request: CreateCommentRequest) async throws -> ForumComment {
         try await apiService.createComment(
             forumId: request.forumId,
-            content: request.content,
+            content: request.comment,
             parentId: request.parentId
         )
     }
@@ -58,3 +58,4 @@ final class SupabaseForumCommentRepository: BaseSupabaseRepository, @unchecked S
             .value
     }
 }
+#endif

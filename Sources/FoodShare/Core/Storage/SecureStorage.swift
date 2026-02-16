@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SecureStorage.swift
 //  FoodShare
@@ -357,3 +358,4 @@ actor SecureStorage {
         return directory.appendingPathComponent("\(sanitizedKey).encrypted")
     }
 }
+#endif

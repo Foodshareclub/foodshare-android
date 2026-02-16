@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Update Documentation",
+  "description": "Suggest documentation updates when public APIs or models change",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/Models/**/*.swift",
+      "**/ViewModels/**/*.swift",
+      "**/Services/**/*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A model, view model, or service file was updated. Please:\n\n1. Check if the file has proper documentation comments\n2. Verify public methods and properties have /// documentation\n3. Check if README.md or docs/ need updates to reflect API changes\n4. Suggest any missing documentation for complex logic\n\nProvide specific documentation suggestions if needed."
+  }
+}

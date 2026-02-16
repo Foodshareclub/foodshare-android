@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ValidationAPIService.swift
 //  Foodshare
@@ -30,3 +31,4 @@ struct ValidationResponse: Codable {
     let valid: Bool
     let message: String?
 }
+#endif

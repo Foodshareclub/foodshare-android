@@ -146,9 +146,7 @@ public struct OfflineBanner: View {
             Spacer()
 
             // Action button
-            if let action = actionView {
-                action
-            }
+            actionView
 
             // Dismiss button
             if let dismiss = onDismiss {
@@ -219,7 +217,7 @@ public struct OfflineBanner: View {
     }
 
     @ViewBuilder
-    private var actionView: some View? {
+    private var actionView: some View {
         switch type {
         case .offline:
             if let retry = onRetry {
@@ -249,7 +247,7 @@ public struct OfflineBanner: View {
                     }
                 }
             } else {
-                nil
+                EmptyView()
             }
 
         case .error:
@@ -271,7 +269,7 @@ public struct OfflineBanner: View {
                         .clipShape(Capsule())
                 }
             } else {
-                nil
+                EmptyView()
             }
 
         case let .offline(pendingChanges):
@@ -284,11 +282,11 @@ public struct OfflineBanner: View {
                     .background(type.color)
                     .clipShape(Circle())
             } else {
-                nil
+                EmptyView()
             }
 
         default:
-            nil
+            EmptyView()
         }
     }
 }

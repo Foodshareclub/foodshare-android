@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassAlert: View {
     let type: AlertType

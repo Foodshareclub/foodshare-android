@@ -8,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -133,7 +132,7 @@ struct ShareNowView: View {
     
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State private var hasAppeared = false
     @State private var selectedContentType: CreateContentType?
@@ -713,7 +712,9 @@ struct ContentTypeCard: View {
                     .foregroundColor(.DesignSystem.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
+                    #if !SKIP
                     .fixedSize(horizontal: false, vertical: true)
+                    #endif
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.md)
@@ -868,7 +869,7 @@ struct ShareNowBackground: View {
 struct CreateChallengeView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  StartupProfiler.swift
 //  FoodShare
@@ -19,7 +20,6 @@ import OSLog
 import QuartzCore
 #endif
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Startup Phase
 
@@ -319,12 +319,23 @@ public final class StartupProfiler {
     // MARK: - Metrics Reporting
 
     private func reportMetrics(_ report: StartupReport) async {
-        await MetricsReporter.shared.record(event: .startup(
-            totalMs: report.totalDurationMs,
-            phases: Dictionary(uniqueKeysWithValues: report.timings.map {
-                ($0.phase.rawValue, $0.durationMs)
-            }),
-        ))
+        await MetricsReporter.shared.recordRequest(
+            endpoint: "startup/cold_start",
+            method: "LIFECYCLE",
+            statusCode: report.isWithinTarget ? 200 : 0,
+            durationMs: Int(report.totalDurationMs),
+            cacheHit: false
+        )
+        // Report individual phase timings
+        for timing in report.timings {
+            await MetricsReporter.shared.recordRequest(
+                endpoint: "startup/phase/\(timing.phase.rawValue)",
+                method: "LIFECYCLE",
+                statusCode: timing.isWithinTarget ? 200 : 0,
+                durationMs: Int(timing.durationMs),
+                cacheHit: false
+            )
+        }
     }
 
     // MARK: - Logging
@@ -512,14 +523,4 @@ extension View {
     }
 #endif
 
-// MARK: - Metrics Event Extension
-
-extension MetricsEvent {
-    static func startup(totalMs: Double, phases: [String: Double]) -> MetricsEvent {
-        .performance(
-            name: "cold_start",
-            durationMs: totalMs,
-            metadata: phases.mapValues { String(format: "%.0f", $0) },
-        )
-    }
-}
+#endif

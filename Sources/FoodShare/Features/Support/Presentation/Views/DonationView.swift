@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  DonationView.swift
 //  Foodshare
@@ -7,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct DonationView: View {
     @Environment(\.translationService) private var t
@@ -411,3 +411,4 @@ struct DonationView: View {
 #Preview {
     DonationView()
 }
+#endif

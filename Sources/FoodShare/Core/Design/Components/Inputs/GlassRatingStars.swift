@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Rating Stars
 
@@ -52,7 +51,7 @@ struct GlassRatingStars: View {
     @State private var highlightedRating: Double?
     @State private var animatingStars: Set<Int> = []
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -88,10 +87,13 @@ struct GlassRatingStars: View {
                 Text(String(format: "%.1f", rating))
                     .font(.DesignSystem.bodyLarge)
                     .foregroundStyle(Color.DesignSystem.textPrimary)
+                    #if !SKIP
                     .monospacedDigit()
                     .contentTransition(.numericText())
+                    #endif
             }
         }
+        #if !SKIP
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityValue(accessibilityValue)
@@ -105,6 +107,7 @@ struct GlassRatingStars: View {
                 break
             }
         }
+        #endif
     }
 
     // MARK: - Stars View
@@ -224,7 +227,7 @@ struct GlassRatingStars: View {
 
     private func selectRating(_ newRating: Double) {
         // Haptic feedback
-        #if os(iOS)
+        #if !SKIP
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
         #endif
@@ -235,7 +238,11 @@ struct GlassRatingStars: View {
             animatingStars.insert(starIndex)
 
             Task { @MainActor in
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(150 * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(150))
+                #endif
                 animatingStars.remove(starIndex)
             }
         }

@@ -14,7 +14,8 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
+
+#if !SKIP
 
 // MARK: - Milestone Type
 
@@ -142,7 +143,7 @@ struct MilestoneOverlay: View {
                             LinearGradient(
                                 colors: [
                                     Color.DesignSystem.primary,
-                                    Color.DesignSystem.secondary
+                                    Color.DesignSystem.brandTeal
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing,
@@ -160,7 +161,7 @@ struct MilestoneOverlay: View {
                             LinearGradient(
                                 colors: [
                                     Color.DesignSystem.primary,
-                                    Color.DesignSystem.secondary
+                                    Color.DesignSystem.brandTeal
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing,
@@ -177,7 +178,7 @@ struct MilestoneOverlay: View {
                             LinearGradient(
                                 colors: [
                                     Color.DesignSystem.primary,
-                                    Color.DesignSystem.secondary
+                                    Color.DesignSystem.brandTeal
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing,
@@ -217,7 +218,7 @@ struct MilestoneOverlay: View {
                             LinearGradient(
                                 colors: [
                                     Color.DesignSystem.primary,
-                                    Color.DesignSystem.secondary
+                                    Color.DesignSystem.brandTeal
                                 ],
                                 startPoint: .leading,
                                 endPoint: .trailing,
@@ -538,4 +539,5 @@ struct BadgeUnlockOverlay: View {
 
         return MilestonePreview()
     }
+#endif
 #endif

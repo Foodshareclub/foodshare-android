@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     struct MissingTranslationsDebugView: View {
@@ -204,7 +203,11 @@ import FoodShareDesignSystem
                     copied = true
 
                     Task { @MainActor in
+                        #if SKIP
+                        try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000_000))
+                        #else
                         try? await Task.sleep(for: .seconds(2))
+                        #endif
                         copied = false
                     }
                 } label: {

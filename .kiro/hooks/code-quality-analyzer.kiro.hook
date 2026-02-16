@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer",
+  "description": "Monitors Swift source code files for changes and analyzes them for potential improvements including code smells, design patterns, best practices, readability, maintainability, and performance optimizations",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "FoodShare/**/*.swift",
+      "FoodShareTests/**/*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified Swift code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify long methods, large classes, duplicated code, complex conditionals, and other anti-patterns\n2. **Design Patterns**: Suggest appropriate design patterns (Repository, Factory, Strategy, etc.) where applicable\n3. **Best Practices**: Check adherence to Swift conventions, protocol-oriented programming, and Clean Architecture principles\n4. **Readability**: Evaluate naming conventions, code organization, comments, and overall clarity\n5. **Maintainability**: Assess modularity, coupling, cohesion, and testability\n6. **Performance**: Identify potential performance bottlenecks, memory leaks, unnecessary computations, or inefficient algorithms\n7. **Security**: Check for security issues like hardcoded credentials, improper error handling, or data validation gaps\n8. **SwiftUI Best Practices**: Verify proper state management, view composition, and lifecycle handling\n\nFor each issue found:\n- Explain the problem clearly\n- Provide specific code examples showing the improvement\n- Explain why the change improves code quality\n- Prioritize suggestions (Critical, High, Medium, Low)\n\nMaintain the existing functionality while suggesting improvements. Be constructive and educational in your feedback."
+  }
+}

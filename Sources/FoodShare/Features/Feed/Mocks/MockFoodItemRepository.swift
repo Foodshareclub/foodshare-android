@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockFoodItemRepository.swift
 //  Foodshare
@@ -125,4 +126,5 @@ import Foundation
             return Array(items[startIndex ..< endIndex])
         }
     }
+#endif
 #endif

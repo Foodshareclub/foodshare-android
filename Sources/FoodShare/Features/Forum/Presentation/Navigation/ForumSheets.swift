@@ -100,7 +100,7 @@ enum ForumSheet: SheetPresentable {
             CreateForumPostView(
                 repository: repository,
                 categories: categories,
-                onCreate: onCreate
+                onPostCreated: onCreate
             )
 
         case let .savedPosts(repository):

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ShareService.swift
 //  Foodshare
@@ -16,7 +17,7 @@ import UIKit
 // MARK: - Share Method
 
 /// Method used to share content
-enum ShareMethod: String, Sendable {
+public enum ShareMethod: String, Sendable {
     case link
     case social
     case email
@@ -313,3 +314,4 @@ extension View {
         modifier(ShareSheetModifier(item: item, isPresented: isPresented, onComplete: onComplete))
     }
 }
+#endif

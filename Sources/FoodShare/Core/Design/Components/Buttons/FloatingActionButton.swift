@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct FloatingActionButton: View {
     let icon: String
@@ -136,6 +135,7 @@ struct FloatingActionButton: View {
             .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .buttonStyle(.plain)
+        #if !SKIP
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -149,6 +149,7 @@ struct FloatingActionButton: View {
                     }
                 }
         )
+        #endif
         .onAppear {
             if style == .primary {
                 withAnimation(

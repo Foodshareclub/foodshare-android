@@ -1,5 +1,5 @@
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass FPS Overlay
 
@@ -13,7 +13,7 @@ public struct GlassFPSOverlay: View {
     @State private var isExpanded = false
     @State private var position = CGPoint(x: 80, y: 100)
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Body
 
@@ -264,4 +264,5 @@ extension View {
                 .position(x: 200, y: 300)
         }
     }
+#endif
 #endif

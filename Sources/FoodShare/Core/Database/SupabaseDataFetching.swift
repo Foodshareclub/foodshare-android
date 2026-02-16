@@ -262,7 +262,7 @@ actor BatchOperationHandler {
     /// Insert items in batches
     func batchInsert(
         table: String,
-        items: [some Encodable & Sendable],
+        items: [some Encodable],
         onProgress: (@Sendable (BatchProgress) -> Void)? = nil,
     ) async throws -> BatchResult {
         let batches = items.chunked(into: maxBatchSize)
@@ -311,7 +311,7 @@ actor BatchOperationHandler {
     /// Upsert items in batches (insert or update)
     func batchUpsert(
         table: String,
-        items: [some Encodable & Sendable],
+        items: [some Encodable],
         onConflict: String = "id",
         onProgress: (@Sendable (BatchProgress) -> Void)? = nil,
     ) async throws -> BatchResult {
@@ -571,9 +571,9 @@ final class SupabaseConnectionMonitor {
             consecutiveFailures = 0
 
         } catch {
-            consecutiveFailures += 1
+            self.consecutiveFailures += 1
             connectionState = .disconnected
-            logger.warning("⚠️ Health check failed (\(consecutiveFailures) consecutive): \(error.localizedDescription)")
+            logger.warning("⚠️ Health check failed (\(self.consecutiveFailures) consecutive): \(error.localizedDescription)")
         }
     }
 
@@ -583,6 +583,7 @@ final class SupabaseConnectionMonitor {
     }
 }
 
+#if !SKIP
 // MARK: - Optimistic Update Manager
 
 /// Manages optimistic UI updates with automatic rollback on failure
@@ -699,6 +700,7 @@ final class SupabaseOptimisticUpdateManager<Item: Identifiable & Sendable> where
     /// Get all pending item IDs
     var pendingItemIDs: [ItemID] { Array(pendingUpdates.keys) }
 }
+#endif
 
 // MARK: - Array Extension for Chunking
 
@@ -718,7 +720,7 @@ extension PostgrestFilterBuilder {
     func cursorPaginate(
         cursor: String?,
         cursorColumn: String,
-        direction: CursorPaginationParams.Direction,
+        direction: CursorDirection,
         limit: Int,
     ) -> PostgrestTransformBuilder {
         var query = self

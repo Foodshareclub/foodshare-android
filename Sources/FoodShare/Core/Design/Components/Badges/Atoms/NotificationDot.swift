@@ -19,7 +19,6 @@
 //  - Active/inactive color states
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 /// A pulsing notification dot indicator following Liquid Glass design principles.
@@ -39,7 +38,7 @@ struct NotificationDot: View {
     @State private var pulseScale: CGFloat = 1.0
     @State private var pulseOpacity = 1.0
     @State private var animationTask: Task<Void, Never>?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     /// Dynamic Type support - scales with user's text size preference
     @ScaledMetric(relativeTo: .body) private var scaledSize: CGFloat = 18
@@ -122,7 +121,11 @@ struct NotificationDot: View {
                     pulseScale = 1.4
                     pulseOpacity = 0.0
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                #else
                 try? await Task.sleep(for: .seconds(1.5))
+                #endif
 
                 guard !Task.isCancelled else { break }
 
@@ -131,7 +134,11 @@ struct NotificationDot: View {
                     pulseScale = 1.0
                     pulseOpacity = 1.0
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                #else
                 try? await Task.sleep(for: .seconds(1.5))
+                #endif
             }
         }
     }

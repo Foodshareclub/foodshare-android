@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - GlassLoadingState
 
@@ -22,7 +21,7 @@ struct GlassLoadingState: View {
     @State private var rotationAngle: Double = 0
     @State private var pulseScale: CGFloat = 1.0
     @State private var shimmerOffset: CGFloat = -200
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Style Enum
 
@@ -147,7 +146,7 @@ struct GlassLoadingState: View {
                         style: StrokeStyle(lineWidth: 3, lineCap: .round)
                     )
                     .frame(width: 50, height: 50)
-                    .rotationEffect(.degrees(rotationAngle))
+                    .rotationEffect(Angle.degrees(rotationAngle))
 
                 // Center icon
                 Image(systemName: "fork.knife")
@@ -414,7 +413,7 @@ struct GlassLoadingState: View {
                         .scaleEffect(isAnimating ? 1.2 : 0.8)
                         .opacity(isAnimating ? 0 : 1)
                         .animation(
-                            reduceMotion ? .none :
+                            reduceMotion ? Animation?.none :
                                 .easeOut(duration: 1.5)
                                 .repeatForever(autoreverses: false)
                                 .delay(Double(index) * 0.3),

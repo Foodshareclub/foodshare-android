@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  BiometricLockView.swift
 //  Foodshare
@@ -7,9 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareSecurity
-import FoodShareDesignSystem
-import FoodShareSecurity
 
 
 
@@ -99,7 +97,11 @@ struct BiometricLockView: View {
         .task {
             // Auto-trigger authentication on appear (if not locked out)
             if !biometricService.isLockedOut {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(300))
+                #endif
                 authenticate()
             }
         }
@@ -279,3 +281,4 @@ struct BiometricLockView: View {
         onUsePassword: {}
     )
 }
+#endif

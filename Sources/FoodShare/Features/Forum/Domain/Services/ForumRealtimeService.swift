@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ForumRealtimeService.swift
 //  Foodshare
@@ -544,4 +545,5 @@ extension AnyJSON {
             unsubscribeCalled = true
         }
     }
+#endif
 #endif

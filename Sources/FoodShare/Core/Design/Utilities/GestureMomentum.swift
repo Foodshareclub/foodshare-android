@@ -1,8 +1,8 @@
 #if !SKIP
+#if !SKIP
 import QuartzCore
 #endif
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Gesture Momentum
 
@@ -33,7 +33,7 @@ public final class GestureMomentum {
     public var maximumVelocity: CGFloat = 5000
 
     // Private
-    private var displayLink: CADisplayLink?
+    nonisolated(unsafe) private var displayLink: CADisplayLink?
     private var lastTimestamp: CFTimeInterval = 0
     private var lastPosition: CGPoint = .zero
     private var velocityHistory: [(CGPoint, CFTimeInterval)] = []
@@ -47,7 +47,8 @@ public final class GestureMomentum {
     }
 
     deinit {
-        stopAnimation()
+        displayLink?.invalidate()
+        displayLink = nil
     }
 
     // MARK: - Gesture Tracking
@@ -358,3 +359,4 @@ public struct FlingGesture: Gesture {
 
     return MomentumDemo()
 }
+#endif

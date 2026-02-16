@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassSearchBar: View {
     @Binding var text: String
@@ -122,7 +121,7 @@ struct GlassSearchBar: View {
             radius: 12,
             y: 4,
         )
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
+        .animation(Animation.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
     }
 
     private var searchBackground: some View {
@@ -192,7 +191,7 @@ struct ExpandableSearchBar: View {
                         isExpanded = true
                     }
                     Task { @MainActor in
-                        try? await Task.sleep(for: .milliseconds(100))
+                        try? await Task.sleep(nanoseconds: 100_000_000)
                         isFocused = true
                     }
                 } label: {

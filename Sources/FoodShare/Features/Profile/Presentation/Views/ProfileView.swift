@@ -10,7 +10,6 @@
 //
 
 import CoreImage.CIFilterBuiltins
-import FoodShareDesignSystem
 import Kingfisher
 import PhotosUI
 import SwiftUI
@@ -642,7 +641,7 @@ private struct EnhancedProfileAvatarView: View {
 struct AvatarDetailView: View {
     @Environment(\.translationService) private var t
     let avatarUrl: String?
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var zoomScale: CGFloat = 1.0
     @State private var lastZoomScale: CGFloat = 1.0
 
@@ -711,473 +710,9 @@ struct AvatarDetailView: View {
                 Spacer()
             }
         }
+        #if !SKIP
         .presentationBackground(.black)
-    }
-}
-
-// MARK: - Profile Completion Card (with Circular Progress Ring)
-
-private struct ProfileCompletionCard: View {
-    @Environment(\.translationService) private var t
-    let completion: ProfileCompletion
-    let onTap: () -> Void
-
-    @State private var animatedProgress: Double = 0
-
-    private var progressColor: Color {
-        switch completion.percentage {
-        case 0 ..< 30: .DesignSystem.error
-        case 30 ..< 70: .DesignSystem.brandOrange
-        default: .DesignSystem.brandGreen
-        }
-    }
-
-    var body: some View {
-        HStack(spacing: Spacing.md) {
-            // Circular Progress Ring
-            ZStack {
-                Circle()
-                    .stroke(Color.DesignSystem.glassBackground, lineWidth: 8)
-                    .frame(width: 70, height: 70)
-
-                Circle()
-                    .trim(from: 0, to: animatedProgress / 100)
-                    .stroke(
-                        LinearGradient(
-                            colors: [progressColor, progressColor.opacity(0.6)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing,
-                        ),
-                        style: StrokeStyle(lineWidth: 8, lineCap: .round),
-                    )
-                    .frame(width: 70, height: 70)
-                    .rotationEffect(.degrees(-90))
-
-                VStack(spacing: 0) {
-                    Text("\(Int(animatedProgress))%")
-                        .font(.LiquidGlass.headlineSmall)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.DesignSystem.text)
-                        .contentTransition(.numericText())
-                }
-            }
-            .onAppear {
-                withAnimation(.spring(response: 1.0, dampingFraction: 0.7)) {
-                    animatedProgress = completion.percentage
-                }
-            }
-
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(t.t("profile.complete_profile"))
-                    .font(.LiquidGlass.headlineSmall)
-                    .foregroundStyle(Color.DesignSystem.text)
-
-                if let nextStep = completion.nextStep {
-                    HStack(spacing: Spacing.xs) {
-                        Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.DesignSystem.accentYellow)
-
-                        Text(t.t("profile.next_step", args: ["step": nextStep]))
-                            .font(.LiquidGlass.caption)
-                            .foregroundStyle(Color.DesignSystem.textSecondary)
-                    }
-                }
-
-                Text(t.t("profile.complete_profile_benefit"))
-                    .font(.LiquidGlass.captionSmall)
-                    .foregroundStyle(Color.DesignSystem.brandGreen)
-                    .padding(.top, Spacing.xxs)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.LiquidGlass.caption)
-                .foregroundStyle(Color.DesignSystem.textSecondary)
-        }
-        .padding(Spacing.md)
-        .glassEffect(cornerRadius: CornerRadius.large)
-        .onTapGesture {
-            onTap()
-            HapticManager.light()
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(t.t("profile.completion_accessibility", args: ["percent": "\(Int(completion.percentage))"]))
-        .accessibilityAddTraits(.isButton)
-    }
-}
-
-// MARK: - Profile Stats Section
-
-private struct ProfileStatsSection: View {
-    @Environment(\.translationService) private var t
-    let viewModel: ProfileViewModel
-
-    @State private var hasAppeared = false
-
-    var body: some View {
-        HStack(spacing: 0) {
-            ProfileStatItem(
-                value: viewModel.sharedCount,
-                label: t.t("profile.stats.shared"),
-                icon: "arrow.up.heart.fill",
-                color: .DesignSystem.brandOrange,
-            )
-            .opacity(hasAppeared ? 1 : 0)
-            .offset(y: hasAppeared ? 0 : 20)
-            .animation(.interpolatingSpring(stiffness: 300, damping: 22).delay(0.0), value: hasAppeared)
-
-            Divider().frame(height: 50)
-
-            ProfileStatItem(
-                value: viewModel.receivedCount,
-                label: t.t("profile.stats.received"),
-                icon: "arrow.down.heart.fill",
-                color: .DesignSystem.success,
-            )
-            .opacity(hasAppeared ? 1 : 0)
-            .offset(y: hasAppeared ? 0 : 20)
-            .animation(.interpolatingSpring(stiffness: 300, damping: 22).delay(0.08), value: hasAppeared)
-
-            Divider().frame(height: 50)
-
-            ProfileStatItem(
-                value: viewModel.ratingText,
-                label: t.t("profile.stats.rating"),
-                icon: "star.fill",
-                color: .DesignSystem.accentYellow,
-            )
-            .opacity(hasAppeared ? 1 : 0)
-            .offset(y: hasAppeared ? 0 : 20)
-            .animation(.interpolatingSpring(stiffness: 300, damping: 22).delay(0.16), value: hasAppeared)
-        }
-        .padding(Spacing.md)
-        .glassEffect(cornerRadius: CornerRadius.large)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            t.t(
-                "profile.stats.accessibility",
-                args: [
-                    "shared": viewModel.sharedCount,
-                    "received": viewModel.receivedCount,
-                    "rating": viewModel.ratingText,
-                ],
-            ),
-        )
-        .onAppear {
-            hasAppeared = true
-        }
-    }
-}
-
-// MARK: - Animated Profile Stat Item (with count-up effect)
-
-struct ProfileStatItem: View {
-    let value: String
-    let label: String
-    let icon: String
-    let color: Color
-
-    @State private var displayValue = "0"
-    @State private var isPulsing = false
-    @State private var hasAnimated = false
-
-    private var numericValue: Int? {
-        // Extract numeric value from string (handles "4.8" -> 4)
-        if let dotIndex = value.firstIndex(of: ".") {
-            return Int(value[..<dotIndex])
-        }
-        return Int(value)
-    }
-
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            ZStack {
-                // Pulsing background circle
-                Circle()
-                    .fill(color.opacity(0.2))
-                    .frame(width: 44, height: 44)
-                    .scaleEffect(isPulsing ? 1.3 : 1.0)
-                    .opacity(isPulsing ? 0 : 0.3)
-
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                    .foregroundStyle(color)
-            }
-
-            Text(displayValue)
-                .font(.LiquidGlass.headlineLarge)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.DesignSystem.text)
-                .contentTransition(.numericText())
-
-            Text(label)
-                .font(.LiquidGlass.caption)
-                .foregroundStyle(Color.DesignSystem.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .onAppear {
-            guard !hasAnimated else { return }
-            hasAnimated = true
-            animateValue()
-        }
-    }
-
-    private func animateValue() {
-        // If it's a rating like "4.8", animate to final value
-        if value.contains(".") {
-            let steps = 20
-            let finalDouble = Double(value) ?? 0
-            for i in 0 ... steps {
-                let delay = Double(i) * 0.05
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    let progress = Double(i) / Double(steps)
-                    let currentValue = finalDouble * progress
-                    withAnimation(.easeOut(duration: 0.05)) {
-                        displayValue = String(format: "%.1f", currentValue)
-                    }
-                }
-            }
-        } else if let target = numericValue {
-            // Animate integer values
-            let duration = 1.0
-            let steps = min(target, 30) // Max 30 steps for performance
-            guard steps > 0 else {
-                displayValue = value
-                return
-            }
-
-            for i in 0 ... steps {
-                let delay = (duration / Double(steps)) * Double(i)
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    let progress = Double(i) / Double(steps)
-                    let currentValue = Int(Double(target) * progress)
-                    withAnimation(.easeOut(duration: 0.03)) {
-                        displayValue = "\(currentValue)"
-                    }
-                }
-            }
-        } else {
-            displayValue = value
-        }
-
-        // Trigger pulse at end
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-            withAnimation(.easeOut(duration: 0.4)) {
-                isPulsing = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                isPulsing = false
-            }
-            HapticManager.light()
-        }
-    }
-}
-
-// MARK: - Enhanced Impact Stats Section (with real-world comparisons)
-
-private struct ImpactStatsSection: View {
-    @Environment(\.translationService) private var t
-    let stats: ImpactStats
-    let memberSince: String
-    let memberDuration: String
-
-    @State private var showImpactDetail = false
-
-    /// Real-world comparisons
-    private var treesEquivalent: Int {
-        // 1 tree absorbs ~22kg CO2/year, so kg/22 = trees for a year
-        max(1, Int(stats.co2SavedKg / 22))
-    }
-
-    private var showerMinutes: Int {
-        // Average shower uses ~9 liters/minute
-        max(1, Int(stats.waterSavedLiters / 9))
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            HStack {
-                Image(systemName: "leaf.fill")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.DesignSystem.brandGreen)
-
-                Text(t.t("profile.impact.title"))
-                    .font(.LiquidGlass.headlineSmall)
-                    .foregroundStyle(Color.DesignSystem.text)
-
-                Spacer()
-
-                Text(stats.communityRank)
-                    .font(.LiquidGlass.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, Spacing.sm)
-                    .padding(.vertical, Spacing.xxs)
-                    .background(
-                        Capsule().fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.DesignSystem.themed.gradientStart,
-                                    Color.DesignSystem.themed.gradientEnd,
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing,
-                            ),
-                        ),
-                    )
-            }
-
-            HStack(spacing: Spacing.md) {
-                EnhancedImpactMetricView(
-                    icon: "cloud.fill",
-                    value: stats.formattedCO2,
-                    label: t.t("profile.impact.co2_saved"),
-                    comparison: t.t("profile.impact.trees_equivalent", args: ["count": "\(treesEquivalent)"]),
-                    color: .DesignSystem.brandBlue,
-                )
-                EnhancedImpactMetricView(
-                    icon: "drop.fill",
-                    value: stats.formattedWater,
-                    label: t.t("profile.impact.water_saved"),
-                    comparison: t.t("profile.impact.shower_equivalent", args: ["minutes": "\(showerMinutes)"]),
-                    color: .DesignSystem.brandTeal,
-                )
-                EnhancedImpactMetricView(
-                    icon: "fork.knife",
-                    value: "\(stats.mealsShared + stats.mealsReceived)",
-                    label: t.t("profile.impact.meals"),
-                    comparison: t.t("profile.impact.meals_shared", args: ["count": "\(stats.mealsShared)"]),
-                    color: .DesignSystem.brandOrange,
-                )
-            }
-
-            // Member since info
-            HStack(spacing: Spacing.xs) {
-                Image(systemName: "calendar")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.DesignSystem.textSecondary)
-
-                Text(memberSince)
-                    .font(.LiquidGlass.caption)
-                    .foregroundStyle(Color.DesignSystem.textSecondary)
-
-                Text("•")
-                    .foregroundStyle(Color.DesignSystem.textTertiary)
-
-                Text(memberDuration)
-                    .font(.LiquidGlass.caption)
-                    .foregroundStyle(Color.DesignSystem.textSecondary)
-            }
-
-            // Share impact button
-            Button {
-                showImpactDetail = true
-                HapticManager.light()
-            } label: {
-                HStack {
-                    Image(systemName: "square.and.arrow.up")
-                    Text(t.t("profile.impact.share"))
-                }
-                .font(.LiquidGlass.labelSmall)
-                .foregroundStyle(Color.DesignSystem.themed.primary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.sm)
-                .background(Color.DesignSystem.themed.primary.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-            }
-        }
-        .padding(Spacing.md)
-        .glassEffect(cornerRadius: CornerRadius.large)
-        .drawingGroup() // GPU acceleration for glass effects
-    }
-}
-
-// MARK: - Enhanced Impact Metric View (with comparison)
-
-struct EnhancedImpactMetricView: View {
-    let icon: String
-    let value: String
-    let label: String
-    let comparison: String
-    let color: Color
-
-    @State private var isAnimating = false
-
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.15))
-                    .frame(width: 44, height: 44)
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(color)
-                    .symbolEffect(.pulse, options: .repeating, value: isAnimating)
-            }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                    isAnimating = true
-                }
-            }
-
-            Text(value)
-                .font(.LiquidGlass.headlineSmall)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.DesignSystem.text)
-                .contentTransition(.numericText())
-
-            Text(label)
-                .font(.LiquidGlass.captionSmall)
-                .foregroundStyle(Color.DesignSystem.textSecondary)
-                .lineLimit(1)
-
-            // Real-world comparison
-            Text(comparison)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(color.opacity(0.8))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - Impact Metric View
-
-struct ImpactMetricView: View {
-    let icon: String
-    let value: String
-    let label: String
-    let color: Color
-
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.15))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(color)
-            }
-
-            Text(value)
-                .font(.LiquidGlass.headlineSmall)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.DesignSystem.text)
-                .contentTransition(.numericText())
-
-            Text(label)
-                .font(.LiquidGlass.captionSmall)
-                .foregroundStyle(Color.DesignSystem.textSecondary)
-                .lineLimit(1)
-        }
-        .frame(maxWidth: .infinity)
+        #endif
     }
 }
 
@@ -1228,57 +763,6 @@ private struct BadgesSection: View {
     }
 }
 
-private struct BadgesContent: View {
-    @Environment(\.translationService) private var t
-    let collection: BadgeCollection
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            if !collection.featuredBadges.isEmpty {
-                GlassHorizontalScroll.compact {
-                    ForEach(collection.featuredBadges) { userBadge in
-                        GlassBadgeItem(
-                            badge: userBadge.badge,
-                            isEarned: true,
-                            isFeatured: true,
-                            progress: nil,
-                            onTap: nil,
-                        )
-                        .frame(width: 72)
-                    }
-                }
-            } else if !collection.earnedBadges.isEmpty {
-                HStack(spacing: Spacing.sm) {
-                    ForEach(Array(collection.earnedBadges.prefix(4))) { userBadge in
-                        GlassBadgeItem(
-                            badge: userBadge.badge,
-                            isEarned: true,
-                            isFeatured: false,
-                            progress: nil,
-                            onTap: nil,
-                        )
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-            }
-
-            if collection.totalPoints > 0 {
-                HStack(spacing: Spacing.sm) {
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.yellow)
-
-                    Text(t.t("profile.badge_points_earned", args: ["count": "\(collection.totalPoints)"]))
-                        .font(.LiquidGlass.caption)
-                        .foregroundStyle(Color.DesignSystem.textSecondary)
-
-                    Spacer()
-                }
-                .padding(.top, Spacing.xs)
-            }
-        }
-    }
-}
 
 // MARK: - Reviews Section
 
@@ -1337,72 +821,6 @@ private struct ReviewsSection: View {
         }
         .padding(Spacing.md)
         .glassEffect(cornerRadius: CornerRadius.large)
-    }
-}
-
-private struct ReviewsEmptyState: View {
-    @Environment(\.translationService) private var t
-
-    var body: some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: "star.leadinghalf.filled")
-                .font(.system(size: 28))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.yellow.opacity(0.5), .orange.opacity(0.3)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing,
-                    ),
-                )
-            Text(t.t("profile.no_reviews"))
-                .font(.LiquidGlass.caption)
-                .foregroundStyle(Color.DesignSystem.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.md)
-    }
-}
-
-private struct ReviewsContent: View {
-    @Environment(\.translationService) private var t
-    let viewModel: ProfileViewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack(spacing: Spacing.sm) {
-                StarRatingView(rating: viewModel.profile?.ratingAverage ?? 0, size: 14)
-                Text(String(format: "%.1f", viewModel.profile?.ratingAverage ?? 0))
-                    .font(.LiquidGlass.headlineSmall)
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.DesignSystem.text)
-                Text("•")
-                    .foregroundStyle(Color.DesignSystem.textTertiary)
-                Text(t.t("profile.review_count", args: ["count": "\(viewModel.reviewCount)"]))
-                    .font(.LiquidGlass.caption)
-                    .foregroundStyle(Color.DesignSystem.textSecondary)
-            }
-
-            ForEach(viewModel.reviews.prefix(2)) { review in
-                ReviewCard(review: review)
-            }
-
-            if viewModel.reviewCount > 2 {
-                NavigationLink(value: ProfileDestination.reviews(
-                    reviews: viewModel.reviews,
-                    userName: viewModel.localizedDisplayName(using: t),
-                    rating: viewModel.profile?.ratingAverage ?? 0,
-                )) {
-                    HStack(spacing: Spacing.xs) {
-                        Text(t.t("profile.see_all_reviews", args: ["count": "\(viewModel.reviewCount)"]))
-                        Image(systemName: "chevron.right")
-                    }
-                    .font(.LiquidGlass.labelMedium)
-                    .foregroundStyle(Color.DesignSystem.themed.primary)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, Spacing.xs)
-            }
-        }
     }
 }
 
@@ -1749,7 +1167,9 @@ struct StreakIndicatorCard: View {
                         ),
                     )
                     .scaleEffect(isFlameAnimating ? 1.1 : 1.0)
+                    #if !SKIP
                     .symbolEffect(.bounce, options: .repeating.speed(0.5), value: isFlameAnimating)
+                    #endif
             }
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
@@ -1801,7 +1221,7 @@ struct StreakIndicatorCard: View {
 struct ProfileQRCodeView: View {
     @Environment(\.translationService) private var t
     let profile: UserProfile
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var isPulsing = false
 
     private var profileURL: String {
@@ -1928,6 +1348,7 @@ struct ProfileQRCodeView: View {
                     }
 
                     // Share button
+                    #if !SKIP
                     ShareLink(item: profileURL) {
                         Label(t.t("profile.qr.share_link"), systemImage: "square.and.arrow.up")
                             .font(.LiquidGlass.bodyLarge)
@@ -1948,6 +1369,28 @@ struct ProfileQRCodeView: View {
                             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
                     }
                     .padding(.horizontal, Spacing.lg)
+                    #else
+                    Button(action: {}) {
+                        Label(t.t("profile.qr.share_link"), systemImage: "square.and.arrow.up")
+                            .font(.LiquidGlass.bodyLarge)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, Spacing.md)
+                            .background(
+                                LinearGradient(
+                                    colors: [
+                                        Color.DesignSystem.themed.gradientStart,
+                                        Color.DesignSystem.themed.gradientEnd,
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing,
+                                ),
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
+                    }
+                    .padding(.horizontal, Spacing.lg)
+                    #endif
 
                     Spacer()
                 }

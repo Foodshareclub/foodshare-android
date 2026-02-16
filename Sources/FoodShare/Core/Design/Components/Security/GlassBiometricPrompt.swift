@@ -1,9 +1,6 @@
+#if !SKIP
 import LocalAuthentication
-import FoodShareSecurity
 import SwiftUI
-import FoodShareSecurity
-import FoodShareDesignSystem
-import FoodShareSecurity
 
 // MARK: - Glass Biometric Prompt
 
@@ -18,7 +15,7 @@ public struct GlassBiometricPrompt: View {
     let onSuccess: () -> Void
     let onCancel: () -> Void
 
-    @State private var biometryType: BiometryType = .none
+    @State private var biometryType: BiometricType = .none
     @State private var isAuthenticating = false
     @State private var authState: AuthState = .idle
     @State private var iconScale: CGFloat = 1.0
@@ -98,7 +95,7 @@ public struct GlassBiometricPrompt: View {
 
                 // Cancel button
                 Button {
-                    HapticManager.shared.impact(.light)
+                    HapticManager.light()
                     onCancel()
                 } label: {
                     Text(t.t("common.cancel"))
@@ -114,7 +111,7 @@ public struct GlassBiometricPrompt: View {
         .shadow(color: .black.opacity(0.2), radius: 30, x: 0, y: 15)
         .padding(.horizontal, Spacing.lg)
         .task {
-            biometryType = await BiometricAuth.shared.biometryType
+            biometryType = BiometricAuth.shared.availableBiometricType
         }
     }
 
@@ -291,7 +288,7 @@ public struct GlassBiometricPrompt: View {
     }
 
     private func playSuccessAnimation() {
-        HapticManager.shared.notification(.success)
+        HapticManager.success()
 
         withAnimation(.interpolatingSpring(stiffness: 400, damping: 15)) {
             iconScale = 1.3
@@ -304,7 +301,7 @@ public struct GlassBiometricPrompt: View {
     }
 
     private func playFailureAnimation() {
-        HapticManager.shared.notification(.error)
+        HapticManager.error()
 
         // Shake animation
         let shakeSequence: [CGFloat] = [0, -10, 10, -8, 8, -5, 5, 0]
@@ -398,3 +395,4 @@ extension View {
         )
     }
 }
+#endif

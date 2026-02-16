@@ -5,7 +5,6 @@
 //  Extracted challenge detail view
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct ChallengeDetailView: View {
@@ -134,7 +133,9 @@ struct ChallengeDetailView: View {
                                 endPoint: .bottomTrailing,
                             ),
                         )
+                        #if !SKIP
                         .symbolEffect(.bounce, value: selected.hasCompleted)
+                        #endif
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(t.t("challenge.action.completed"))
@@ -554,7 +555,9 @@ struct ChallengeDetailView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title2)
                         .foregroundColor(.DesignSystem.brandGreen)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: status.hasCompleted)
+                        #endif
                 }
             }
         }
@@ -1003,7 +1006,9 @@ private struct EnhancedLeaderboardRow: View {
                         endPoint: .bottomTrailing,
                     ),
                 )
+                #if !SKIP
                 .symbolEffect(.bounce, value: rank)
+                #endif
         }
         .padding(.vertical, Spacing.sm)
         .padding(.horizontal, Spacing.sm)

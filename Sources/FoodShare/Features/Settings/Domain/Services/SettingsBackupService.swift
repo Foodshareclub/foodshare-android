@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SettingsBackupService.swift
 //  Foodshare
@@ -111,14 +112,12 @@ actor SettingsBackupService {
             let theme = ThemeManager.shared
             let appLock = AppLockService.shared
 
+            let deviceName = UIDevice.current.name
+
             return SettingsBackup(
                 version: currentVersion,
                 createdAt: Date(),
-                #if !SKIP
-                deviceName: UIDevice.current.name,
-                #else
-                deviceName: "Android",
-                #endif
+                deviceName: deviceName,
                 preferences: SettingsBackup.PreferencesBackup(
                     searchRadius: prefs.searchRadius,
                     notificationsEnabled: prefs.notificationsEnabled,
@@ -309,3 +308,4 @@ actor SettingsBackupService {
         logger.info("Deleted backup: \(url.lastPathComponent)")
     }
 }
+#endif

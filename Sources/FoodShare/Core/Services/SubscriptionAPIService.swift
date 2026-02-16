@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SubscriptionAPIService.swift
 //  Foodshare
@@ -32,11 +33,6 @@ actor SubscriptionAPIService {
     }
 }
 
-struct SyncSubscriptionResponse: Codable {
-    let success: Bool
-    let subscription: SubscriptionResponse?
-}
-
 struct SubscriptionResponse: Codable {
     let id: String
     let userId: String
@@ -49,3 +45,4 @@ struct ReceiptVerificationResponse: Codable {
     let valid: Bool
     let subscription: SubscriptionResponse?
 }
+#endif

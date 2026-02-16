@@ -1,451 +1,236 @@
-# Foodshare Android
+# FoodShare App (Cross-Platform)
 
-**Version:** 3.0.2 | **Kotlin:** 2.0.21 | **Android:** 28-35 | **Swift:** 6.0 | **Status:** Production
+**Version:** 3.0.2 | **Framework:** Skip Fuse | **Platforms:** iOS 17+ & Android 28+ | **Swift:** 6.1 | **Status:** Production
 
-> Android companion app for Foodshare - a food sharing platform connecting people with surplus food to those who need it.
+> Unified cross-platform FoodShare app using Skip Fuse. Single Swift codebase builds native iOS and Android apps.
 
 ---
 
 ## Quick Reference
 
 ```bash
-# Build & Install
-./gradlew assembleDebug           # Build debug APK
-./gradlew assembleRelease         # Build release APK
-./gradlew installDebug            # Install to connected device
+# iOS Build (Xcode)
+open Darwin/FoodShare.xcodeproj    # Open in Xcode
+# Build via Xcode scheme: FoodShare
 
-# Testing
-./gradlew test                    # Run unit tests
-./gradlew connectedAndroidTest    # Run instrumented tests
+# Android Build
+cd Android && ./gradlew assembleDebug    # Build debug APK
+cd Android && ./gradlew installDebug     # Install to device/emulator
 
-# Swift Core (shared with iOS)
-./gradlew testSwift               # Run Swift tests (36 tests)
-./gradlew buildSwiftDebug         # Cross-compile Swift for Android (debug)
-./gradlew buildSwiftRelease       # Cross-compile Swift for Android (release)
-./gradlew cleanSwift              # Clean Swift build artifacts
+# Swift Package
+swift build                              # Build Swift package
+swift test                               # Run tests
 ```
 
 ---
 
 ## Tech Stack
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| Language | Kotlin | 2.0.21 |
-| Shared Core | Swift (via JNI) | 6.0 |
-| UI | Jetpack Compose + Material 3 | BOM 2024.12.01 |
-| Architecture | MVVM + Clean Architecture | - |
-| Backend | Self-hosted Supabase (supabase-kt) | 3.0.3 |
-| DI | Hilt | 2.51.1 |
-| Navigation | Compose Navigation | 2.8.5 |
-| Database | Room | 2.6.1 |
-| Network | Ktor (OkHttp) | 3.0.2 |
-| Images | Coil | 2.7.0 |
-| Location | Play Services | 21.3.0 |
-| Maps | Maps Compose | 4.3.0 |
+| Component | Technology |
+|-----------|------------|
+| Language | Swift 6.1 |
+| UI Framework | SwiftUI (via Skip Fuse → Jetpack Compose on Android) |
+| Cross-Platform | Skip Fuse 1.7.2 |
+| Backend | Self-hosted Supabase (supabase-swift 2.41+) |
+| Images | Kingfisher (iOS) / Coil (Android, via Skip) |
+| Design System | Liquid Glass (137 components) |
+| Architecture | Clean Architecture + MVVM + @Observable |
 
 ---
 
 ## Project Structure
 
 ```
-app/src/main/kotlin/com/foodshare/
-├── MainActivity.kt                    # Entry point
-├── FoodShareApplication.kt            # Application class with Hilt
-│
-├── swift/                             # Swift JNI integration
-│   ├── FoodshareCoreNative.kt         # JNI native method declarations
-│   ├── FoodshareCore.kt               # High-level Kotlin API
-│   ├── FoodshareSdk.kt                # SDK facade
-│   └── ErrorModels.kt                 # Error mapping
-│
-├── core/                              # Core infrastructure (37 modules)
-│   ├── accessibility/                 # A11y audit, semantic helpers
-│   ├── analytics/                     # Event tracking, metrics
-│   ├── batch/                         # Batch operations
-│   ├── cache/                         # Caching layer (memory, disk)
-│   ├── deeplink/                      # Deep link handling
-│   ├── error/                         # Legacy error types
-│   ├── errors/                        # Error handling, mapping
-│   ├── experiments/                   # A/B testing
-│   ├── featureflags/                  # Feature flag management
-│   ├── forms/                         # Form validation helpers
-│   ├── gamification/                  # Points, badges, streaks
-│   ├── geo/                           # Geolocation utilities
-│   ├── input/                         # Input sanitization
-│   ├── localization/                  # i18n bridge
-│   ├── matching/                      # Food matching algorithms
-│   ├── media/                         # Image/video handling
-│   ├── moderation/                    # Content moderation
-│   ├── network/                       # Network resilience, BFF models
-│   ├── notifications/                 # Push notification handling
-│   ├── offline/                       # Offline-first support
-│   ├── optimistic/                    # Optimistic updates
-│   ├── pagination/                    # Cursor-based pagination
-│   ├── performance/                   # Performance monitoring
-│   ├── prefetch/                      # Data prefetching
-│   ├── push/                          # FCM integration
-│   ├── ratelimit/                     # Rate limiting
-│   ├── rating/                        # Rating system
-│   ├── realtime/                      # Supabase Realtime subscriptions
-│   ├── recommendations/               # ML recommendations
-│   ├── repository/                    # Base repository patterns
-│   ├── search/                        # Search infrastructure
-│   ├── security/                      # Security utilities
-│   ├── swift/                         # Swift runtime loader
-│   ├── sync/                          # Data sync (delta, conflict)
-│   ├── transformation/                # Data transformers
-│   ├── utilities/                     # General utilities
-│   └── validation/                    # ValidationBridge (Swift integration)
-│
-├── features/                          # Feature modules (17 screens)
-│   ├── activity/                      # Activity feed
-│   ├── auth/                          # Login, signup, password reset
-│   ├── challenges/                    # Community challenges
-│   ├── create/                        # Create listing wizard
-│   ├── debug/                         # Debug screens (dev only)
-│   ├── feed/                          # Main food feed
-│   ├── forum/                         # Community forum
-│   ├── listing/                       # Listing detail
-│   ├── map/                           # Map view (PostGIS)
-│   ├── messaging/                     # Chat, conversations
-│   ├── mylistings/                    # User's listings
-│   ├── notifications/                 # Notification center
-│   ├── onboarding/                    # First-run experience
-│   ├── profile/                       # User profile, settings
-│   ├── reviews/                       # Reviews, ratings
-│   ├── search/                        # Search UI
-│   └── settings/                      # App settings
-│
-├── data/repository/                   # Supabase repository implementations
-│   ├── SupabaseAuthRepository.kt
-│   ├── SupabaseChatRepository.kt
-│   ├── SupabaseFavoritesRepository.kt
-│   ├── SupabaseFeedRepository.kt
-│   ├── SupabaseListingRepository.kt
-│   ├── SupabaseReviewRepository.kt
-│   └── SupabaseSearchRepository.kt
-│
-├── domain/
-│   ├── model/                         # Domain models (Kotlin)
-│   │   ├── FoodListing.kt
-│   │   ├── UserProfile.kt
-│   │   ├── ChatMessage.kt, ChatRoom.kt
-│   │   └── Review.kt
-│   └── repository/                    # Repository interfaces
-│
-├── di/                                # Hilt dependency injection
-│   └── AppModule.kt
-│
-└── ui/                                # Shared UI layer
-    ├── components/                    # Reusable Compose components
-    ├── design/                        # Design tokens
-    ├── navigation/                    # NavHost, routes
-    └── theme/                         # Liquid Glass theme system
-        ├── LiquidGlassColors.kt
-        ├── LiquidGlassTypography.kt
-        ├── LiquidGlassSpacing.kt
-        └── LiquidGlassAnimations.kt
-
-foodshare-core/                        # Symlink → ../foodshare-core
-├── Sources/FoodshareCore/
-│   ├── Models/                        # Shared Swift models
-│   ├── Validation/                    # Validators (shared with iOS)
-│   ├── Utilities/                     # TextSanitizer, InputSanitizer
-│   └── JNI/                           # JNI exports
-│       ├── JNITypes.swift             # Type definitions
-│       └── Generated/                 # @_cdecl exports
-├── Tests/                             # 36+ Swift tests
-└── scripts/build-android.sh           # Cross-compilation
-
-supabase/                              # Symlink → ../foodshare-backend
-app/src/main/jniLibs/                  # Compiled Swift .so files
-├── arm64-v8a/libFoodshareCore.so
-└── x86_64/libFoodshareCore.so
+foodshare-app/
+├── Package.swift                    # SPM + Skip plugin
+├── Skip.env                         # Skip project metadata
+├── Sources/FoodShare/               # ALL Swift source code
+│   ├── FoodShareApp.swift           # App entry point
+│   ├── App/                         # App-level coordination
+│   ├── Core/                        # Core infrastructure
+│   │   ├── Analytics/               # Event tracking
+│   │   ├── Architecture/            # Base protocols
+│   │   ├── Cache/                   # Caching layer
+│   │   ├── Design/                  # Liquid Glass (137 files)
+│   │   ├── Errors/                  # Error handling
+│   │   ├── Extensions/              # Swift extensions
+│   │   ├── FeatureFlags/            # Feature flags
+│   │   ├── Localization/            # i18n (21 languages)
+│   │   ├── Networking/              # APIClient, Edge Functions
+│   │   ├── Performance/             # Performance monitoring
+│   │   ├── Router/                  # Navigation
+│   │   ├── Security/                # Keychain, biometrics
+│   │   └── Services/                # Auth, location, etc.
+│   ├── Features/                    # Feature modules (24)
+│   │   ├── Authentication/
+│   │   ├── Feed/
+│   │   ├── Listing/
+│   │   ├── Messaging/
+│   │   ├── Profile/
+│   │   ├── Map/
+│   │   ├── Reviews/
+│   │   ├── Challenges/
+│   │   ├── Forum/
+│   │   └── ...
+│   ├── Skip/                        # Skip configuration
+│   │   └── skip.yml                 # Transpilation settings
+│   └── Resources/                   # Assets, strings
+├── Darwin/                          # iOS-specific
+│   ├── FoodShare.xcodeproj          # Xcode project
+│   ├── FoodShare.xcconfig           # Build settings
+│   └── Info.plist
+├── Android/                         # Android-specific
+│   ├── app/build.gradle.kts         # Android build
+│   ├── settings.gradle.kts
+│   └── gradle/
+└── Tests/FoodShareTests/            # Unit tests
 ```
 
 ---
 
 ## Architecture
 
-### Ultra-Thin Client Pattern
+### Clean Architecture + MVVM
 
-| Android Does | Supabase Does |
-|--------------|---------------|
-| Display data (Compose) | Store/validate data (PostgreSQL) |
-| Collect user input | Authorization (RLS policies) |
-| Call Supabase client | Business logic (Edge Functions) |
-| Offline cache (Room) | Complex queries (PostGIS) |
-| Input sanitization (Swift) | Server-side validation |
+```
+Presentation (SwiftUI Views + ViewModels)
+    ↓
+Domain (Protocols + Models)
+    ↓
+Data (API Services + Repositories)
+    ↓
+Backend (Supabase Edge Functions)
+```
 
 ### Key Patterns
 
-- **MVVM**: ViewModels expose `StateFlow<UiState>` to Compose screens
-- **Repository**: Abstract data sources behind interfaces
-- **Validation Bridge**: Kotlin delegates to Swift validators via JNI
-- **Offline-First**: Room database with sync manager
+- **API-First**: All data through Edge Functions via `APIClient.shared`
+- **Supabase Fallback**: Direct Supabase in `catch` blocks for resilience
+- **@Observable ViewModels**: `@MainActor` with `@Observable` macro
+- **Design Tokens**: Liquid Glass colors, spacing, typography throughout
+
+### Platform-Specific Code
+
+Use `#if !SKIP` guards for iOS-only features:
+
+```swift
+#if !SKIP
+import Lottie
+#endif
+
+struct AnimatedView: View {
+    var body: some View {
+        #if !SKIP
+        LottieView(animation: .named("loading"))
+        #else
+        ProgressView()
+        #endif
+    }
+}
+```
+
+**Guarded Features:**
+- Lottie animations
+- Metal shaders
+- UIKit haptics (UIImpactFeedbackGenerator)
+- Keychain (→ EncryptedSharedPreferences on Android)
+- StoreKit IAP
+- DeviceCheck
 
 ---
 
-## Swift Integration
+## Networking
 
-FoodshareCore is a Swift package shared with iOS, compiled for Android using Swift SDK for Android.
+### API Client
 
-### Architecture: Fully swift-java
+All API calls go through `APIClient.shared` to Edge Functions:
 
-The project uses **swift-java** for all Swift-Kotlin integration:
-- **All Core Bridges**: Use swift-java generated classes with SwiftArena (type-safe, automatic memory management)
-- **Legacy Bridges**: Some pure Kotlin bridges remain (platform-specific functionality)
-
-```
-ValidationBridge (swift-java):
-┌────────────────────────────────────────────────────────────────┐
-│                      Kotlin Layer                              │
-│  ValidationBridge.kt → Generated Java Classes → SwiftArena     │
-└────────────────────────────────────────────────────────────────┘
-                              │ JNI (auto-generated)
-┌────────────────────────────────────────────────────────────────┐
-│                      Swift Layer                               │
-│   *+SwiftJavaCompat.swift → ListingValidator, AuthValidator    │
-└────────────────────────────────────────────────────────────────┘
-
-Other Bridges (manual JNI):
-┌────────────────────────────────────────────────────────────────┐
-│                      Kotlin Layer                              │
-│  MatchingBridge.kt → FoodshareCore.kt → FoodshareCoreNative    │
-└────────────────────────────────────────────────────────────────┘
-                              │ JNI (System.loadLibrary)
-┌────────────────────────────────────────────────────────────────┐
-│                      Swift Layer                               │
-│   JNIExports.swift → MatchingEngine, GamificationEngine, etc.  │
-└────────────────────────────────────────────────────────────────┘
+```swift
+// Pattern: API-first with Supabase fallback
+let items = try await APIClient.shared.request(
+    endpoint: "api-v1-products",
+    method: .GET,
+    queryParams: ["category": "fruits"]
+)
 ```
 
-### Key Integration Files
+### Response Envelope
 
-| File | Purpose |
-|------|---------|
-| `java/.../swift/generated/*.java` | swift-java generated classes |
-| `core/validation/ValidationBridge.kt` | Uses swift-java generated classes |
-| `swift/FoodshareCoreNative.kt` | Legacy JNI `external fun` declarations |
-| `swift/FoodshareCore.kt` | Legacy high-level Kotlin API |
-| `foodshare-core/.../JNI/Generated/*+SwiftJavaCompat.swift` | @_cdecl exports for swift-java |
-| `foodshare-core/.../JNI/JNIExports.swift` | Legacy @_cdecl exports |
-
-### Validation Example (swift-java)
-
-```kotlin
-// In ViewModel
-val result = ValidationBridge.validateListing(title, description, quantity)
-if (!result.isValid) {
-    _uiState.update { it.copy(errors = result.errors) }
+```swift
+struct EdgeResponse<T: Decodable>: Decodable {
+    let success: Bool
+    let data: T?
+    let error: String?
+    let pagination: Pagination?
 }
-
-// ValidationBridge uses generated ListingValidator Java class
-// with SwiftArena for memory management
 ```
 
-### Building Swift for Android
+### Supabase Client
 
-```bash
-# Prerequisites: Swift 6.0+ with Android SDK
-swift sdk list  # Verify Android SDK installed
-
-# Regenerate JNI bindings (when Swift code changes)
-./gradlew generateJniBindings
-
-# Build for Android
-./gradlew buildSwiftRelease
-
-# Output: app/src/main/jniLibs/{arm64-v8a,x86_64}/libFoodshareCore.so
-
-# Run Swift tests (on host)
-./gradlew testSwift
+```swift
+// Always use:
+AuthenticationService.shared.supabase
+// NEVER: SupabaseManager.shared
 ```
-
-### swift-java Migration Status
-
-| Bridge | Status | Notes |
-|--------|--------|-------|
-| ValidationBridge | **Migrated** | Uses swift-java generated classes |
-| MatchingBridge | **Migrated** | Uses swift-java with SwiftArena |
-| GamificationBridge | **Migrated** | Uses swift-java with SwiftArena |
-| RecommendationBridge | **Migrated** | Uses swift-java with SwiftArena |
-| NetworkResilienceBridge | **Migrated** | Uses swift-java with SwiftArena |
-| GeoIntelligenceBridge | **Migrated** | Uses swift-java with SwiftArena |
-| ImageProcessorBridge | **Migrated** | Uses swift-java with SwiftArena |
-| SearchEngineBridge | **Migrated** | Uses swift-java with SwiftArena |
-| LocalizationBridge | **Migrated** | Uses swift-java formatters |
-| FeatureFlagBridge | **Migrated** | Rollout, versioning, experiments |
-| FormStateBridge | **Migrated** | Form validation via Swift engine |
-| ErrorBridge | **Migrated** | Error categorization, recovery via Swift |
-| BatchOperationsBridge | **Migrated** | Chunk sizing, backoff via Swift |
-
-SwiftKit dependency: `org.swift.swiftkit:swiftkit-core:1.0-SNAPSHOT` (built locally from swift-java repo)
 
 ---
 
 ## Design System (Liquid Glass)
 
-| Token | File |
-|-------|------|
-| Colors | `ui/theme/LiquidGlassColors.kt` |
-| Typography | `ui/theme/LiquidGlassTypography.kt` |
-| Spacing | `ui/theme/LiquidGlassSpacing.kt` |
-| Animations | `ui/theme/LiquidGlassAnimations.kt` |
+137 design files in `Core/Design/`:
+- **Tokens**: LiquidGlassColors, LiquidGlassSpacing, LiquidGlassTypography
+- **Components**: GlassButton, GlassCard, GlassTextField, GlassBottomSheet, etc.
+- **Themes**: Brand, Coral, Forest, Midnight, Monochrome, Nature, Ocean, Sunset
+- **Animations**: ProMotion 120Hz, spring animations, hero transitions
+- **Effects**: Metal shaders (iOS-only, guarded with #if !SKIP)
 
-**Components**: GlassCard, GlassButton, GlassTextField, GlassBottomSheet, etc.
+---
+
+## Backend
+
+Shared backend at `/Users/organic/dev/work/foodshare/foodshare-backend/`:
+- 27 Edge Functions (Deno)
+- Self-hosted Supabase (152.53.136.84)
+- API: https://api.foodshare.club
+- `supabase/` symlink → `../foodshare-backend/supabase/`
 
 ---
 
 ## Dependencies
 
-| Library | Version | Purpose |
+| Package | Version | Purpose |
 |---------|---------|---------|
-| Kotlin | 2.0.21 | Language |
-| Compose BOM | 2024.12.01 | UI framework |
-| Supabase-kt | 3.0.3 | Backend client |
-| Hilt | 2.51.1 | Dependency injection |
-| Room | 2.6.1 | Local database |
-| Ktor | 3.0.2 | HTTP client |
-| Navigation | 2.8.5 | Compose navigation |
-| Coil | 2.7.0 | Image loading |
-| Maps Compose | 4.3.0 | Google Maps |
-| WorkManager | 2.9.1 | Background sync |
-| DataStore | 1.1.1 | Preferences |
+| skip | 1.7.2 | Cross-platform framework |
+| skip-fuse-ui | 1.0.0 | SwiftUI → Compose bridge |
+| supabase-swift | 2.41.0 | Backend client |
+| Kingfisher | 8.6.2 | Image loading (iOS) |
 
 ---
 
-## Environment Variables
+## Environment
 
 Self-hosted Supabase:
-- Studio (dashboard): https://studio.foodshare.club
+- Studio: https://studio.foodshare.club
 - API: https://api.foodshare.club
 
-Create `local.properties` (not committed):
+---
 
-```properties
-SUPABASE_URL=https://api.foodshare.club
-SUPABASE_ANON_KEY=your-anon-key
-```
+## Important Rules
 
-Access via `BuildConfig`:
-
-```kotlin
-BuildConfig.SUPABASE_URL
-BuildConfig.SUPABASE_ANON_KEY
-```
+1. **Never use JSR imports** in Edge Functions (hangs on cold start)
+2. **Never `console.log`** in Edge Functions (use structured `logger`)
+3. **Always use `AuthenticationService.shared.supabase`** for Supabase client
+4. **Always use `#if !SKIP`** for iOS-only code (Metal, UIKit, Lottie, etc.)
+5. **Use `.interpolatingSpring`** for animations (ProMotion 120Hz)
+6. **Keep `.easeInOut` only inside `.repeatForever()`**
+7. **Supabase `.select()` strings**: No spaces between fields (`"id,name"` not `"id, name"`)
+8. **Don't run xcodebuild via CLI** — no simulator available, builds will hang
 
 ---
 
-## Permissions
+## Migration Notes
 
-```xml
-<!-- Network -->
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+This project was created from `foodshare-android/` (Feb 12, 2026) as a Skip Fuse cross-platform app.
+The original native iOS project is at `foodshare-ios/` (renamed to `foodshare-ios-legacy/` after migration).
 
-<!-- Location -->
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-<!-- Camera & Media -->
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-<!-- Notifications -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-<!-- Background Work -->
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-```
-
----
-
-## Testing
-
-### Unit Tests
-
-```bash
-./gradlew test
-# Location: app/src/test/
-```
-
-### Instrumented Tests
-
-```bash
-./gradlew connectedAndroidTest
-# Location: app/src/androidTest/
-```
-
-### Swift Tests
-
-```bash
-./gradlew testSwift  # 36 tests
-# Location: foodshare-core/Tests/
-```
-
----
-
-## Troubleshooting
-
-### Swift library not loading
-
-```
-java.lang.UnsatisfiedLinkError: dlopen failed: library "libFoodshareCore.so" not found
-```
-
-**Fix**: Rebuild Swift library:
-```bash
-./gradlew buildSwiftRelease
-# Verify: ls app/src/main/jniLibs/arm64-v8a/
-```
-
-### Build fails with native errors
-
-**Fix**: Clean and rebuild:
-```bash
-./gradlew cleanSwift buildSwiftRelease
-```
-
-### Swift SDK not found
-
-**Fix**: Install Swift Android SDK:
-```bash
-swift sdk install 6.0.3-RELEASE-android-24-0.1
-swift sdk list  # Verify installation
-```
-
-### Supabase connection fails
-
-**Fix**: Check `local.properties`:
-```properties
-SUPABASE_URL=https://api.foodshare.club
-SUPABASE_ANON_KEY=eyJ...
-```
-
----
-
-## Code Style
-
-- Kotlin 2.0 features (data classes, sealed classes, coroutines)
-- Compose with Material 3 + Liquid Glass theme
-- ViewModels with `StateFlow<UiState>`
-- Coroutines + Flow for async operations
-- `@Serializable` data classes for API models
-
----
-
-## Related Documentation
-
-| Document | Location |
-|----------|----------|
-| Architecture | `docs/android/ARCHITECTURE.md` |
-| Getting Started | `docs/android/GETTING_STARTED.md` |
-| Swift Bridge | `docs/android/SWIFT_BRIDGE_REFERENCE.md` |
-| Android Workgroup | `docs/android/SWIFT_ANDROID_WORKGROUP.md` |
-| Backend | `supabase/CLAUDE.md` |
-
----
-
-**Last Updated:** January 2026 | **versionCode:** 273
+**Last Updated:** February 2026

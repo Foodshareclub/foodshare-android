@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Chip Input
 
@@ -44,8 +43,10 @@ struct GlassChipInput<ID: Hashable>: View {
     let chipStyle: ChipStyle
     let onSelectionChange: ((Set<ID>) -> Void)?
 
+    #if !SKIP
     @Namespace private var chipNamespace
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    #endif
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -166,7 +167,9 @@ struct GlassChipInput<ID: Hashable>: View {
             )
         }
         .buttonStyle(ChipButtonStyle())
+        #if !SKIP
         .matchedGeometryEffect(id: option.id, in: chipNamespace)
+        #endif
         .animation(
             reduceMotion ? nil : .interpolatingSpring(stiffness: 300, damping: 25),
             value: isSelected
@@ -297,7 +300,7 @@ private struct ChipButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
     }
 }
 
@@ -337,7 +340,7 @@ private struct ChipFlowLayout: Layout {
         var totalWidth: CGFloat = 0
 
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = subview.sizeThatFits(ProposedViewSize.unspecified)
 
             if currentX + size.width > maxWidth && currentX > 0 {
                 // Move to next line
@@ -367,7 +370,7 @@ struct GlassSelectedChips<ID: Hashable>: View {
     @Binding var selectedIds: Set<ID>
     let chipStyle: ChipStyle
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     var body: some View {
         let selectedOptions = options.filter { selectedIds.contains($0.id) }
@@ -415,10 +418,10 @@ struct GlassSelectedChips<ID: Hashable>: View {
         )
         .transition(
             reduceMotion
-                ? .opacity
-                : .asymmetric(
-                    insertion: .scale.combined(with: .opacity),
-                    removal: .scale.combined(with: .opacity)
+                ? AnyTransition.opacity
+                : AnyTransition.asymmetric(
+                    insertion: AnyTransition.scale.combined(with: AnyTransition.opacity),
+                    removal: AnyTransition.scale.combined(with: AnyTransition.opacity)
                 )
         )
     }

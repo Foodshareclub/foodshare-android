@@ -6,15 +6,19 @@
 //
 
 import Foundation
-import FoodShareArchitecture
 import Observation
 
 @MainActor
 @Observable
-final class ReviewViewModel: AsyncViewModel {
+final class ReviewViewModel {
     // MARK: - State
 
     var reviews: [Review] = []
+    var isLoading = false
+    var isSubmitting = false
+    var error: AppError?
+    var showError = false
+    var showSuccessMessage = false
 
     // MARK: - Form State
 
@@ -37,7 +41,6 @@ final class ReviewViewModel: AsyncViewModel {
         self.fetchReviewsUseCase = fetchReviewsUseCase
         self.submitReviewUseCase = submitReviewUseCase
         self.currentUserId = currentUserId
-        super.init()
     }
 
     // MARK: - Computed Properties
@@ -59,41 +62,73 @@ final class ReviewViewModel: AsyncViewModel {
     // MARK: - Actions
 
     func loadReviews(forPostId postId: Int) async {
-        await safely {
-            reviews = try await withLoading {
-                try await fetchReviewsUseCase.execute(forPostId: postId)
-            }
+        isLoading = true
+        error = nil
+        showError = false
+        defer { isLoading = false }
+
+        do {
+            reviews = try await fetchReviewsUseCase.execute(forPostId: postId)
+        } catch let appError as AppError {
+            self.error = appError
+            showError = true
+        } catch {
+            self.error = .networkError(error.localizedDescription)
+            showError = true
         }
     }
 
     func loadUserReviews() async {
-        await safely {
-            reviews = try await withLoading {
-                try await fetchReviewsUseCase.execute(forUserId: currentUserId)
-            }
+        isLoading = true
+        error = nil
+        showError = false
+        defer { isLoading = false }
+
+        do {
+            reviews = try await fetchReviewsUseCase.execute(forUserId: currentUserId)
+        } catch let appError as AppError {
+            self.error = appError
+            showError = true
+        } catch {
+            self.error = .networkError(error.localizedDescription)
+            showError = true
         }
     }
 
     func submitReview(forPostId postId: Int) async {
         guard canSubmit else { return }
 
-        await safely {
-            let review = try await withSubmitting {
-                try await submitReviewUseCase.execute(
-                    postId: postId,
-                    userId: currentUserId,
-                    rating: rating,
-                    feedback: feedback
-                )
-            }
+        isSubmitting = true
+        error = nil
+        showError = false
+        defer { isSubmitting = false }
+
+        do {
+            let review = try await submitReviewUseCase.execute(
+                postId: postId,
+                userId: currentUserId,
+                rating: rating,
+                feedback: feedback
+            )
             reviews.insert(review, at: 0)
             resetForm()
-            showSuccess(message: "Review submitted successfully")
+            showSuccessMessage = true
+        } catch let appError as AppError {
+            self.error = appError
+            showError = true
+        } catch {
+            self.error = .networkError(error.localizedDescription)
+            showError = true
         }
     }
 
     func resetForm() {
         rating = 5
         feedback = ""
+    }
+
+    func clearError() {
+        error = nil
+        showError = false
     }
 }

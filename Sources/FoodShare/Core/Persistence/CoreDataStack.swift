@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CoreDataStack.swift
 //  Foodshare
@@ -1133,3 +1134,4 @@ public class SyncMetadata: NSManagedObject {
     @NSManaged public var lastSyncedAt: Date
     @NSManaged public var lastSyncedId: String?
 }
+#endif

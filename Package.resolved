@@ -1,6 +1,15 @@
 {
-  "originHash" : "e94867c1414e3445f4729b802823115748492028e11bfaafcb4afb113eea0cd3",
+  "originHash" : "da92a94706e94f2ded194377488f45012395aefb6e0a43edb5d9e91f3fc5982e",
   "pins" : [
+    {
+      "identity" : "inject",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzysztofzablocki/Inject.git",
+      "state" : {
+        "revision" : "728c56639ecb3df441d51d5bc6747329afabcfc9",
+        "version" : "1.5.2"
+      }
+    },
     {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",

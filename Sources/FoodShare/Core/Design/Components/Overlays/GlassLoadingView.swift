@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassLoadingView: View {
     let message: String
@@ -114,6 +113,7 @@ struct ProMotionSpinner: View {
     }
 
     var body: some View {
+        #if !SKIP
         // TimelineView with animation schedule for 120Hz ProMotion
         TimelineView(.animation(minimumInterval: 1.0 / 120.0)) { timeline in
             Canvas { context, size in
@@ -169,6 +169,9 @@ struct ProMotionSpinner: View {
             radius: 8,
             y: 4
         )
+        #else
+        ProgressView()
+        #endif
     }
 }
 
@@ -185,6 +188,7 @@ struct ProMotionPulseRing: View {
     }
 
     var body: some View {
+        #if !SKIP
         TimelineView(.animation(minimumInterval: 1.0 / 120.0)) { timeline in
             Canvas { context, size in
                 let center = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -216,6 +220,9 @@ struct ProMotionPulseRing: View {
                 }
             }
         }
+        #else
+        ProgressView()
+        #endif
     }
 }
 

@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 import OSLog
 
@@ -62,7 +63,9 @@ actor MemoryCache<Key: Hashable & Sendable, Value: Sendable>: CacheService {
         let timestamp: Date
     }
 }
+#endif
 
+#if !SKIP
 /// Disk-based cache implementation
 actor DiskCache<Key: Hashable & Sendable & CustomStringConvertible, Value: Codable & Sendable>: CacheService {
     private let cacheDirectory: URL
@@ -137,3 +140,4 @@ actor DiskCache<Key: Hashable & Sendable & CustomStringConvertible, Value: Codab
         }
     }
 }
+#endif

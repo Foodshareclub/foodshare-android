@@ -1,6 +1,6 @@
+#if !SKIP
 import MetalKit
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Metal Shader Effect
 
@@ -475,3 +475,4 @@ public struct AnimatedGlassFrost<Content: View>: View {
     .padding()
     .background(Color.DesignSystem.background)
 }
+#endif

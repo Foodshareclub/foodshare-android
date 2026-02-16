@@ -1,15 +1,16 @@
+#if !SKIP
 //
 //  AppLockService.swift
 //  Foodshare
 //
 //  Service for managing app lock with biometric authentication
-//  Leverages FoodShareSecurity's BiometricAuth for actual authentication
+//  Uses LocalAuthentication framework directly for biometric auth
 //
 
 import Foundation
+import LocalAuthentication
 import OSLog
 import SwiftUI
-import FoodShareSecurity
 
 /// Service for managing app-level biometric lock
 @MainActor
@@ -56,26 +57,41 @@ final class AppLockService {
     private let logger = Logger(subsystem: "com.flutterflow.foodshare", category: "AppLock")
     private var backgroundTask: Task<Void, Never>?
 
-    // MARK: - Computed Properties
+    // MARK: - Biometric Helpers
 
-    /// Available biometric type (Face ID, Touch ID, or none)
-    var availableBiometricType: BiometricAuth.BiometricType {
-        BiometricAuth.shared.availableBiometricType
+    /// Query the device biometry type via LocalAuthentication
+    private func queryBiometryType() -> LABiometryType {
+        let context = LAContext()
+        var error: NSError?
+        _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        return context.biometryType
     }
 
     /// Whether biometric authentication is available on this device
     var isBiometricAvailable: Bool {
-        availableBiometricType != .none
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
 
     /// Display name for the available biometric type
     var biometricDisplayName: String {
-        availableBiometricType.displayName
+        switch queryBiometryType() {
+        case .faceID: return "Face ID"
+        case .touchID: return "Touch ID"
+        case .opticID: return "Optic ID"
+        @unknown default: return "Biometrics"
+        }
     }
 
     /// SF Symbol icon name for the available biometric type
     var biometricIconName: String {
-        availableBiometricType.iconName
+        switch queryBiometryType() {
+        case .faceID: return "faceid"
+        case .touchID: return "touchid"
+        case .opticID: return "opticid"
+        @unknown default: return "lock.shield"
+        }
     }
 
     /// Lock delay options for settings UI
@@ -98,6 +114,18 @@ final class AppLockService {
             isLocked = true
             lockedAt = Date()
         }
+    }
+
+    // MARK: - Private Authentication
+
+    /// Authenticate using LocalAuthentication directly
+    private func authenticateWithBiometrics(reason: String) async throws -> Bool {
+        let context = LAContext()
+        context.localizedFallbackTitle = "Use Password"
+        return try await context.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: reason
+        )
     }
 
     // MARK: - Public Methods
@@ -127,7 +155,7 @@ final class AppLockService {
         }
 
         do {
-            let success = try await BiometricAuth.shared.authenticate(
+            let success = try await authenticateWithBiometrics(
                 reason: "Unlock Foodshare"
             )
 
@@ -141,13 +169,9 @@ final class AppLockService {
                 logger.warning("Biometric authentication returned false")
                 return false
             }
-        } catch let error as BiometricError {
-            lastError = error.errorDescription
-            logger.error("Biometric authentication failed: \(error.localizedDescription)")
-            return false
         } catch {
             lastError = error.localizedDescription
-            logger.error("Unexpected authentication error: \(error.localizedDescription)")
+            logger.error("Biometric authentication failed: \(error.localizedDescription)")
             return false
         }
     }
@@ -169,7 +193,7 @@ final class AppLockService {
         }
 
         do {
-            let success = try await BiometricAuth.shared.authenticate(
+            let success = try await authenticateWithBiometrics(
                 reason: "Enable \(biometricDisplayName) for Foodshare"
             )
 
@@ -181,13 +205,9 @@ final class AppLockService {
                 lastError = "Authentication failed"
                 return false
             }
-        } catch let error as BiometricError {
-            lastError = error.errorDescription
-            logger.error("Failed to enable app lock: \(error.localizedDescription)")
-            return false
         } catch {
             lastError = error.localizedDescription
-            logger.error("Unexpected error enabling app lock: \(error.localizedDescription)")
+            logger.error("Failed to enable app lock: \(error.localizedDescription)")
             return false
         }
     }
@@ -271,3 +291,4 @@ struct LockDelayOption: Identifiable, Hashable {
         LockDelayOption(seconds: 300, displayName: "5 minutes"),
     ]
 }
+#endif

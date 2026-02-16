@@ -213,7 +213,7 @@ struct AdminUserDetailSheet: View {
     @State private var banReason = ""
     @State private var showRoleAssignment = false
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {
@@ -413,7 +413,7 @@ struct RoleAssignmentSheet: View {
     let existingRoleIds: Set<Int>
     let onAssign: (Int) -> Void
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var availableRoles: [Role] {
         roles.filter { !existingRoleIds.contains($0.id) }
@@ -453,6 +453,6 @@ struct RoleAssignmentSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([PresentationDetent.medium])
     }
 }

@@ -6,8 +6,8 @@
 //  Combines Metal shader effects with glass card styling.
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Metal Glass Card
 
@@ -16,7 +16,7 @@ struct MetalGlassCard<Content: View>: View {
     let preset: Preset
     let content: Content
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     enum Preset {
         case feed
@@ -154,7 +154,7 @@ enum GlassCardStyle {
         case .elevated:
             return [Color.white.opacity(0.2), Color.white.opacity(0.1)]
         case .premium:
-            return [Color.DesignSystem.themed.gradientStart, Color.DesignSystem.themed.gradientEnd]
+            return [Color.DesignSystem.brandGreen, Color.DesignSystem.brandTeal]
         case .celebration:
             return [Color.DesignSystem.brandGreen, Color.DesignSystem.brandTeal, Color.DesignSystem.brandBlue]
         }
@@ -277,7 +277,7 @@ struct InteractiveMetalCard<Content: View>: View {
     @State private var isPressed = false
     @State private var rippleProgress: CGFloat = 0
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         style: GlassCardStyle = .standard,
@@ -388,3 +388,4 @@ struct InteractiveMetalCard<Content: View>: View {
     .background(Color.backgroundGradient)
 }
 #endif
+#endif // !SKIP

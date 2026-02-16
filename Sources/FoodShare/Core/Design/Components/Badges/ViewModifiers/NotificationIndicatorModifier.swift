@@ -19,7 +19,6 @@
 //  - Respects Dynamic Type and Reduce Motion
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Notification Indicator Style
@@ -133,7 +132,9 @@ struct NotificationIndicatorModifier: ViewModifier {
             .buttonStyle(NotificationIndicatorButtonStyle())
             // 44pt minimum tap target for accessibility
             .frame(width: minTapTarget, height: minTapTarget)
+            #if !SKIP
             .contentShape(Circle())
+            #endif
             .accessibilityLabel(accessibilityLabel)
             .accessibilityHint("Double tap to view notifications")
             .accessibilityAddTraits(.isButton)
@@ -238,7 +239,7 @@ private struct NotificationIndicatorButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
-            .animation(.spring(duration: 0.2), value: configuration.isPressed)
+            .animation(Animation.spring(duration: 0.2), value: configuration.isPressed)
     }
 }
 

@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct DesignSystemShowcase: View {
     @Environment(\.translationService) private var t

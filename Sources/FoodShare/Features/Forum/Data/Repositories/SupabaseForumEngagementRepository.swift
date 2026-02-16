@@ -1,4 +1,4 @@
-import FoodShareRepository
+#if !SKIP
 import Foundation
 import OSLog
 import Supabase
@@ -297,3 +297,4 @@ private struct PostReactionsDTO: Decodable {
         case userReactionTypeIds = "user_reaction_type_ids"
     }
 }
+#endif

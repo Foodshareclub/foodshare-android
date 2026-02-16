@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockAdminRepository.swift
 //  Foodshare
@@ -413,4 +414,5 @@ import Foundation
             )
         }
     }
+#endif
 #endif

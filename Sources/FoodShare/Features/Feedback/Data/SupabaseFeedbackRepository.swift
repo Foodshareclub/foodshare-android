@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SupabaseFeedbackRepository.swift
 //  Foodshare
@@ -45,3 +46,4 @@ final class SupabaseFeedbackRepository: FeedbackRepository, @unchecked Sendable 
         return response
     }
 }
+#endif

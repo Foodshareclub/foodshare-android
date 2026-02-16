@@ -5,11 +5,10 @@
 //  Block user with reason - Apple App Review requirement
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct BlockUserSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
 
@@ -265,7 +264,9 @@ struct BlockUserSheet: View {
             )
         }
         .disabled(selectedReason == nil || isBlocking)
+        #if !SKIP
         .sensoryFeedback(.success, trigger: showSuccess)
+        #endif
     }
 
     private func blockUser() async {

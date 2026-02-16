@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AttestationMiddleware.swift
 //  Foodshare
@@ -436,3 +437,4 @@ extension URLRequest {
         )
     }
 }
+#endif

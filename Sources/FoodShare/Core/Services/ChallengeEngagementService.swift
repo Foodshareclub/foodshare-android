@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ChallengeEngagementService.swift
 //  Foodshare
@@ -166,3 +167,4 @@ enum ChallengeEngagementError: LocalizedError, Sendable {
         }
     }
 }
+#endif

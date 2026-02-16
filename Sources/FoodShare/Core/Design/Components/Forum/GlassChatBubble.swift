@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Chat Bubble
 
@@ -49,7 +48,7 @@ struct GlassChatBubble: View {
     let isSequential: Bool
 
     @State private var isAppearing = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -171,7 +170,7 @@ struct GlassChatBubble: View {
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, Spacing.xs)
             .background(bubbleBackground)
-            .clipShape(BubbleShape(isOutgoing: isOutgoing, showTail: !isSequential))
+            .clipShape(ChatBubbleShape(isOutgoing: isOutgoing, showTail: !isSequential))
     }
 
     @ViewBuilder
@@ -309,7 +308,7 @@ struct GlassChatBubble: View {
 
 // MARK: - Bubble Shape
 
-struct BubbleShape: Shape {
+struct ChatBubbleShape: Shape {
     let isOutgoing: Bool
     let showTail: Bool
     let cornerRadius: CGFloat
@@ -489,9 +488,9 @@ struct GlassTypingIndicator: View {
                 .background(
                     Color.clear
                         .background(.ultraThinMaterial)
-                        .clipShape(BubbleShape(isOutgoing: false))
+                        .clipShape(ChatBubbleShape(isOutgoing: false))
                         .overlay(
-                            BubbleShape(isOutgoing: false)
+                            ChatBubbleShape(isOutgoing: false)
                                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1)
                         )
                 )

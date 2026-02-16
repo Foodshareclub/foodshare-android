@@ -13,8 +13,8 @@
 //  - Configurable particle count and spread
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Confetti Configuration
 
@@ -49,7 +49,7 @@ struct ConfettiConfiguration {
         duration: 3.0,
         colors: [
             Color.DesignSystem.primary,
-            Color.DesignSystem.secondary,
+            Color.DesignSystem.brandTeal,
             Color.DesignSystem.success,
             Color.DesignSystem.warning,
             .yellow,
@@ -81,7 +81,7 @@ struct ConfettiConfiguration {
         duration: 2.5,
         colors: [
             Color.DesignSystem.primary.opacity(0.8),
-            Color.DesignSystem.secondary.opacity(0.8)
+            Color.DesignSystem.brandTeal.opacity(0.8)
         ],
         velocityRange: 300 ... 600,
         gravity: 450,
@@ -425,3 +425,4 @@ extension View {
         return ConfettiPreview()
     }
 #endif
+#endif // !SKIP

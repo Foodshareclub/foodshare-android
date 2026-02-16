@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// DEPRECATED: Use GlassSearchBar directly with AppLogoView and filter button pattern instead.
 ///
@@ -141,7 +140,11 @@ struct GlassSearchHeader<TrailingContent: View>: View {
 
         // Create new debounced search task
         searchTask = Task {
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(debounceMs) * 1_000_000)
+            #else
             try? await Task.sleep(for: .milliseconds(debounceMs))
+            #endif
 
             guard !Task.isCancelled else { return }
 
@@ -165,6 +168,7 @@ struct GlassSearchHeader<TrailingContent: View>: View {
 
 // MARK: - Convenience Initializer (No Trailing Content)
 
+#if !SKIP
 extension GlassSearchHeader where TrailingContent == EmptyView {
     /// Creates a search header without trailing buttons
     /// - Parameters:
@@ -193,6 +197,7 @@ extension GlassSearchHeader where TrailingContent == EmptyView {
         )
     }
 }
+#endif
 
 // MARK: - Preview
 

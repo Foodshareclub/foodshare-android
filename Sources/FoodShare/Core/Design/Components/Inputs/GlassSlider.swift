@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Slider
 
@@ -65,8 +64,10 @@ struct GlassSlider: View {
                         Text(valueFormatter(value))
                             .font(.DesignSystem.labelLarge)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
+                            #if !SKIP
                             .contentTransition(.numericText())
-                            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: value)
+                            #endif
+                            .animation(Animation.spring(response: 0.25, dampingFraction: 0.8), value: value)
                     }
                 }
             }
@@ -129,7 +130,7 @@ struct GlassSlider: View {
                         .shadow(color: accentColor.opacity(isDragging ? 0.4 : 0), radius: 12, y: 0)
                         .scaleEffect(isDragging ? 1.15 : 1.0)
                         .offset(x: thumbOffset(for: geometry.size.width))
-                        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isDragging)
+                        .animation(Animation.spring(response: 0.25, dampingFraction: 0.7), value: isDragging)
                 }
                 .frame(height: trackHeight)
                 .gesture(
@@ -168,7 +169,7 @@ struct GlassSlider: View {
                     lineWidth: 1,
                 ),
         )
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isDragging)
+        .animation(Animation.spring(response: 0.3, dampingFraction: 0.75), value: isDragging)
     }
 
     // MARK: - Layout Properties
@@ -225,7 +226,7 @@ struct GlassRadiusSlider: View {
             step: 1,
             label: "Search Radius",
             icon: "location.circle.fill",
-            accentColor: .DesignSystem.brandBlue,
+            accentColor: Color.DesignSystem.brandBlue,
             valueFormatter: { "\(Int($0)) km" },
         )
     }
@@ -252,7 +253,7 @@ struct GlassRadiusSlider: View {
                 step: 5,
                 label: "Distance",
                 icon: "location.fill",
-                accentColor: .DesignSystem.brandBlue,
+                accentColor: Color.DesignSystem.brandBlue,
                 valueFormatter: { "\(Int($0)) km" },
             )
 

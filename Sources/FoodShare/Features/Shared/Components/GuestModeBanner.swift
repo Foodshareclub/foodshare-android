@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GuestModeBanner: View {
     @Environment(GuestManager.self) var guestManager

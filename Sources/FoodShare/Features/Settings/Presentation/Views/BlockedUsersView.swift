@@ -5,11 +5,10 @@
 //  Manage blocked users - Apple App Review requirement
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct BlockedUsersView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
 
@@ -45,7 +44,7 @@ struct BlockedUsersView: View {
             }
         } message: {
             if let user = userToUnblock {
-                Text(t.t("settings.unblock_confirm", ["name": user.blockedUserName]))
+                Text(t.t("settings.unblock_confirm", args: ["name": user.blockedUserName]))
             }
         }
     }
@@ -234,7 +233,7 @@ struct BlockedUserRow: View {
                     .font(.DesignSystem.bodyLarge)
                     .foregroundStyle(Color.DesignSystem.text)
 
-                Text(t.t("settings.blocked_on", ["date": user.blockedAt.formatted(date: .abbreviated, time: .omitted)]))
+                Text(t.t("settings.blocked_on", args: ["date": user.blockedAt.formatted(date: .abbreviated, time: .omitted)]))
                     .font(.DesignSystem.caption)
                     .foregroundStyle(Color.DesignSystem.textSecondary)
 

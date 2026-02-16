@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Subscription Toggle
 
@@ -68,7 +67,9 @@ struct GlassSubscriptionToggle: View {
             Image(systemName: isSubscribed ? "bell.fill" : "bell")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(isSubscribed ? Color.DesignSystem.primary : Color.DesignSystem.textSecondary)
+                #if !SKIP
                 .symbolEffect(.bounce, value: isAnimating)
+                #endif
         }
     }
 
@@ -354,9 +355,12 @@ struct GlassNotificationRow: View {
                     ? Color.clear
                     : Color.DesignSystem.primary.opacity(0.05),
             )
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
         }
         .buttonStyle(.plain)
+        #if !SKIP
         .swipeActions(edge: .trailing) {
             if !notification.isRead {
                 Button {
@@ -368,6 +372,7 @@ struct GlassNotificationRow: View {
                 .tint(Color.DesignSystem.primary)
             }
         }
+        #endif
     }
 
     private var notificationIcon: some View {

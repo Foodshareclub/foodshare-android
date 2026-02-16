@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  HelpView.swift
 //  Foodshare
@@ -7,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct HelpView: View {
     @Environment(\.dismiss) private var dismiss
@@ -293,3 +293,4 @@ struct HelpItemRow: View {
 #Preview {
     HelpView()
 }
+#endif

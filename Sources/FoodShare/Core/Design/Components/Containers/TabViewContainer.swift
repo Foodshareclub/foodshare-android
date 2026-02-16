@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// A standardized container for tab views that provides consistent background handling,
 /// safe area management, and navigation bar configuration.
@@ -52,47 +51,45 @@ import FoodShareDesignSystem
 /// This ensures consistent rendering across different device sizes and orientations
 /// while maintaining optimal performance for 120Hz ProMotion displays.
 ///
-@frozen
-public struct TabViewContainer<Content: View>: View {
+/// Defines the background style for the tab view container.
+///
+/// Use predefined styles for consistency, or provide a custom background
+/// when specific visual effects are required.
+public enum TabBackgroundStyle: @unchecked Sendable {
+    /// Standard solid background using design system background color.
+    /// This is the default and most commonly used style.
+    case standard
 
-    // MARK: - Types
+    /// Gradient background using design system gradient colors.
+    /// Provides visual depth while maintaining design system consistency.
+    case gradient
 
-    /// Defines the background style for the tab view container.
-    ///
-    /// Use predefined styles for consistency, or provide a custom background
-    /// when specific visual effects are required.
-    public enum TabBackgroundStyle: Sendable {
-        /// Standard solid background using design system background color.
-        /// This is the default and most commonly used style.
-        case standard
+    /// Custom background view for specialized visual effects.
+    /// Use sparingly to maintain design system consistency.
+    case custom(AnyView)
 
-        /// Gradient background using design system gradient colors.
-        /// Provides visual depth while maintaining design system consistency.
-        case gradient
+    /// Returns the SwiftUI view for the background style.
+    @ViewBuilder
+    @MainActor
+    var backgroundView: some View {
+        switch self {
+        case .standard:
+            Color.DesignSystem.background
+                .ignoresSafeArea()
 
-        /// Custom background view for specialized visual effects.
-        /// Use sparingly to maintain design system consistency.
-        case custom(AnyView)
+        case .gradient:
+            Color.backgroundGradient
+                .ignoresSafeArea()
 
-        /// Returns the SwiftUI view for the background style.
-        @ViewBuilder
-        @MainActor
-        fileprivate var backgroundView: some View {
-            switch self {
-            case .standard:
-                Color.DesignSystem.background
-                    .ignoresSafeArea()
-
-            case .gradient:
-                Color.backgroundGradient
-                    .ignoresSafeArea()
-
-            case let .custom(view):
-                view
-                    .ignoresSafeArea()
-            }
+        case let .custom(view):
+            view
+                .ignoresSafeArea()
         }
     }
+}
+
+@frozen
+public struct TabViewContainer<Content: View>: View {
 
     // MARK: - Properties
 
@@ -142,7 +139,7 @@ public struct TabViewContainer<Content: View>: View {
 #Preview("Standard Background") {
     TabViewContainer {
         VStack(spacing: Spacing.lg) {
-            Text(t.t("design.tab_content"))
+            Text("Tab Content")
                 .font(.DesignSystem.displayLarge)
                 .foregroundStyle(Color.DesignSystem.textPrimary)
 
@@ -233,6 +230,6 @@ public struct TabViewContainer<Content: View>: View {
             }
             .padding(Spacing.md)
         }
-        .navigationTitle(t.t("design.tab_view"))
+        .navigationTitle("Tab View")
     }
 }

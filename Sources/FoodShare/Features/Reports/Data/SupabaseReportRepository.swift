@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SupabaseReportRepository.swift
 //  Foodshare
@@ -56,3 +57,4 @@ final class SupabaseReportRepository: ReportRepository, @unchecked Sendable {
         return !response.isEmpty
     }
 }
+#endif

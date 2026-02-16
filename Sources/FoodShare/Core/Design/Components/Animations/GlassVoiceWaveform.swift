@@ -7,8 +7,8 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
+#if !SKIP
 // MARK: - Glass Voice Waveform
 
 /// A beautiful voice waveform visualization for voice search
@@ -46,7 +46,7 @@ struct GlassVoiceWaveform: View {
     @State private var animationPhase: Double = 0
     @State private var barHeights: [CGFloat] = []
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Types
 
@@ -369,7 +369,7 @@ struct GlassVoiceWaveformCompact: View {
     let barCount: Int
     let color: Color
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         isActive: Bool,
@@ -516,3 +516,4 @@ struct GlassVoiceWaveformCompact: View {
 
     return PreviewWrapper()
 }
+#endif

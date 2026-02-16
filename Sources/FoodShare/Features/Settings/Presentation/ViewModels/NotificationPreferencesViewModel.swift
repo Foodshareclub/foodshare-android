@@ -23,7 +23,7 @@ private let logger = Logger(subsystem: "com.foodshare.app", category: "Notificat
 // MARK: - View State
 
 /// Loading state for async operations
-public enum LoadingState: Equatable, Sendable {
+public enum SimpleLoadingState: Equatable, Sendable {
     case idle
     case loading
     case loaded
@@ -120,10 +120,10 @@ public final class NotificationPreferencesViewModel {
     // MARK: - State
 
     /// Current preferences data
-    public private(set) var preferences = NotificationPreferences()
+    public internal(set) var preferences = NotificationPreferences()
 
     /// Loading state for initial fetch
-    public private(set) var loadingState: LoadingState = .idle
+    public private(set) var loadingState: SimpleLoadingState = .idle
 
     /// Individual preference update states (for showing spinners on toggles)
     public private(set) var updatingPreferences: Set<String> = []
@@ -272,13 +272,9 @@ public final class NotificationPreferencesViewModel {
         logger.info("NotificationPreferencesViewModel initialized")
     }
 
-    deinit {
-        // Cancel all active tasks
-        for task in activeTasks {
-            task.cancel()
-        }
-        debounceTask?.cancel()
-        logger.info("NotificationPreferencesViewModel deinitialized, cancelled \(self.activeTasks.count) tasks")
+    nonisolated deinit {
+        // Note: Cannot access MainActor-isolated properties in nonisolated deinit
+        // Tasks will be cancelled automatically when their references are released
     }
 
     // MARK: - Lifecycle
@@ -641,7 +637,7 @@ public final class NotificationPreferencesViewModel {
     private func processPendingChanges() async {
         guard !pendingChanges.isEmpty else { return }
 
-        logger.info("Processing \(pendingChanges.count) offline changes")
+        logger.info("Processing \(self.pendingChanges.count) offline changes")
         await flushPendingChanges()
     }
 
@@ -993,7 +989,7 @@ public final class NotificationPreferencesViewModel {
         recentOperationTimestamps.removeAll { $0 < windowStart }
 
         if recentOperationTimestamps.count >= RateLimitConfig.maxOperationsPerSecond {
-            logger.warning("Rate limit exceeded: \(recentOperationTimestamps.count) operations in window")
+            logger.warning("Rate limit exceeded: \(self.recentOperationTimestamps.count) operations in window")
             return false
         }
 

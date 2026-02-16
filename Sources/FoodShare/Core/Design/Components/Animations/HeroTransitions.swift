@@ -13,7 +13,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Hero Animation Namespace
 
@@ -53,7 +52,9 @@ enum HeroElement: String {
 
 /// Container that provides hero animation namespace to children
 struct HeroTransitionContainer<Content: View>: View {
+    #if !SKIP
     @Namespace private var heroNamespace
+    #endif
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -91,6 +92,7 @@ struct HeroModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            #if !SKIP
             .matchedGeometryEffect(
                 id: "\(id)_\(element.rawValue)",
                 in: namespace,
@@ -98,6 +100,7 @@ struct HeroModifier: ViewModifier {
                 anchor: anchor,
                 isSource: isSource,
             )
+            #endif
     }
 }
 
@@ -159,12 +162,14 @@ private struct EnvironmentHeroModifier: ViewModifier {
     func body(content: Content) -> some View {
         if let namespace {
             content
+                #if !SKIP
                 .matchedGeometryEffect(
                     id: "\(id)_\(element.rawValue)",
                     in: namespace,
                     properties: properties,
                     isSource: isSource,
                 )
+                #endif
         } else {
             content
         }
@@ -180,7 +185,9 @@ struct HeroCard<Content: View, DetailContent: View>: View {
     @ViewBuilder let content: () -> Content
     @ViewBuilder let detailContent: () -> DetailContent
 
+    #if !SKIP
     @Namespace private var namespace
+    #endif
     @State private var showingDetail = false
 
     var body: some View {
@@ -198,10 +205,12 @@ struct HeroCard<Content: View, DetailContent: View>: View {
                 // Detail view
                 detailContent()
                     .hero(id: id, element: .card, in: namespace, isSource: false)
+                    #if !SKIP
                     .transition(.asymmetric(
                         insertion: .opacity.animation(ProMotionAnimation.fluid),
                         removal: .opacity.animation(ProMotionAnimation.quick),
                     ))
+                    #endif
             }
         }
     }
@@ -292,7 +301,7 @@ struct HeroAvatar: View {
                     LinearGradient(
                         colors: [
                             Color.DesignSystem.primary.opacity(0.6),
-                            Color.DesignSystem.secondary.opacity(0.3)
+                            Color.DesignSystem.primaryLight.opacity(0.3)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing,
@@ -300,7 +309,7 @@ struct HeroAvatar: View {
                     lineWidth: isExpanded ? 3 : 2,
                 ),
         )
-        .hero(id: id, element: .avatar, in: namespace, isSource: !isExpanded)
+        .hero(id: id, element: HeroElement.avatar, in: namespace, isSource: !isExpanded)
     }
 }
 
@@ -349,7 +358,11 @@ final class HeroTransitionManager {
 
         // Reset animation flag after animation completes
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(400 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(400))
+            #endif
             isAnimating = false
         }
     }
@@ -364,7 +377,11 @@ final class HeroTransitionManager {
         }
 
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(400 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(400))
+            #endif
             isAnimating = false
         }
     }

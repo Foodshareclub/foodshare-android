@@ -6,8 +6,8 @@
 //  Provides type-safe access to Metal shaders in SwiftUI
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - ShaderLibrary Extensions
 
@@ -285,3 +285,4 @@ struct TouchRippleShaderView: View {
         Text("Requires iOS 17+")
     }
 }
+#endif

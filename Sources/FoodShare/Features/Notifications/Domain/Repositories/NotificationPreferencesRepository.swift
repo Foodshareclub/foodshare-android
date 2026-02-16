@@ -216,10 +216,10 @@ public enum NotificationPreferencesError: Error, LocalizedError, Sendable {
             }
             if let quietHours = settings.quiet_hours {
                 preferences.settings.quietHours = QuietHours(
-                    enabled: quietHours.enabled,
-                    start: quietHours.start,
-                    end: quietHours.end,
-                    timezone: quietHours.timezone,
+                    enabled: quietHours.enabled ?? false,
+                    start: quietHours.start ?? "22:00",
+                    end: quietHours.end ?? "08:00",
+                    timezone: quietHours.timezone ?? TimeZone.current.identifier
                 )
             }
             if let digest = settings.digest {

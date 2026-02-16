@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CacheStrategy.swift
 //  Foodshare
@@ -197,23 +198,10 @@ public enum CacheError: LocalizedError, Sendable {
 
 // MARK: - Cache Configuration
 
-/// Default TTL values per data type
-public enum CacheTTL {
-    /// User profile: 5 minutes
-    public static let userProfile: TimeInterval = 300
+// CacheTTL is defined in CachingService.swift
 
-    /// Feed items: 2 minutes
-    public static let feedItems: TimeInterval = 120
-
-    /// Categories: 1 hour
-    public static let categories: TimeInterval = 3600
-
-    /// Search results: 1 minute
-    public static let searchResults: TimeInterval = 60
-
-    /// Default TTL for unspecified types
-    public static let `default`: TimeInterval = 300
-}
+/// Default TTL constant for GenericCache
+private let defaultCacheTTLSeconds: TimeInterval = 300
 
 // MARK: - Generic Cache Actor
 
@@ -239,13 +227,13 @@ public actor GenericCache<Key: Hashable & Sendable, Value: Sendable & Codable> {
 
     // MARK: - Initialization
 
-    public init(maxSize: Int = 100, defaultTTL: TimeInterval = CacheTTL.default) {
+    public init(maxSize: Int = 100, defaultTTL: TimeInterval = 300) {
         self.maxSize = maxSize
         self.defaultTTL = defaultTTL
 
         // Register for memory warnings
         Task { @MainActor in
-            NotificationCenter.default.addObserver(
+            let observer = NotificationCenter.default.addObserver(
                 forName: UIApplication.didReceiveMemoryWarningNotification,
                 object: nil,
                 queue: .main,
@@ -254,6 +242,7 @@ public actor GenericCache<Key: Hashable & Sendable, Value: Sendable & Codable> {
                     await self?.handleMemoryPressure()
                 }
             }
+            _ = observer
         }
     }
 
@@ -585,3 +574,4 @@ public enum LocationCacheKey {
  }
  ```
  */
+#endif

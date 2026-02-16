@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ProfileMetalEffects.swift
 //  Foodshare
@@ -8,7 +9,6 @@
 
 import MetalKit
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Profile Metal Effect Type
 
@@ -462,3 +462,4 @@ struct MetalBadgeGlow: View {
     .background(Color.DesignSystem.background)
     .preferredColorScheme(.dark)
 }
+#endif

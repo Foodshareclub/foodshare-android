@@ -6,8 +6,6 @@
 //  Uses SearchAPIService (Edge Function) as primary path with direct Supabase fallback
 //
 
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase
@@ -188,7 +186,7 @@ final class SupabaseSearchRepository: BaseSupabaseRepository, SearchRepository {
         }
 
         // Save using UserDefaultsStore
-        await UserDefaultsStore.shared.set(recentSearches, forKey: "recentSearches")
+        UserDefaults.standard.set(recentSearches, forKey: "recentSearches")
     }
 
     func getRecentSearches() async throws -> [String] {
@@ -196,7 +194,7 @@ final class SupabaseSearchRepository: BaseSupabaseRepository, SearchRepository {
     }
 
     private func loadRecentSearches() {
-        recentSearches = UserDefaultsStore.shared.stringArray(forKey: "recentSearches") ?? []
+        recentSearches = UserDefaults.standard.stringArray(forKey: "recentSearches") ?? []
     }
 }
 

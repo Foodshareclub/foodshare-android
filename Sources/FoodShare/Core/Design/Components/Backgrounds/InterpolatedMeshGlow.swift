@@ -7,11 +7,12 @@
 //  Requires iOS 18+ for MeshGradient support
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Animated glow effect using MeshGradient with color interpolation
 /// Creates a pulsing, breathing glow effect perfect for emphasis elements
+@available(iOS 18.0, macOS 15.0, *)
 struct InterpolatedMeshGlow: View {
     /// Starting colors for interpolation
     let fromColors: [Color]
@@ -98,6 +99,7 @@ struct InterpolatedMeshGlow: View {
 
 // MARK: - Convenience Initializers
 
+@available(iOS 18.0, macOS 15.0, *)
 extension InterpolatedMeshGlow {
     /// Blue/Cyan glow preset for auth screens
     static func blueCyan(size: CGFloat = 200, progress: Double = 0.5) -> InterpolatedMeshGlow {
@@ -215,6 +217,7 @@ struct SimpleGlow: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Nature Green/Blue Glow") {
     ZStack {
         Color.black.ignoresSafeArea()
@@ -222,6 +225,7 @@ struct SimpleGlow: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Interpolated Mesh Glow") {
     ZStack {
         Color.black.ignoresSafeArea()
@@ -229,6 +233,7 @@ struct SimpleGlow: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Foodshare Brand Pink Glow") {
     ZStack {
         Color.black.ignoresSafeArea()
@@ -236,6 +241,7 @@ struct SimpleGlow: View {
     }
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Pink Orange Glow") {
     ZStack {
         Color.black.ignoresSafeArea()
@@ -249,3 +255,4 @@ struct SimpleGlow: View {
         SimpleGlow(color: .cyan, size: 200, blur: 50)
     }
 }
+#endif

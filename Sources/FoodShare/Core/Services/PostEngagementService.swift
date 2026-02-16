@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PostEngagementService.swift
 //  Foodshare
@@ -224,3 +225,4 @@ enum EngagementError: LocalizedError, Sendable {
         }
     }
 }
+#endif

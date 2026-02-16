@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CertificatePinning.swift
 //  Foodshare
@@ -282,3 +283,4 @@ extension CertificatePinningManager: URLSessionTaskDelegate {
         urlSession(session, didReceive: challenge, completionHandler: completionHandler)
     }
 }
+#endif

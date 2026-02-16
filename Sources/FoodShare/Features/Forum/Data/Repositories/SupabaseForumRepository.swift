@@ -1,8 +1,6 @@
 #if !SKIP
 import CoreData
 #endif
-import FoodShareArchitecture
-import FoodShareRepository
 import Foundation
 import OSLog
 import Supabase

@@ -11,7 +11,6 @@
 
 import OSLog
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Theme Manager
 

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CachingService.swift
 //  Foodshare
@@ -233,6 +234,7 @@ actor CachedFeedRepository {
             radius: radius,
             limit: limit,
             offset: offset,
+            excludeBlockedUsers: true,
         )
 
         // Cache first page results
@@ -297,3 +299,4 @@ actor CachedFeedRepository {
         return fridges
     }
 }
+#endif

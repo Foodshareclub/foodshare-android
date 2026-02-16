@@ -6,7 +6,6 @@
 //  Shows current address with tap action to open address picker
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Glass Address Field

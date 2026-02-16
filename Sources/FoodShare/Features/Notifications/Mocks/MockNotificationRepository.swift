@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockNotificationRepository.swift
 //  Foodshare
@@ -229,4 +230,5 @@ import Foundation
             }
         }
     }
+#endif
 #endif

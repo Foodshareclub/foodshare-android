@@ -296,20 +296,6 @@
         }
     }
 
-    // MARK: - Helper Extension
-
-    extension View {
-        /// Conditionally apply a view modifier
-        @ViewBuilder
-        func `if`(_ condition: Bool, transform: (Self) -> some View) -> some View {
-            if condition {
-                transform(self)
-            } else {
-                self
-            }
-        }
-    }
-
     // MARK: - Preview
 
     #Preview("Adaptive Glass Card") {

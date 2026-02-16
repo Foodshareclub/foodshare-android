@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Picker
 
@@ -92,7 +91,9 @@ struct GlassSegmentedPicker<SelectionValue: Hashable & CaseIterable & CustomStri
     @Binding var selection: SelectionValue
     let accentColor: Color
 
+    #if !SKIP
     @Namespace private var animation
+    #endif
 
     init(
         _ label: String? = nil,
@@ -135,7 +136,9 @@ struct GlassSegmentedPicker<SelectionValue: Hashable & CaseIterable & CustomStri
                                     Capsule()
                                         .fill(accentColor)
                                         .shadow(color: accentColor.opacity(0.3), radius: 8, y: 2)
+                                        #if !SKIP
                                         .matchedGeometryEffect(id: "selection", in: animation)
+                                        #endif
                                 }
                             }
                     }
@@ -411,7 +414,7 @@ struct GlassDropdown<T: Hashable & Identifiable>: View {
 
 // MARK: - Preview Helpers
 
-private enum SortOption: String, CaseIterable, CustomStringConvertible {
+private enum GlassPickerSortOption: String, CaseIterable, CustomStringConvertible {
     case newest = "Newest"
     case nearest = "Nearest"
     case popular = "Popular"
@@ -433,7 +436,7 @@ private struct CategoryOption: Identifiable, Hashable {
             VStack(spacing: Spacing.lg) {
                 GlassSegmentedPicker(
                     "Sort By",
-                    selection: .constant(SortOption.newest),
+                    selection: .constant(GlassPickerSortOption.newest),
                 )
 
                 GlassDropdown(

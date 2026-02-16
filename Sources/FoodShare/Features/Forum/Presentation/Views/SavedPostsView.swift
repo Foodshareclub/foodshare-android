@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -20,7 +19,7 @@ struct SavedPostsView: View {
     @Environment(\.translationService) private var t
     let repository: ForumRepository
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State private var savedPosts: [ForumPost] = []
     @State private var isLoading = false
@@ -196,7 +195,7 @@ struct SavedPostsView: View {
     private var loadingView: some View {
         VStack(spacing: Spacing.lg) {
             ForEach(0 ..< 4, id: \.self) { index in
-                GlassSkeletonCard()
+                GlassSkeletonCard(style: .forumPost)
                     .staggeredAppearance(index: index, baseDelay: 0.1)
             }
         }

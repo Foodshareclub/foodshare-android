@@ -6,7 +6,6 @@
 //  Liquid Glass v27 design with backdrop blur, state handling, and animations
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Notification Dropdown
@@ -28,7 +27,7 @@ struct NotificationDropdown: View {
     let onNotificationTap: (UserNotification) -> Void
 
     @Environment(\.translationService) private var t
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
     var body: some View {
         VStack(spacing: 0) {
@@ -170,7 +169,9 @@ struct NotificationDropdown: View {
             .padding(.vertical, Spacing.xs)
         }
         .frame(maxHeight: 380)
+        #if !SKIP
         .scrollIndicators(.hidden)
+        #endif
     }
 
     // MARK: - Loading View

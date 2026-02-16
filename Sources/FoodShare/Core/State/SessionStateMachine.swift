@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SessionStateMachine.swift
 //  FoodShare
@@ -142,7 +143,7 @@ public struct AuthenticatedSession: Sendable, Equatable {
         avatarUrl = session.user.userMetadata["avatar_url"]?.value as? String
         accessToken = session.accessToken
         refreshToken = session.refreshToken
-        expiresAt = session.expiresAt ?? Date().addingTimeInterval(3600)
+        expiresAt = Date(timeIntervalSince1970: session.expiresAt)
         createdAt = Date()
     }
 
@@ -218,15 +219,6 @@ public enum SessionEvent: Sendable {
     case reset
 }
 
-// MARK: - Auth Method
-
-public enum AuthMethod: String, Sendable {
-    case email
-    case apple
-    case google
-    case guest
-}
-
 // MARK: - Session State Machine
 
 /// Thread-safe state machine for authentication
@@ -275,66 +267,66 @@ public final class SessionStateMachine {
         switch (state, event) {
         // From initializing
         case let (.initializing, .sessionRestored(session)):
-            .authenticated(session: AuthenticatedSession(from: session))
+            return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
         case (.initializing, .sessionNotFound):
-            .unauthenticated
+            return SessionState.unauthenticated
 
         case let (.initializing, .authFailure(error)):
-            .failed(error: error)
+            return SessionState.failed(error: error)
 
         // From unauthenticated
         case let (.unauthenticated, .startAuth(method)):
-            .authenticating(method: method)
+            return SessionState.authenticating(method: method)
 
         case let (.unauthenticated, .sessionRestored(session)):
-            .authenticated(session: AuthenticatedSession(from: session))
+            return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
         // From authenticating
-        case let (.authenticating, .authSuccess(session)):
-            .authenticated(session: AuthenticatedSession(from: session))
+        case (.authenticating, let .authSuccess(session)):
+            return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
-        case let (.authenticating, .authFailure(error)):
-            .failed(error: error)
+        case (.authenticating, let .authFailure(error)):
+            return SessionState.failed(error: error)
 
         // From authenticated
         case let (.authenticated(session), .startRefresh):
-            .refreshing(session: session)
+            return SessionState.refreshing(session: session)
 
         case (.authenticated, .startSignOut):
-            .signingOut
+            return SessionState.signingOut
 
         case (.authenticated, .sessionExpired):
-            .sessionExpired(previousUserId: state.userId)
+            return SessionState.sessionExpired(previousUserId: state.userId)
 
         // From refreshing
-        case let (.refreshing, .refreshSuccess(session)):
-            .authenticated(session: AuthenticatedSession(from: session))
+        case (.refreshing, let .refreshSuccess(session)):
+            return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
         case let (.refreshing(oldSession), .refreshFailure):
-            .sessionExpired(previousUserId: oldSession.userId)
+            return SessionState.sessionExpired(previousUserId: oldSession.userId)
 
         // From signing out
         case (.signingOut, .signOutComplete):
-            .unauthenticated
+            return SessionState.unauthenticated
 
         // From session expired
-        case let (.sessionExpired, .startAuth(method)):
-            .authenticating(method: method)
+        case (.sessionExpired, let .startAuth(method)):
+            return SessionState.authenticating(method: method)
 
         case (.sessionExpired, .signOutComplete):
-            .unauthenticated
+            return SessionState.unauthenticated
 
         // From failed
-        case let (.failed, .startAuth(method)):
-            .authenticating(method: method)
+        case (.failed, let .startAuth(method)):
+            return SessionState.authenticating(method: method)
 
         case (.failed, .reset):
-            .unauthenticated
+            return SessionState.unauthenticated
 
         // Reset from any state
         case (_, .reset):
-            .unauthenticated
+            return SessionState.unauthenticated
 
         // Invalid transitions - stay in current state
         default:
@@ -425,4 +417,5 @@ extension SessionStateMachine {
             return machine
         }
     }
+#endif
 #endif

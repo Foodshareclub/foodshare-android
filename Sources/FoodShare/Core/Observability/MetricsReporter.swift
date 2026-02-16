@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MetricsReporter.swift
 //  FoodShare
@@ -508,3 +509,4 @@ final class RequestTimer: @unchecked Sendable {
         )
     }
 }
+#endif

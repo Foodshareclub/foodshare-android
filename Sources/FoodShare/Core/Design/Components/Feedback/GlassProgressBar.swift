@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Progress Bar
 
@@ -87,7 +86,9 @@ struct GlassProgressBar: View {
                     .font(.DesignSystem.captionSmall)
                     .foregroundStyle(Color.DesignSystem.textSecondary)
                     .frame(width: 40, alignment: .trailing)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
             }
         }
         .onAppear {
@@ -172,7 +173,9 @@ struct GlassProgressCard: View {
                 Text("\(Int(progress * 100))%")
                     .font(.DesignSystem.headlineSmall)
                     .foregroundStyle(accentColor)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
             }
 
             GlassProgressBar(
@@ -260,7 +263,7 @@ struct GlassCircularProgress: View {
                         lineCap: .round,
                     ),
                 )
-                .rotationEffect(.degrees(-90))
+                .rotationEffect(Angle.degrees(-90))
                 .shadow(color: accentColor.opacity(0.3), radius: 4)
 
             // Center content
@@ -269,7 +272,9 @@ struct GlassCircularProgress: View {
                     Text("\(Int(animatedProgress * 100))")
                         .font(.system(size: size * 0.3, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.DesignSystem.text)
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
 
                     Text("%")
                         .font(.system(size: size * 0.12, weight: .medium))
@@ -507,7 +512,6 @@ struct GlassUploadProgress: View {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(stateColor)
-                .symbolEffect(.rotate)
         case .completed:
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 18, weight: .medium))

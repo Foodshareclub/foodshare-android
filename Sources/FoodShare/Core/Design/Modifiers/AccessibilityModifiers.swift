@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Accessible Glass Modifier
 
@@ -49,7 +48,7 @@ public struct DynamicTypeSafeModifier: ViewModifier {
     let lineLimit: Int?
 
     @Environment(\.accessibilityManager) private var accessibilityManager
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize: DynamicTypeSize
 
     public func body(content: Content) -> some View {
         content
@@ -124,7 +123,7 @@ public struct HighContrastBorderModifier<S: Shape>: ViewModifier {
     let highContrastWidth: CGFloat
 
     @Environment(\.accessibilityManager) private var accessibilityManager
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
     public init(
         shape: S,

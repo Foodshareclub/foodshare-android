@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Skeleton Card
 
@@ -16,7 +15,7 @@ struct GlassSkeletonCard: View {
     let style: Style
     let lineCount: Int
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     enum Style {
         case feedItem

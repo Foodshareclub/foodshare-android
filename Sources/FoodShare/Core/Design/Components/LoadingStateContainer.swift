@@ -18,7 +18,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Loading State Container
 
@@ -27,6 +26,8 @@ import FoodShareDesignSystem
 /// This component eliminates boilerplate conditional rendering and ensures consistent
 /// loading, error, and empty state experiences across the app.
 public struct LoadingStateContainer<T: Sendable, Content: View>: View {
+    @Environment(\.translationService) private var t
+
     private let state: LoadingState<T>
     private let content: (T) -> Content
     private let onRetry: (() async -> Void)?
@@ -40,7 +41,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
     ///   - emptyIcon: SF Symbol to display when data is empty
     ///   - content: Content builder that receives the loaded data
     ///   - onRetry: Optional async action to retry failed loads
-    public init(
+    init(
         state: LoadingState<T>,
         emptyMessage: String = "No items found",
         emptyIcon: String = "tray",
@@ -98,7 +99,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
 
             Text(t.t("common.loading"))
                 .font(.DesignSystem.bodyMedium)
-                .foregroundStyle(.DesignSystem.textSecondary)
+                .foregroundStyle(Color.DesignSystem.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.opacity)
@@ -142,7 +143,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
                     .scaleEffect(0.8)
                 Text(t.t("common.loading_more"))
                     .font(.DesignSystem.caption)
-                    .foregroundStyle(.DesignSystem.textSecondary)
+                    .foregroundStyle(Color.DesignSystem.textSecondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.md)
@@ -154,16 +155,16 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.DesignSystem.error)
+                .foregroundStyle(Color.DesignSystem.error)
 
             VStack(spacing: Spacing.sm) {
                 Text(t.t("common.something_wrong"))
                     .font(.DesignSystem.titleMedium)
-                    .foregroundStyle(.DesignSystem.textPrimary)
+                    .foregroundStyle(Color.DesignSystem.textPrimary)
 
                 Text(error.localizedDescription)
                     .font(.DesignSystem.bodySmall)
-                    .foregroundStyle(.DesignSystem.textSecondary)
+                    .foregroundStyle(Color.DesignSystem.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
             }
@@ -188,7 +189,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
 
             Text("Retrying... (Attempt \(attempt))")
                 .font(.DesignSystem.bodyMedium)
-                .foregroundStyle(.DesignSystem.textSecondary)
+                .foregroundStyle(Color.DesignSystem.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.opacity)
@@ -199,16 +200,16 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: emptyIcon)
                 .font(.system(size: 48))
-                .foregroundStyle(.DesignSystem.textTertiary)
+                .foregroundStyle(Color.DesignSystem.textTertiary)
 
             VStack(spacing: Spacing.xs) {
                 Text(t.t("common.nothing_here"))
                     .font(.DesignSystem.titleMedium)
-                    .foregroundStyle(.DesignSystem.textPrimary)
+                    .foregroundStyle(Color.DesignSystem.textPrimary)
 
                 Text(emptyMessage)
                     .font(.DesignSystem.bodySmall)
-                    .foregroundStyle(.DesignSystem.textSecondary)
+                    .foregroundStyle(Color.DesignSystem.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -230,7 +231,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
 // MARK: - Paginated Loading State Container
 
 /// A specialized container for paginated data with infinite scroll support
-public struct PaginatedLoadingStateContainer<T: Sendable & Identifiable, Content: View, Row: View>: View {
+public struct PaginatedLoadingStateContainer<T: Identifiable & Sendable, Content: View, Row: View>: View {
     private let state: PaginatedLoadingState<T>
     private let content: ([T]) -> Content
     private let row: (T) -> Row
@@ -239,7 +240,7 @@ public struct PaginatedLoadingStateContainer<T: Sendable & Identifiable, Content
     private let emptyMessage: String
     private let emptyIcon: String
 
-    public init(
+    init(
         state: PaginatedLoadingState<T>,
         emptyMessage: String = "No items found",
         emptyIcon: String = "tray",
@@ -313,7 +314,7 @@ extension View {
             if let error {
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.DesignSystem.error)
+                        .foregroundStyle(Color.DesignSystem.error)
 
                     Text(error.localizedDescription)
                         .font(.DesignSystem.caption)
@@ -344,6 +345,7 @@ extension View {
 
 #Preview("LoadingStateContainer") {
     struct PreviewWrapper: View {
+        @Environment(\.translationService) private var t
         @State private var state: LoadingState<[String]> = .idle
 
         var body: some View {
@@ -370,7 +372,11 @@ extension View {
                         }
                     } onRetry: {
                         state = .loading
+                        #if SKIP
+                        try? await Task.sleep(nanoseconds: UInt64(1 * 1_000_000_000))
+                        #else
                         try? await Task.sleep(for: .seconds(1))
+                        #endif
                         state = .loaded(["Reloaded Item"])
                     }
                 }

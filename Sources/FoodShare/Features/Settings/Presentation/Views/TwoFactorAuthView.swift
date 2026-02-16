@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -15,7 +14,7 @@ import FoodShareDesignSystem
 
 struct TwoFactorAuthView: View {
     
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     private let mfaService = MFAService.shared
@@ -148,7 +147,9 @@ struct TwoFactorAuthView: View {
                             endPoint: .bottomTrailing,
                         ),
                     )
+                    #if !SKIP
                     .symbolEffect(.pulse, options: .repeating, isActive: mfaService.isLoading)
+                    #endif
             }
 
             // Status text
@@ -539,7 +540,9 @@ struct TwoFactorAuthView: View {
                 Text(description)
                     .font(.DesignSystem.caption)
                     .foregroundStyle(Color.DesignSystem.textSecondary)
+                    #if !SKIP
                     .fixedSize(horizontal: false, vertical: true)
+                    #endif
             }
         }
     }

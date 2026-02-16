@@ -2,7 +2,6 @@
 // Enterprise Notification Settings UI
 // FoodShare iOS - Liquid Glass Design System
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Main View
@@ -15,7 +14,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     @State private var viewModel: NotificationPreferencesViewModel
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     // MARK: - Initialization
 
@@ -57,7 +56,7 @@ public struct EnterpriseNotificationSettingsView: View {
             .padding(.vertical, Spacing.lg)
         }
         .background(Color.DesignSystem.background)
-        .navigationTitle(t.t("settings.notifications.title", default: "Notifications"))
+        .navigationTitle(t.t("settings.notifications.title", fallback: "Notifications"))
         .navigationBarTitleDisplayMode(.large)
         .refreshable {
             await viewModel.refreshPreferences()
@@ -139,7 +138,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var pushNotificationsSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.push", default: "Push Notifications"),
+            title: t.t("settings.notifications.push", fallback: "Push Notifications"),
             icon: "bell.badge.fill",
             titleColor: .DesignSystem.brandGreen,
         ) {
@@ -148,7 +147,7 @@ public struct EnterpriseNotificationSettingsView: View {
                 GlassSettingsToggle(
                     icon: "bell.fill",
                     iconColor: .DesignSystem.brandGreen,
-                    title: t.t("settings.notifications.enabled", default: "Enable Push Notifications"),
+                    title: t.t("settings.notifications.enabled", fallback: "Enable Push Notifications"),
                     isOn: Binding(
                         get: { viewModel.preferences.settings.pushEnabled },
                         set: { _ in Task { await viewModel.togglePushEnabled() } },
@@ -179,7 +178,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var emailNotificationsSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.email", default: "Email Notifications"),
+            title: t.t("settings.notifications.email", fallback: "Email Notifications"),
             icon: "envelope.fill",
             titleColor: .DesignSystem.brandBlue,
         ) {
@@ -188,7 +187,7 @@ public struct EnterpriseNotificationSettingsView: View {
                 GlassSettingsToggle(
                     icon: "envelope.fill",
                     iconColor: .DesignSystem.brandBlue,
-                    title: t.t("settings.notifications.enabled", default: "Enable Email Notifications"),
+                    title: t.t("settings.notifications.enabled", fallback: "Enable Email Notifications"),
                     isOn: Binding(
                         get: { viewModel.preferences.settings.emailEnabled },
                         set: { _ in Task { await viewModel.toggleEmailEnabled() } },
@@ -219,7 +218,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var smsNotificationsSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.sms", default: "SMS Notifications"),
+            title: t.t("settings.notifications.sms", fallback: "SMS Notifications"),
             icon: "text.bubble.fill",
             titleColor: .DesignSystem.primary,
         ) {
@@ -229,7 +228,7 @@ public struct EnterpriseNotificationSettingsView: View {
                     GlassSettingsToggle(
                         icon: "text.bubble.fill",
                         iconColor: .DesignSystem.primary,
-                        title: t.t("settings.notifications.enabled", default: "Enable SMS Notifications"),
+                        title: t.t("settings.notifications.enabled", fallback: "Enable SMS Notifications"),
                         isOn: Binding(
                             get: { viewModel.preferences.settings.smsEnabled },
                             set: { _ in Task { await viewModel.toggleSMSEnabled() } },
@@ -262,7 +261,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var digestSettingsSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.digest", default: "Digest Settings"),
+            title: t.t("settings.notifications.digest", fallback: "Digest Settings"),
             icon: "tray.full.fill",
             titleColor: .DesignSystem.brandGreen,
         ) {
@@ -271,8 +270,8 @@ public struct EnterpriseNotificationSettingsView: View {
                 GlassSettingsToggle(
                     icon: "sun.max.fill",
                     iconColor: .DesignSystem.warning,
-                    title: t.t("settings.notifications.daily_digest", default: "Daily Digest"),
-                    subtitle: t.t("settings.notifications.daily_digest_desc", default: "Receive a summary at 9am"),
+                    title: t.t("settings.notifications.daily_digest", fallback: "Daily Digest"),
+                    subtitle: t.t("settings.notifications.daily_digest_desc", fallback: "Receive a summary at 9am"),
                     isOn: Binding(
                         get: { viewModel.preferences.settings.digest.dailyEnabled },
                         set: { newValue in
@@ -288,10 +287,10 @@ public struct EnterpriseNotificationSettingsView: View {
                 GlassSettingsToggle(
                     icon: "calendar",
                     iconColor: .DesignSystem.brandBlue,
-                    title: t.t("settings.notifications.weekly_digest", default: "Weekly Digest"),
+                    title: t.t("settings.notifications.weekly_digest", fallback: "Weekly Digest"),
                     subtitle: t.t(
                         "settings.notifications.weekly_digest_desc",
-                        default: "Receive a summary every Monday",
+                        fallback: "Receive a summary every Monday",
                     ),
                     isOn: Binding(
                         get: { viewModel.preferences.settings.digest.weeklyEnabled },
@@ -308,7 +307,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var quietHoursSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.quiet_hours", default: "Quiet Hours"),
+            title: t.t("settings.notifications.quiet_hours", fallback: "Quiet Hours"),
             icon: "moon.stars.fill",
             titleColor: .DesignSystem.brandBlue,
         ) {
@@ -323,13 +322,13 @@ public struct EnterpriseNotificationSettingsView: View {
                             .frame(width: 32)
 
                         VStack(alignment: .leading, spacing: Spacing.xxxs) {
-                            Text(t.t("settings.notifications.quiet_hours", default: "Quiet Hours"))
+                            Text(t.t("settings.notifications.quiet_hours", fallback: "Quiet Hours"))
                                 .font(.DesignSystem.bodyLarge)
                                 .foregroundStyle(Color.DesignSystem.text)
 
                             Text(t.t(
                                 "settings.notifications.quiet_hours_desc",
-                                default: "Pause non-urgent notifications",
+                                fallback: "Pause non-urgent notifications",
                             ))
                             .font(.DesignSystem.captionSmall)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
@@ -356,7 +355,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
     private var dndSection: some View {
         GlassSettingsSection(
-            title: t.t("settings.notifications.dnd", default: "Do Not Disturb"),
+            title: t.t("settings.notifications.dnd", fallback: "Do Not Disturb"),
             icon: "moon.fill",
             titleColor: .DesignSystem.warning,
         ) {
@@ -371,13 +370,13 @@ public struct EnterpriseNotificationSettingsView: View {
                             .frame(width: 32)
 
                         VStack(alignment: .leading, spacing: Spacing.xxxs) {
-                            Text(t.t("settings.notifications.dnd", default: "Do Not Disturb"))
+                            Text(t.t("settings.notifications.dnd", fallback: "Do Not Disturb"))
                                 .font(.DesignSystem.bodyLarge)
                                 .foregroundStyle(Color.DesignSystem.text)
 
                             Text(t.t(
                                 "settings.notifications.dnd_desc",
-                                default: "Silence all notifications temporarily",
+                                fallback: "Silence all notifications temporarily",
                             ))
                             .font(.DesignSystem.captionSmall)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
@@ -531,11 +530,11 @@ public struct EnterpriseNotificationSettingsView: View {
                     .frame(width: 32)
 
                 VStack(alignment: .leading, spacing: Spacing.xxxs) {
-                    Text(t.t("settings.notifications.verify_phone", default: "Verify Phone Number"))
+                    Text(t.t("settings.notifications.verify_phone", fallback: "Verify Phone Number"))
                         .font(.DesignSystem.bodyLarge)
                         .foregroundStyle(Color.DesignSystem.text)
 
-                    Text(t.t("settings.notifications.verify_phone_desc", default: "Required for SMS notifications"))
+                    Text(t.t("settings.notifications.verify_phone_desc", fallback: "Required for SMS notifications"))
                         .font(.DesignSystem.captionSmall)
                         .foregroundStyle(Color.DesignSystem.textSecondary)
                 }
@@ -576,6 +575,7 @@ public struct EnterpriseNotificationSettingsView: View {
         case .push: .DesignSystem.brandGreen
         case .email: .DesignSystem.brandBlue
         case .sms: .DesignSystem.primary
+        case .inApp: .DesignSystem.brandBlue
         }
     }
 }
@@ -584,7 +584,7 @@ public struct EnterpriseNotificationSettingsView: View {
 
 struct DNDConfigurationSheet: View {
     @Bindable var viewModel: NotificationPreferencesViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {
@@ -630,7 +630,7 @@ struct DNDConfigurationSheet: View {
             .background(Color.DesignSystem.background)
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium])
+        .presentationDetents([PresentationDetent.medium])
     }
 
     private func dndDurationButton(hours: Int, label: String) -> some View {
@@ -663,7 +663,7 @@ struct DNDConfigurationSheet: View {
 
 struct QuietHoursConfigurationSheet: View {
     @Bindable var viewModel: NotificationPreferencesViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State private var isEnabled = false
     @State private var startTime = Date()
@@ -738,7 +738,7 @@ struct QuietHoursConfigurationSheet: View {
 
 struct PhoneVerificationSheet: View {
     @Bindable var viewModel: NotificationPreferencesViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     @State private var step: VerificationStep = .enterPhone
 
@@ -841,7 +841,7 @@ struct PhoneVerificationSheet: View {
             .background(Color.DesignSystem.background)
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium])
+        .presentationDetents([PresentationDetent.medium])
     }
 }
 

@@ -7,13 +7,12 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
 struct MFAVerificationView: View {
     
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     private let mfaService = MFAService.shared
@@ -142,7 +141,9 @@ struct MFAVerificationView: View {
                             endPoint: .bottomTrailing,
                         ),
                     )
+                    #if !SKIP
                     .symbolEffect(.pulse, options: .repeating, isActive: mfaService.isLoading)
+                    #endif
             }
 
             Text(t.t("settings.two_factor"))
@@ -336,7 +337,9 @@ struct MFAVerificationView: View {
                     Image(systemName: "checkmark.shield.fill")
                         .font(.system(size: 56))
                         .foregroundStyle(Color.DesignSystem.success)
+                        #if !SKIP
                         .symbolEffect(.bounce, value: showSuccessAnimation)
+                        #endif
                 }
 
                 Text(t.t("settings.mfa.verified"))

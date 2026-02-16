@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 // MARK: - Cursor Direction
@@ -450,3 +451,4 @@ extension View {
         ))
     }
 }
+#endif

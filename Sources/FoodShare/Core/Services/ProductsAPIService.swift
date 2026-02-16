@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ProductsAPIService.swift
 //  Foodshare
@@ -201,3 +202,4 @@ actor ProductsAPIService {
         try await client.deleteVoid("api-v1-products", params: ["id": "\(id)"])
     }
 }
+#endif

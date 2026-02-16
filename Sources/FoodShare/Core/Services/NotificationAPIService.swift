@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  NotificationAPIService.swift
 //  Foodshare
@@ -33,17 +34,16 @@ actor NotificationAPIService {
         body: String,
         data: [String: String]? = nil
     ) async throws -> NotificationSendResponse {
-        var requestBody: [String: Any] = [
-            "type": type,
-            "recipientId": recipientId,
-            "title": title,
-            "body": body,
-        ]
-        if let actorId { requestBody["actorId"] = actorId }
-        if let postId { requestBody["postId"] = postId }
-        if let roomId { requestBody["roomId"] = roomId }
-        if let data { requestBody["data"] = data }
-
+        let requestBody = NotificationSendRequestBody(
+            type: type,
+            recipientId: recipientId,
+            actorId: actorId,
+            postId: postId,
+            roomId: roomId,
+            title: title,
+            body: body,
+            data: data
+        )
         return try await client.post("api-v1-notifications", body: requestBody)
     }
 
@@ -56,15 +56,14 @@ actor NotificationAPIService {
         data: [String: String]? = nil,
         silent: Bool = false
     ) async throws -> PushResponse {
-        var requestBody: [String: Any] = [
-            "deviceTokens": deviceTokens,
-            "title": title,
-            "body": body,
-            "type": type,
-            "silent": silent,
-        ]
-        if let data { requestBody["data"] = data }
-
+        let requestBody = PushSendRequestBody(
+            deviceTokens: deviceTokens,
+            title: title,
+            body: body,
+            type: type,
+            data: data,
+            silent: silent
+        )
         return try await client.post("api-v1-notifications", body: requestBody)
     }
 
@@ -84,21 +83,49 @@ actor NotificationAPIService {
 
     /// Trigger a new-listing notification (notifies nearby users)
     func triggerNewListingNotification(postId: Int, latitude: Double, longitude: Double) async throws {
-        try await client.postVoid("api-v1-notifications", body: [
-            "action": "trigger_new_listing",
-            "postId": postId,
-            "latitude": latitude,
-            "longitude": longitude,
-        ])
+        let requestBody = NewListingNotificationRequest(
+            action: "trigger_new_listing",
+            postId: postId,
+            latitude: latitude,
+            longitude: longitude
+        )
+        try await client.postVoid("api-v1-notifications", body: requestBody)
     }
 }
 
-// MARK: - Response Types
+// MARK: - Request Types
 
-struct NotificationSendResponse: Codable, Sendable {
-    let success: Bool
-    let messageId: String?
+/// Encodable request body for sending a notification
+private struct NotificationSendRequestBody: Encodable, Sendable {
+    let type: String
+    let recipientId: String
+    let actorId: String?
+    let postId: Int?
+    let roomId: String?
+    let title: String
+    let body: String
+    let data: [String: String]?
 }
+
+/// Encodable request body for sending push notifications
+private struct PushSendRequestBody: Encodable, Sendable {
+    let deviceTokens: [String]
+    let title: String
+    let body: String
+    let type: String
+    let data: [String: String]?
+    let silent: Bool
+}
+
+/// Encodable request body for triggering a new-listing notification
+private struct NewListingNotificationRequest: Encodable, Sendable {
+    let action: String
+    let postId: Int
+    let latitude: Double
+    let longitude: Double
+}
+
+// MARK: - Response Types
 
 struct PushResponse: Codable, Sendable {
     let success: Bool
@@ -120,9 +147,4 @@ struct PushResponse: Codable, Sendable {
         let invalidTokens: [String]
     }
 }
-
-struct NotificationPreferences: Codable, Sendable {
-    let email: Bool
-    let push: Bool
-    let sms: Bool
-}
+#endif

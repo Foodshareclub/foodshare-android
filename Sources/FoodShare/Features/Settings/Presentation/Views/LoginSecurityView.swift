@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -15,7 +14,7 @@ import FoodShareDesignSystem
 struct LoginSecurityView: View {
     
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     private let mfaService = MFAService.shared
@@ -360,7 +359,7 @@ struct LoginSecurityView: View {
 struct ChangePasswordView: View {
     
     @Environment(AppState.self) private var appState
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     @State private var currentPassword = ""
@@ -527,11 +526,19 @@ struct ChangePasswordView: View {
         // This would typically use updateUser or a custom edge function
         do {
             // Placeholder - implement actual password change
+            #if SKIP
+            try await Task.sleep(nanoseconds: UInt64(1 * 1_000_000_000))
+            #else
             try await Task.sleep(for: .seconds(1))
+            #endif
             showSuccess = true
 
             Task {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(2))
+                #endif
                 dismiss()
             }
         } catch {

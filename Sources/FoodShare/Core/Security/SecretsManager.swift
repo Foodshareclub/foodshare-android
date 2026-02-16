@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SecretsManager.swift
 //  Foodshare
@@ -269,3 +270,4 @@ extension AppEnvironment {
         await SecretsManager.shared.supabasePublishableKey
     }
 }
+#endif

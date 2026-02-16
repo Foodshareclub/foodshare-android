@@ -1,6 +1,5 @@
 import Foundation
 import Supabase
-import FoodShareRepository
 
 // MARK: - Supabase Admin Repository
 

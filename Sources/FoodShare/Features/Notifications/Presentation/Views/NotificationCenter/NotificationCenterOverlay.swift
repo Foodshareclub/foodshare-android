@@ -6,7 +6,6 @@
 //  Manages dropdown visibility, backdrop, and notification navigation
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Notification Center Overlay Modifier
@@ -23,7 +22,7 @@ struct NotificationCenterOverlayModifier: ViewModifier {
     let onSeeAll: () -> Void
     let onNotificationTap: (UserNotification) -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
     func body(content: Content) -> some View {
         content

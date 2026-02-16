@@ -2,62 +2,43 @@
 // Dependency Injection for Notification Preferences
 // FoodShare iOS - Clean Architecture
 
+#if !SKIP
 import Foundation
-import Supabase
+import SwiftUI
 
-// MARK: - Dependency Container Extension
-
-extension DependencyContainer {
-
-    /// Notification preferences repository (lazy initialized)
-    @MainActor
-    public var notificationPreferencesRepository: NotificationPreferencesRepository {
-        if let cached = resolve(NotificationPreferencesRepository.self) {
-            return cached
-        }
-
-        let repository = SupabaseNotificationPreferencesRepository(client: supabaseClient)
-        register(repository as NotificationPreferencesRepository)
-        return repository
-    }
-
-    /// Create notification preferences view model
-    @MainActor
-    public func makeNotificationPreferencesViewModel() -> NotificationPreferencesViewModel {
-        NotificationPreferencesViewModel(repository: notificationPreferencesRepository)
-    }
-}
+// MARK: - Environment Key
 
 extension EnvironmentValues {
-    @Entry public var notificationPreferencesRepository: NotificationPreferencesRepository?
+    @Entry public var notificationPreferencesRepository: (any NotificationPreferencesRepository)?
 }
 
 // MARK: - View Extensions
 
-import SwiftUI
-
 extension View {
     /// Inject notification preferences repository into environment
     @MainActor
-    public func withNotificationPreferencesRepository(_ repository: NotificationPreferencesRepository) -> some View {
+    public func withNotificationPreferencesRepository(_ repository: any NotificationPreferencesRepository) -> some View {
         environment(\.notificationPreferencesRepository, repository)
     }
 }
 
-// MARK: - Factory for Creating Views
+// MARK: - Factory for Creating ViewModels
 
 @MainActor
-public struct NotificationPreferencesFactory {
+public enum NotificationPreferencesFactory {
 
-    private let dependencies: DependencyContainer
-
-    public init(dependencies: DependencyContainer) {
-        self.dependencies = dependencies
+    /// Create a notification preferences view model using the Supabase repository
+    public static func makeViewModel() -> NotificationPreferencesViewModel {
+        let repository = SupabaseNotificationPreferencesRepository(
+            client: AuthenticationService.shared.supabase
+        )
+        return NotificationPreferencesViewModel(repository: repository)
     }
 
     /// Create the enterprise notification settings view
-    public func makeSettingsView() -> some View {
-        let viewModel = dependencies.makeNotificationPreferencesViewModel()
+    public static func makeSettingsView() -> some View {
+        let viewModel = makeViewModel()
         return EnterpriseNotificationSettingsView(viewModel: viewModel)
     }
 }
+#endif

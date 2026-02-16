@@ -14,7 +14,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Tilt Configuration
 

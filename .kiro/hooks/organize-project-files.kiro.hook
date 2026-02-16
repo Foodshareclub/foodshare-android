@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Organize Project Files",
+  "description": "Automatically detects and reorganizes files that should be in docs/, context/, or scripts/ directories. Recognizes documentation files (.md), context files (ADR, PRD, type definitions), and scripts (.sh, .py, .rb) and suggests moving them to their proper locations.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.md",
+      "*.sh",
+      "*.py",
+      "*.rb",
+      "*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the recently modified files and identify any that are in the wrong directory:\n\n1. **Documentation files** (.md files) should be in the `docs/` directory\n2. **Context files** (ADR.md, PRD.md, Models.swift, Protocols.swift, TypeSystem.md, Workflow.md, etc.) should be in the `context/` directory  \n3. **Scripts** (.sh, .py, .rb files) should be in the `scripts/` directory\n\nFor each misplaced file:\n- Identify its current location\n- Determine its correct destination based on its name and content type\n- Suggest moving it with a clear explanation\n\nProvide a concise list of files to reorganize with their source and destination paths. If all files are already in the correct locations, confirm that the project structure is properly organized."
+  }
+}

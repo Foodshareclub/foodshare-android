@@ -1,0 +1,255 @@
+# Lefthook Configuration for FoodShare Cross-Platform (Skip Fuse)
+# Enterprise-grade Git hooks with safety features
+#
+# Builds both iOS (Xcode/SwiftUI) and Android (Skip Fuse/Compose)
+# from a single Swift codebase.
+#
+# Installation:
+#   brew install lefthook swiftformat swiftlint
+#   cd ../foodshare-tools && cargo build --release
+#   lefthook install
+#
+# Documentation: https://github.com/evilmartians/lefthook
+
+# ============================================================================
+# SAFETY FEATURES ENABLED BY DEFAULT:
+# ============================================================================
+# - Auto-backup: Creates a stash before formatting (recoverable)
+# - Preview mode: Use --preview to see changes before applying
+# - Audit logging: All format operations are logged to .foodshare-hooks/
+# - Diff summary: Shows exactly what changed in each file
+# - Fail-fast: Sequential execution ensures first error stops pipeline
+#
+# USAGE:
+#   Normal commit:    git commit -m "feat: ..."     (format + backup + stage)
+#   Preview changes:  foodshare-hooks format --preview
+#   Skip hooks:       git commit --no-verify -m "..." (emergency only)
+#   Quick push:       FOODSHARE_QUICK_MODE=true git push (skip tests)
+#   Full validation:  git push (runs lint + build + tests)
+#
+# RECOVERY:
+#   If formatting causes issues, recover with:
+#   git stash list                     # Find backup (foodshare-hooks-backup-*)
+#   git stash apply stash@{N}          # Restore from backup
+# ============================================================================
+
+# ============================================================================
+# PRE-COMMIT: Security first, then format with safety features
+# ============================================================================
+pre-commit:
+  parallel: false  # CRITICAL: Sequential execution ensures fail-fast on first error
+  commands:
+    # 1. Security first - fail fast on secrets before any formatting
+    secrets-check:
+      priority: 1
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" secrets
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "CRITICAL: Secrets check failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+        fi
+
+    # 2. Format Swift code with enterprise safety (after security passes)
+    format:
+      priority: 2
+      glob: "*.swift"
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" format --staged --backup --show-diff --audit
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Format failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+        else
+          echo "foodshare-hooks not found, using swiftformat directly"
+          swiftformat {staged_files}
+        fi
+      stage_fixed: true
+
+# ============================================================================
+# PRE-PUSH: Comprehensive validation (lint + build + tests)
+# ============================================================================
+# Options:
+#   Normal push:      git push                              (full validation)
+#   Quick push:       FOODSHARE_QUICK_MODE=true git push    (skip tests)
+#   Emergency push:   git push --no-verify                  (skip all hooks)
+#
+pre-push:
+  parallel: false
+  commands:
+    # Warn about untracked files before push
+    untracked-warning:
+      priority: 1
+      run: |
+        UNTRACKED=$(git ls-files --others --exclude-standard | wc -l | tr -d ' ')
+        if [ "$UNTRACKED" -gt 5 ]; then
+          echo "Warning: $UNTRACKED untracked files. Consider committing important ones:"
+          git ls-files --others --exclude-standard | grep -E '\.(swift|yml|json|kts)$' | head -10
+          echo ""
+          echo "To see all: git status --short | grep '^??'"
+        fi
+
+    pre-push-checks:
+      priority: 2
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" pre-push --fail-fast
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Pre-push checks failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+        else
+          echo "foodshare-hooks not found, running basic Swift build check"
+          swift build 2>&1 | tail -20
+        fi
+
+# ============================================================================
+# COMMIT-MSG: Validate commit message format (Conventional Commits)
+# ============================================================================
+commit-msg:
+  commands:
+    conventional-commit:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" commit-msg {1}
+        fi
+
+# ============================================================================
+# POST-CHECKOUT: Update dependencies after branch switch
+# ============================================================================
+post-checkout:
+  commands:
+    update-dependencies:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" deps resolve
+        fi
+
+# ============================================================================
+# POST-MERGE: Update dependencies and check migrations
+# ============================================================================
+post-merge:
+  commands:
+    update-dependencies:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" deps resolve
+        fi
+
+    check-migrations:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        if [ ! -f "$HOOKS_BIN" ]; then
+          HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/debug/foodshare-hooks}"
+        fi
+        if [ -f "$HOOKS_BIN" ]; then
+          "$HOOKS_BIN" migrations
+        fi
+
+# ============================================================================
+# CUSTOM HOOKS (Manual execution: lefthook run <hook-name>)
+# ============================================================================
+
+# Full quality check
+quality-check:
+  commands:
+    format:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        "$HOOKS_BIN" format --backup --show-diff
+    lint:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        "$HOOKS_BIN" lint --strict
+    test:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        "$HOOKS_BIN" test
+
+# Preview formatting changes without applying
+format-preview:
+  commands:
+    preview:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        "$HOOKS_BIN" format --preview --show-diff
+
+# Verify hook setup
+verify-hooks:
+  commands:
+    verify:
+      run: |
+        REPO_ROOT="$(git rev-parse --show-toplevel)"
+        HOOKS_BIN="${FOODSHARE_HOOKS_BIN:-$REPO_ROOT/../foodshare-tools/target/release/foodshare-hooks}"
+        "$HOOKS_BIN" verify
+
+# Clean old backup stashes (keep last 30 days)
+cleanup-stashes:
+  commands:
+    cleanup:
+      run: |
+        echo "Cleaning backup stashes older than 30 days..."
+        git stash list | grep "foodshare-hooks-backup" | while read line; do
+          STASH_REF=$(echo "$line" | cut -d':' -f1)
+          STASH_DATE=$(git log -1 --format="%ci" "$STASH_REF" 2>/dev/null | cut -d' ' -f1)
+          if [ -n "$STASH_DATE" ]; then
+            DAYS_OLD=$(( ($(date +%s) - $(date -j -f "%Y-%m-%d" "$STASH_DATE" +%s)) / 86400 ))
+            if [ $DAYS_OLD -gt 30 ]; then
+              echo "  Dropping $STASH_REF (${DAYS_OLD} days old)"
+              git stash drop "$STASH_REF"
+            fi
+          fi
+        done
+        echo "Stash cleanup complete"
+
+# Output configuration
+skip_output:
+  - meta
+
+output:
+  - summary
+  - success
+  - failure
+
+colors: true
+follow: true

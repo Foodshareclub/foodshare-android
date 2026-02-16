@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  RetryPolicy.swift
 //  Foodshare
@@ -592,3 +593,4 @@ public func withRetryAndCapture<T: Sendable>(
         throw error
     }
 }
+#endif

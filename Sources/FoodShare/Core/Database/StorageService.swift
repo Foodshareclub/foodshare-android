@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 import Supabase
 
@@ -115,3 +116,4 @@ final class SupabaseStorageService: StorageService, @unchecked Sendable {
         }
     }
 }
+#endif

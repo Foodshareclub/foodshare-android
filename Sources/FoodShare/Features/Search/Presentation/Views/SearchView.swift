@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -812,7 +811,7 @@ struct SearchResultCard: View {
 struct SearchFilterView: View {
     @Environment(\.translationService) private var t
     @Bindable var viewModel: SearchViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     // Collapsible section state
     @State private var isSortExpanded = true
@@ -872,7 +871,9 @@ struct SearchFilterView: View {
 
                                 Slider(value: $viewModel.filters.maxDistanceKm, in: 1 ... 50, step: 1)
                                     .tint(.DesignSystem.primary)
+                                    #if !SKIP
                                     .sensoryFeedback(.selection, trigger: viewModel.filters.maxDistanceKm)
+                                    #endif
 
                                 HStack {
                                     Text(t.t("search.distance_min"))

@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 /// Mock location service for testing
@@ -63,3 +64,4 @@ actor MockLocationService: LocationService {
         isMonitoring = false
     }
 }
+#endif

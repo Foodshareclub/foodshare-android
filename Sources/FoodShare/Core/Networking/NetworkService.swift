@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 /// High-level network service for type-safe API requests
@@ -93,3 +94,4 @@ actor NetworkServiceImpl: NetworkService {
         return urlRequest
     }
 }
+#endif

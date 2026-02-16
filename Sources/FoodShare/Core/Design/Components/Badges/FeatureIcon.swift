@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Compact feature icon with glass background and gradient icon
 /// Used for feature highlights on auth/onboarding screens

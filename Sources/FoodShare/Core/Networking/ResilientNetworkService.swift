@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ResilientNetworkService.swift
 //  Foodshare
@@ -55,7 +56,7 @@ actor ResilientNetworkService: NetworkService {
 
     func execute<Request: NetworkRequest>(_ request: Request) async throws -> Request.Response {
         let cacheKey = buildCacheKey(for: request)
-        let isGetRequest = request.method == .GET
+        let isGetRequest = request.method == .get
 
         // For GET requests, check cache first
         if isGetRequest {
@@ -110,9 +111,9 @@ actor ResilientNetworkService: NetworkService {
                 // Report success to circuit breaker
                 await circuitBreaker.reportSuccess(duration: duration)
 
-                // Cache GET responses
-                if request.method == .GET {
-                    await cacheResponse(result, for: cacheKey)
+                // Cache GET responses if response is Encodable
+                if request.method == .get, let encodable = result as? any Encodable {
+                    await cacheEncodableResponse(encodable, for: cacheKey)
                 }
 
                 return result
@@ -137,22 +138,22 @@ actor ResilientNetworkService: NetworkService {
             }
         }
 
-        throw lastError ?? NetworkError.unknown
+        throw lastError ?? NetworkError.unknown(NSError(domain: "ResilientNetworkService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown error occurred"]))
     }
 
     private func isRetryableError(_ error: Error) -> Bool {
         if let networkError = error as? NetworkError {
             switch networkError {
-            case .timeout, .noData, .serverError, .noConnection:
+            case .timeout, .noData, .noInternetConnection:
                 return true
-            case .invalidURL, .decodingError, .authenticationRequired, .unauthorized, .forbidden:
-                return false
+            case .serverError(let statusCode, _, _):
+                // Retry on 5xx errors and 429 (rate limited)
+                return statusCode >= 500 || statusCode == 429
+            case .rateLimited:
+                return true
             case .unknown:
                 return true
-            case .unexpectedStatusCode(let code, _):
-                // Retry on 5xx errors and 429 (rate limited)
-                return code >= 500 || code == 429
-            case .cancelled:
+            case .invalidURL, .decodingError, .encodingError, .unauthorized, .forbidden, .notFound:
                 return false
             }
         }
@@ -214,6 +215,17 @@ actor ResilientNetworkService: NetworkService {
         }
     }
 
+    private func cacheEncodableResponse(_ response: any Encodable, for key: String) async {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.dateEncodingStrategy = .iso8601
+
+        if let data = try? encoder.encode(response) {
+            await cache.set(key, value: CachedResponse(data: data, timestamp: Date()))
+            logger.debug("Cached response for \(key)")
+        }
+    }
+
     // MARK: - Cache Management
 
     /// Clear all cached responses
@@ -236,6 +248,6 @@ actor ResilientNetworkService: NetworkService {
 // MARK: - NetworkError Extension
 
 extension NetworkError {
-    static let noConnection = NetworkError.serverError(statusCode: 0, message: "No network connection", endpoint: "")
-    static let unknown = NetworkError.serverError(statusCode: 0, message: "Unknown error occurred", endpoint: "")
+    static let noConnection = NetworkError.noInternetConnection
 }
+#endif

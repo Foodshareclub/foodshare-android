@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 import OSLog
 #if !SKIP
@@ -301,3 +302,4 @@ extension EnvironmentValues {
         set { self[FrameRateMonitorKey.self] = newValue }
     }
 }
+#endif

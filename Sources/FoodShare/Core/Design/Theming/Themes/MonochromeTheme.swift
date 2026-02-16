@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Monochrome theme with grayscale colors
 struct MonochromeTheme: Theme {

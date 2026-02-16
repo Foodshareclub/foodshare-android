@@ -8,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Action Sheet
 
@@ -36,7 +35,7 @@ struct GlassActionSheet: View {
         self.title = title
         self.message = message
         self.actions = actions
-        self.cancelAction = cancelAction ?? GlassActionItem(title: t.t("common.cancel"), style: .cancel, action: {})
+        self.cancelAction = cancelAction ?? GlassActionItem(title: "Cancel", style: .cancel, action: {})
     }
 
     var body: some View {
@@ -361,7 +360,7 @@ struct GlassConfirmationDialog {
             message: message,
             actions: [
                 GlassActionItem(
-                    title: t.t("common.delete"),
+                    title: "Delete",
                     icon: "trash.fill",
                     style: .destructive,
                     action: onDelete

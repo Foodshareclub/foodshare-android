@@ -9,7 +9,6 @@
 import Foundation
 import OSLog
 import Supabase
-import FoodShareRepository
 
 @MainActor
 final class SupabaseActivityRepository: BaseSupabaseRepository, ActivityRepository {

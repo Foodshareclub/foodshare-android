@@ -6,7 +6,6 @@
 //  Supports all 12 category types from the web platform
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 /// All listing categories matching the web app

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockForumRepository.swift
 //  Foodshare
@@ -593,4 +594,5 @@ final class MockForumRepository: ForumRepository, @unchecked Sendable {
         toggleBookmarkCallCount = 0
     }
 }
+#endif
 #endif

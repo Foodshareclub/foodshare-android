@@ -8,32 +8,8 @@
 import Foundation
 import OSLog
 
-// MARK: - Cache Errors
-
-enum CacheError: Error, LocalizedError {
-    case notAuthenticated
-    case invalidKey(String)
-    case operationFailed(String)
-    case networkError(Error)
-    case decodingError
-
-    var errorDescription: String? {
-        switch self {
-        case .notAuthenticated:
-            "User must be authenticated to use cache"
-        case let .invalidKey(reason):
-            "Invalid cache key: \(reason)"
-        case let .operationFailed(message):
-            "Cache operation failed: \(message)"
-        case let .networkError(error):
-            "Network error: \(error.localizedDescription)"
-        case .decodingError:
-            "Failed to decode cache response"
-        }
-    }
-}
-
 // MARK: - Upstash Service
+// Note: CacheError is defined in Core/Cache/CacheStrategy.swift
 
 final class UpstashService: Sendable {
     static let shared = UpstashService()
@@ -85,7 +61,7 @@ extension UpstashService {
         let encoder = JSONEncoder()
         let data = try encoder.encode(value)
         guard let jsonString = String(data: data, encoding: .utf8) else {
-            throw CacheError.operationFailed("Failed to encode value to JSON")
+            throw CacheError.encodingFailed
         }
         try await set(key, value: jsonString, expirationSeconds: expirationSeconds)
     }
@@ -95,7 +71,7 @@ extension UpstashService {
             return nil
         }
         guard let data = jsonString.data(using: .utf8) else {
-            throw CacheError.decodingError
+            throw CacheError.decodingFailed
         }
         let decoder = JSONDecoder()
         return try decoder.decode(type, from: data)

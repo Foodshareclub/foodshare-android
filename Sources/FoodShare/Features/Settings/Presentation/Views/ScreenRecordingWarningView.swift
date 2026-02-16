@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct ScreenRecordingWarningBanner: View {
     @Environment(\.translationService) private var t
@@ -18,7 +17,9 @@ struct ScreenRecordingWarningBanner: View {
                 Image(systemName: "record.circle")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
+                    #if !SKIP
                     .symbolEffect(.pulse)
+                    #endif
 
                 Text(t.t("settings.privacy.recording_active"))
                     .font(.DesignSystem.labelMedium)

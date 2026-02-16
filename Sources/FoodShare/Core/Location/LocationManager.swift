@@ -1,4 +1,5 @@
 #if !SKIP
+#if !SKIP
 import CoreLocation
 #endif
 import Foundation
@@ -238,3 +239,4 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
 }
+#endif

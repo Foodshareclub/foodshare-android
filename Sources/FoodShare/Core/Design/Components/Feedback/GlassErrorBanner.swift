@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Dismissible error banner with Liquid Glass styling
 /// Supports error, warning, success, and info variants
@@ -91,7 +90,9 @@ struct GlassErrorBanner: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
 
             Spacer(minLength: 0)
 
@@ -113,10 +114,12 @@ struct GlassErrorBanner: View {
         .frame(maxWidth: .infinity)
         .background(layeredGlassBackground)
         // MARK: - Accessibility
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(onDismiss != nil ? Text(t.t("accessibility.action.dismiss")) : Text(""))
         .accessibilityAddTraits(.isStaticText)
+        #endif
     }
 
     // MARK: - Accessibility

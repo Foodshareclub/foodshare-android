@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AppStateManager.swift
 //  Foodshare
@@ -76,7 +77,7 @@ final class AppStateManager {
     // MARK: - User Preferences
 
     /// Distance unit preference (metric/imperial)
-    private(set) var distanceUnit: DistanceUnit = .metric
+    private(set) var distanceUnit: DistanceUnit = .kilometers
 
     /// Whether to show distance in listings
     private(set) var showDistance = true
@@ -260,7 +261,7 @@ final class AppStateManager {
         currentLocationName = nil
         unreadMessageCount = 0
         unreadNotificationCount = 0
-        distanceUnit = .metric
+        distanceUnit = .kilometers
         showDistance = true
 
         // Clear persisted state
@@ -273,49 +274,12 @@ final class AppStateManager {
     }
 }
 
-// MARK: - Distance Unit
-
-enum DistanceUnit: String, Sendable, CaseIterable {
-    case metric
-    case imperial
-
-    var displayName: String {
-        switch self {
-        case .metric: "Kilometers"
-        case .imperial: "Miles"
-        }
-    }
-
-    var shortName: String {
-        switch self {
-        case .metric: "km"
-        case .imperial: "mi"
-        }
-    }
-
-    /// Convert kilometers to this unit
-    func convert(fromKilometers km: Double) -> Double {
-        switch self {
-        case .metric: km
-        case .imperial: km * 0.621371
-        }
-    }
-
-    /// Convert to kilometers from this unit
-    func convertToKilometers(_ value: Double) -> Double {
-        switch self {
-        case .metric: value
-        case .imperial: value / 0.621371
-        }
-    }
-}
-
 // MARK: - SwiftUI Environment Integration
 
 import SwiftUI
 
 extension EnvironmentValues {
-    @Entry var appStateManager = AppStateManager.shared
+    @Entry var appStateManager: AppStateManager = MainActor.assumeIsolated { AppStateManager.shared }
 }
 
 // MARK: - Preview Support
@@ -334,3 +298,4 @@ extension AppStateManager {
         return manager
     }
 }
+#endif

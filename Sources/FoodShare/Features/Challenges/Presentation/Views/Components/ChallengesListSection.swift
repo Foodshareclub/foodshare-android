@@ -5,7 +5,6 @@
 //  Extracted challenges list view with cards
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct ChallengesListSection: View {

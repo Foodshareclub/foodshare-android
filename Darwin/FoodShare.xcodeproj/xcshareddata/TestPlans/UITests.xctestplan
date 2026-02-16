@@ -1,0 +1,40 @@
+{
+  "configurations" : [
+    {
+      "id" : "C3D4E5F6-A7B8-9012-CDEF-345678901234",
+      "name" : "UI Tests Configuration",
+      "options" : {
+        "codeCoverage" : false,
+        "environmentVariableEntries" : [
+          {
+            "key" : "IS_UI_TESTING",
+            "value" : "1"
+          }
+        ],
+        "testExecutionOrdering" : "random",
+        "uiTestingScreenshotsLifetime" : "keepAlways",
+        "testTimeoutsEnabled" : true,
+        "defaultTestExecutionTimeAllowance" : 120
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:FoodShare.xcodeproj",
+      "identifier" : "AAF6A898A242E828AF785E98",
+      "name" : "FoodShare"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:FoodShare.xcodeproj",
+        "identifier" : "906C9F6E6665BF96CF2EADAB",
+        "name" : "FoodShareUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

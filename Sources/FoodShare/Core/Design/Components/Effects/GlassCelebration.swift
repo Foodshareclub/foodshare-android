@@ -7,8 +7,9 @@
 //  badge unlocks, and gamification celebrations
 //
 
-import FoodShareDesignSystem
 import SwiftUI
+
+#if !SKIP
 
 // MARK: - Glass Celebration
 
@@ -32,7 +33,7 @@ struct GlassCelebration: View {
     @State private var particles: [CelebrationParticle] = []
     @State private var animationStartTime: Date?
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -58,7 +59,11 @@ struct GlassCelebration: View {
                     .ignoresSafeArea()
                     .onAppear {
                         Task { @MainActor in
+                            #if SKIP
+                            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+                            #else
                             try? await Task.sleep(for: .milliseconds(300))
+                            #endif
                             isActive = false
                             onComplete?()
                         }
@@ -99,7 +104,11 @@ struct GlassCelebration: View {
 
         // Auto-dismiss after duration
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            #else
             try? await Task.sleep(for: .seconds(duration))
+            #endif
             isActive = false
             onComplete?()
         }
@@ -203,7 +212,7 @@ struct GlassCelebration: View {
                 x: CGFloat.random(in: 0 ... size.width),
                 y: size.height + 20,
                 velocityX: CGFloat.random(in: -80 ... 80),
-                velocityY: CGFloat.random(in: -400 ...- 200),
+                velocityY: CGFloat.random(in: -400 ... -200),
                 rotation: CGFloat.random(in: -20 ... 20),
                 rotationSpeed: CGFloat.random(in: -90 ... 90),
                 size: CGFloat.random(in: 12 ... 24),
@@ -557,3 +566,4 @@ extension View {
 
     return PreviewWrapper()
 }
+#endif

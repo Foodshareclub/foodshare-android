@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  EngagementAPIService.swift
 //  Foodshare
@@ -189,3 +190,4 @@ actor EngagementAPIService {
         )
     }
 }
+#endif

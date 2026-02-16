@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassDetailRow: View {
     let icon: String
@@ -80,7 +79,9 @@ struct GlassDetailRow: View {
             }
         }
         .padding(.vertical, Spacing.xs)
+        #if !SKIP
         .contentShape(Rectangle())
+        #endif
     }
 }
 

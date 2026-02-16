@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  TombstoneSync.swift
 //  FoodShare
@@ -218,14 +219,22 @@ public actor TombstoneSync {
 
     // MARK: - Initialization
 
-    public init(
+    init(
         configuration: TombstoneSyncConfiguration = .default,
         supabase: SupabaseClient? = nil,
         coreData: CoreDataStack? = nil,
     ) {
         self.configuration = configuration
-        self.supabase = supabase ?? SupabaseManager.shared.client
-        self.coreData = coreData ?? CoreDataStack.shared
+        if let supabase {
+            self.supabase = supabase
+        } else {
+            self.supabase = MainActor.assumeIsolated { SupabaseManager.shared.client }
+        }
+        if let coreData {
+            self.coreData = coreData
+        } else {
+            self.coreData = MainActor.assumeIsolated { CoreDataStack.shared }
+        }
         self.logger = Logger(subsystem: "com.flutterflow.foodshare", category: "TombstoneSync")
     }
 
@@ -503,18 +512,19 @@ public actor TombstoneSync {
         logger.debug("📥 [TOMBSTONE] Pulling remote tombstones from server...")
 
         // Fetch tombstones created/updated since last sync
-        var query = supabase
+        var filterQuery = supabase
             .from("sync_tombstones")
             .select("*")
-            .order("deleted_at", ascending: false)
-            .limit(configuration.batchSize)
 
         if let lastSync = lastSyncedAt {
             let formatter = ISO8601DateFormatter()
-            query = query.gte("deleted_at", value: formatter.string(from: lastSync))
+            filterQuery = filterQuery.gte("deleted_at", value: formatter.string(from: lastSync))
         }
 
-        let response = try await query.execute()
+        let response = try await filterQuery
+            .order("deleted_at", ascending: false)
+            .limit(configuration.batchSize)
+            .execute()
 
         // Decode response
         struct TombstoneDTO: Decodable {
@@ -637,7 +647,7 @@ public actor TombstoneSync {
             do {
                 entity = try context.fetch(fetchRequest).first
             } catch {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.error("❌ [TOMBSTONE] Failed to fetch entity for conflict detection: \(error.localizedDescription)")
                 }
                 return false
@@ -663,7 +673,7 @@ public actor TombstoneSync {
                     deletedBy: tombstone.deletedBy,
                 )
 
-                Task { @TombstoneSync in
+                Task {
                     await self.recordConflict(conflict)
                 }
 
@@ -689,7 +699,7 @@ public actor TombstoneSync {
             do {
                 entity = try context.fetch(fetchRequest).first
             } catch {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.error("❌ [TOMBSTONE] Failed to fetch entity for conflict resolution: \(error.localizedDescription)")
                 }
                 return false
@@ -723,7 +733,7 @@ public actor TombstoneSync {
                 context.delete(entity)
                 do {
                     try context.save()
-                    Task { @TombstoneSync in
+                    Task {
                         await self.logger
                             .info(
                                 "✅ [TOMBSTONE] Resolved conflict for \(tombstone.entityType)/\(tombstone.entityId): deletion wins",
@@ -731,13 +741,13 @@ public actor TombstoneSync {
                     }
                     return true
                 } catch {
-                    Task { @TombstoneSync in
+                    Task {
                         await self.logger.error("❌ [TOMBSTONE] Failed to delete entity: \(error.localizedDescription)")
                     }
                     return false
                 }
             } else {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger
                         .info(
                             "⚠️ [TOMBSTONE] Conflict preserved for manual resolution: \(tombstone.entityType)/\(tombstone.entityId)",
@@ -781,13 +791,13 @@ public actor TombstoneSync {
                 }
                 try context.save()
 
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.debug("🗑️ [TOMBSTONE] Deleted cached entity: \(entityType)/\(entityId)")
                 }
 
                 return !entities.isEmpty
             } catch {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.error("❌ [TOMBSTONE] Failed to delete entity: \(error.localizedDescription)")
                 }
                 return false
@@ -822,7 +832,7 @@ public actor TombstoneSync {
             do {
                 try context.save()
             } catch {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.error("❌ [TOMBSTONE] Failed to persist tombstone: \(error.localizedDescription)")
                 }
             }
@@ -845,7 +855,7 @@ public actor TombstoneSync {
                 }
             } catch {
                 // Log error but don't throw - sync status update is not critical
-                Task { @TombstoneSync in
+                Task {
                     await self.logger.warning("⚠️ [TOMBSTONE] Failed to update tombstone sync status: \(error.localizedDescription)")
                 }
             }
@@ -876,7 +886,7 @@ public actor TombstoneSync {
                 try context.save()
                 return count
             } catch {
-                Task { @TombstoneSync in
+                Task {
                     await self.logger
                         .error("❌ [TOMBSTONE] Failed to cleanup local tombstones: \(error.localizedDescription)")
                 }
@@ -930,7 +940,7 @@ public actor TombstoneSync {
     }
 
     /// Build predicate for finding entity by ID
-    private func buildPredicate(for entityId: String, entityName: String) -> NSPredicate {
+    nonisolated private func buildPredicate(for entityId: String, entityName: String) -> NSPredicate {
         // Try to parse as Int64 first (most common)
         if let intId = Int64(entityId) {
             return NSPredicate(format: "id == %lld", intId)
@@ -943,17 +953,6 @@ public actor TombstoneSync {
 
         // Fallback to string comparison
         return NSPredicate(format: "id == %@", entityId)
-    }
-}
-
-// MARK: - Array Extension
-
-extension Array {
-    /// Split array into chunks of specified size
-    func chunked(into size: Int) -> [[Element]] {
-        stride(from: 0, to: count, by: size).map {
-            Array(self[$0 ..< Swift.min($0 + size, count)])
-        }
     }
 }
 
@@ -1000,3 +999,4 @@ public final class TombstoneSyncService {
         await tombstoneSync.getPendingConflicts()
     }
 }
+#endif

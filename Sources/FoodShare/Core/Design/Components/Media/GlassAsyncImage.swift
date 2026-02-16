@@ -17,7 +17,6 @@
 
 import Kingfisher
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Async Image
 
@@ -26,7 +25,7 @@ import FoodShareDesignSystem
 struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
     // MARK: - Shape Types
 
-    enum Shape {
+    enum GlassImageShape {
         case circle
         case roundedRectangle(CGFloat)
         case rectangle
@@ -46,8 +45,8 @@ struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
     // MARK: - Properties
 
     let url: URL?
-    let shape: Shape
-    let contentMode: ContentMode
+    let shape: GlassImageShape
+    let contentMode: SwiftUI.ContentMode
     let showShimmer: Bool
     let shimmerColor: Color
     let borderWidth: CGFloat
@@ -58,20 +57,20 @@ struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
     @ViewBuilder let placeholder: () -> Placeholder
     @ViewBuilder let failure: () -> Failure
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
     init(
         url: URL?,
-        shape: Shape = .roundedRectangle(CornerRadius.medium),
-        contentMode: ContentMode = .fill,
+        shape: GlassImageShape = GlassImageShape.roundedRectangle(CornerRadius.medium),
+        contentMode: SwiftUI.ContentMode = SwiftUI.ContentMode.fill,
         showShimmer: Bool = true,
-        shimmerColor: Color = .white,
+        shimmerColor: Color = Color.white,
         borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
         shadowRadius: CGFloat = 0,
-        shadowColor: Color = .black.opacity(0.1),
+        shadowColor: Color = Color.black.opacity(0.1),
         @ViewBuilder placeholder: @escaping () -> Placeholder,
         @ViewBuilder failure: @escaping () -> Failure
     ) {
@@ -98,7 +97,7 @@ struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
                     .onFailure { _ in }
                     .fade(duration: reduceMotion ? 0 : 0.25)
                     .resizable()
-                    .aspectRatio(contentMode: contentMode == .fill ? .fill : .fit)
+                    .aspectRatio(contentMode: contentMode == SwiftUI.ContentMode.fill ? SwiftUI.ContentMode.fill : SwiftUI.ContentMode.fit)
             } else {
                 failure()
             }
@@ -137,15 +136,14 @@ struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
         }
     }
 
-    @ViewBuilder
-    private var clipShape: some Shape {
+    private var clipShape: AnyShape {
         switch shape {
         case .circle:
-            AnyShape(Circle())
+            return AnyShape(Circle())
         case let .roundedRectangle(radius):
-            AnyShape(RoundedRectangle(cornerRadius: radius))
+            return AnyShape(RoundedRectangle(cornerRadius: radius))
         case .rectangle:
-            AnyShape(Rectangle())
+            return AnyShape(Rectangle())
         }
     }
 }
@@ -156,8 +154,8 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
     /// Creates a GlassAsyncImage with default glass placeholders
     init(
         url: URL?,
-        shape: Shape = .roundedRectangle(CornerRadius.medium),
-        contentMode: ContentMode = .fill,
+        shape: GlassImageShape = GlassImageShape.roundedRectangle(CornerRadius.medium),
+        contentMode: SwiftUI.ContentMode = SwiftUI.ContentMode.fill,
         showShimmer: Bool = true,
         fallbackIcon: String = "photo",
         fallbackColor: Color = Color.DesignSystem.textSecondary
@@ -167,11 +165,11 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
             shape: shape,
             contentMode: contentMode,
             showShimmer: showShimmer,
-            shimmerColor: .white,
+            shimmerColor: Color.white,
             borderWidth: 0,
             borderColor: nil,
             shadowRadius: 0,
-            shadowColor: .clear,
+            shadowColor: Color.clear,
             placeholder: { GlassShimmerPlaceholder() },
             failure: { GlassImageFallback(icon: fallbackIcon, iconColor: fallbackColor) }
         )
@@ -196,10 +194,10 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
     ) -> some View {
         GlassAsyncImage<GlassShimmerPlaceholder, GlassAvatarFallback>(
             url: url,
-            shape: .circle,
-            contentMode: .fill,
+            shape: GlassImageShape.circle,
+            contentMode: SwiftUI.ContentMode.fill,
             showShimmer: true,
-            shimmerColor: .white,
+            shimmerColor: Color.white,
             borderWidth: 0,
             borderColor: nil,
             shadowRadius: 4,
@@ -251,16 +249,16 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
     ) -> some View {
         GlassAsyncImage<GlassShimmerPlaceholder, GlassImageFallback>(
             url: url,
-            shape: .roundedRectangle(cornerRadius),
-            contentMode: .fill,
+            shape: GlassImageShape.roundedRectangle(cornerRadius),
+            contentMode: SwiftUI.ContentMode.fill,
             showShimmer: true,
-            shimmerColor: .white,
+            shimmerColor: Color.white,
             borderWidth: 1,
             borderColor: Color.DesignSystem.glassBorder,
             shadowRadius: 8,
-            shadowColor: .black.opacity(0.08),
+            shadowColor: Color.black.opacity(0.08),
             placeholder: { GlassShimmerPlaceholder() },
-            failure: { GlassImageFallback(icon: "photo", iconColor: .DesignSystem.textSecondary) }
+            failure: { GlassImageFallback(icon: "photo", iconColor: Color.DesignSystem.textSecondary) }
         )
         .frame(height: height)
     }
@@ -277,16 +275,16 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
     ) -> some View {
         GlassAsyncImage<GlassShimmerPlaceholder, GlassImageFallback>(
             url: url,
-            shape: .roundedRectangle(cornerRadius),
-            contentMode: .fill,
+            shape: GlassImageShape.roundedRectangle(cornerRadius),
+            contentMode: SwiftUI.ContentMode.fill,
             showShimmer: true,
-            shimmerColor: .white,
+            shimmerColor: Color.white,
             borderWidth: 0,
             borderColor: nil,
             shadowRadius: 4,
-            shadowColor: .black.opacity(0.1),
+            shadowColor: Color.black.opacity(0.1),
             placeholder: { GlassShimmerPlaceholder() },
-            failure: { GlassImageFallback(icon: "photo", iconColor: .DesignSystem.textSecondary) }
+            failure: { GlassImageFallback(icon: "photo", iconColor: Color.DesignSystem.textSecondary) }
         )
         .frame(width: size, height: size)
     }
@@ -302,16 +300,16 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
     ) -> some View {
         GlassAsyncImage<GlassShimmerPlaceholder, GlassImageFallback>(
             url: url,
-            shape: .roundedRectangle(0),
-            contentMode: .fill,
+            shape: GlassImageShape.roundedRectangle(0),
+            contentMode: SwiftUI.ContentMode.fill,
             showShimmer: true,
-            shimmerColor: .white,
+            shimmerColor: Color.white,
             borderWidth: 0,
             borderColor: nil,
             shadowRadius: 0,
-            shadowColor: .clear,
+            shadowColor: Color.clear,
             placeholder: { GlassShimmerPlaceholder() },
-            failure: { GlassImageFallback(icon: "photo", iconColor: .DesignSystem.textSecondary) }
+            failure: { GlassImageFallback(icon: "photo", iconColor: Color.DesignSystem.textSecondary) }
         )
         .frame(height: height)
         .frame(maxWidth: .infinity)
@@ -363,21 +361,6 @@ struct GlassAvatarFallback: View {
                 .font(.system(size: 24))
                 .foregroundStyle(Color.DesignSystem.textSecondary)
         }
-    }
-}
-
-// MARK: - AnyShape Helper
-
-/// Type-erasing shape wrapper for dynamic shape selection
-struct AnyShape: Shape {
-    private let _path: (CGRect) -> Path
-
-    init<S: Shape>(_ shape: S) {
-        _path = { rect in shape.path(in: rect) }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        _path(rect)
     }
 }
 

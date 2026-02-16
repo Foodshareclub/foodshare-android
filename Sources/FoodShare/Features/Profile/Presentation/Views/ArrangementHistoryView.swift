@@ -10,7 +10,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Localized Display Names Extension
 
@@ -286,11 +285,11 @@ struct ArrangementHistoryView: View {
                     HapticManager.success()
                 },
             )
-            .presentationDetents([.medium])
+            .presentationDetents([PresentationDetent.medium])
         }
         .sheet(item: $selectedRecord) { record in
             ArrangementDetailSheet(record: record)
-                .presentationDetents([.medium, .large])
+                .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
         }
     }
 

@@ -1,0 +1,59 @@
+{
+  "configurations" : [
+    {
+      "id" : "B2C3D4E5-F6A7-8901-BCDE-F23456789012",
+      "name" : "Integration Tests Configuration",
+      "options" : {
+        "codeCoverage" : true,
+        "codeCoverageTargets" : [
+          {
+            "containerPath" : "container:FoodShare.xcodeproj",
+            "identifier" : "AAF6A898A242E828AF785E98",
+            "name" : "FoodShare"
+          }
+        ],
+        "environmentVariableEntries" : [
+          {
+            "key" : "IS_INTEGRATION_TESTING",
+            "value" : "1"
+          },
+          {
+            "key" : "SUPABASE_URL",
+            "value" : "$(SUPABASE_URL)"
+          },
+          {
+            "key" : "SUPABASE_PUBLISHABLE_KEY",
+            "value" : "$(SUPABASE_PUBLISHABLE_KEY)"
+          }
+        ],
+        "testExecutionOrdering" : "random",
+        "testTimeoutsEnabled" : true,
+        "defaultTestExecutionTimeAllowance" : 60
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:FoodShare.xcodeproj",
+      "identifier" : "AAF6A898A242E828AF785E98",
+      "name" : "FoodShare"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "selectedTests" : [
+        "SupabaseFeedRepositoryIntegrationTests",
+        "SupabaseMessagingRepositoryIntegrationTests",
+        "SupabaseReviewRepositoryIntegrationTests"
+      ],
+      "target" : {
+        "containerPath" : "container:FoodShare.xcodeproj",
+        "identifier" : "4ECF8F0551C6BF22899F45D3",
+        "name" : "FoodShareTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -452,7 +452,7 @@ public struct LocalePickerButton: View {
 
 struct LocalePickerSheet: View {
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var isChanging = false
     
     var body: some View {

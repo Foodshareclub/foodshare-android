@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  UnifiedNotificationService.swift
 //  Foodshare
@@ -20,8 +21,8 @@ import Supabase
 
 // MARK: - Notification Types
 
-/// Notification types supported by the unified API
-enum NotificationType: String, Codable, Sendable {
+/// Notification types supported by the unified send API
+enum NotificationSendType: String, Codable, Sendable {
     case newMessage = "new_message"
     case listingFavorited = "listing_favorited"
     case listingExpired = "listing_expired"
@@ -41,14 +42,6 @@ enum NotificationType: String, Codable, Sendable {
     case digest
 }
 
-/// Notification channels
-enum NotificationChannel: String, Codable, Sendable {
-    case push
-    case email
-    case sms
-    case inApp = "in_app"
-}
-
 /// Priority levels
 enum NotificationPriority: String, Codable, Sendable {
     case critical
@@ -62,7 +55,7 @@ enum NotificationPriority: String, Codable, Sendable {
 /// Request payload for sending notifications
 struct NotificationSendRequest: Encodable, Sendable {
     let userId: String
-    let type: NotificationType
+    let type: NotificationSendType
     let title: String
     let body: String
     let data: [String: String]?
@@ -183,7 +176,7 @@ protocol UnifiedNotificationServiceProtocol: Sendable {
     /// Generic send
     func send(
         userId: String,
-        type: NotificationType,
+        type: NotificationSendType,
         title: String,
         body: String,
         data: [String: String]?,
@@ -204,7 +197,7 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
     private let initialBackoff: TimeInterval
 
     /// Singleton for convenience
-    static let shared = UnifiedNotificationService(supabase: AuthenticationService.shared.supabase)
+    @MainActor static let shared = UnifiedNotificationService(supabase: AuthenticationService.shared.supabase)
 
     init(
         supabase: SupabaseClient,
@@ -388,7 +381,7 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
 
     func send(
         userId: String,
-        type: NotificationType,
+        type: NotificationSendType,
         title: String,
         body: String,
         data: [String: String]? = nil,
@@ -417,15 +410,11 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
 
         do {
             let response: NotificationSendResponse = try await NotificationAPIService.shared.send(
-                type: type.rawValue,
-                userId: userId,
-                data: [
-                    "title": title,
-                    "body": body,
-                    "data": data ?? [:]
-                ]
-            )
-                options: FunctionInvokeOptions(body: request),
+                type: request.type.rawValue,
+                recipientId: request.userId,
+                title: request.title,
+                body: request.body,
+                data: request.data
             )
 
             if response.success, let result = response.data {
@@ -499,7 +488,7 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
 
 #if DEBUG
     actor MockUnifiedNotificationService: UnifiedNotificationServiceProtocol {
-        private(set) var sentNotifications: [(userId: String, type: NotificationType, title: String)] = []
+        private(set) var sentNotifications: [(userId: String, type: NotificationSendType, title: String)] = []
 
         func sendWelcomeEmail(userId: String, name: String) async throws {
             sentNotifications.append((userId, .welcome, "Welcome \(name)"))
@@ -549,7 +538,7 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
 
         func send(
             userId: String,
-            type: NotificationType,
+            type: NotificationSendType,
             title: String,
             body: String,
             data: [String: String]?,
@@ -575,4 +564,5 @@ actor UnifiedNotificationService: UnifiedNotificationServiceProtocol {
             sentNotifications.removeAll()
         }
     }
+#endif
 #endif

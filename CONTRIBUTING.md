@@ -11,7 +11,7 @@
 ### Setup
 ```bash
 git clone https://github.com/yourorg/foodshare.git
-cd foodshare/foodshare-android
+cd foodshare/foodshare-app
 open Project.xcworkspace
 ```
 

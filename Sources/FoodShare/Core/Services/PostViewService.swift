@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PostViewService.swift
 //  Foodshare
@@ -221,3 +222,4 @@ actor ForumViewService {
         await PostViewService.shared.recordForumView(forumId: forumId)
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AuthAPIService.swift
 //  Foodshare
@@ -54,10 +55,11 @@ actor AuthAPIService {
 struct AuthResponse: Codable {
     let accessToken: String
     let refreshToken: String
-    let user: AuthUser
+    let user: AuthResponseUser
 }
 
-struct AuthUser: Codable {
+/// Lightweight user info returned by the auth Edge Function (distinct from the domain AuthUser model)
+struct AuthResponseUser: Codable {
     let id: String
     let email: String
     let name: String
@@ -68,3 +70,4 @@ struct SessionInfo: Codable {
     let locale: String
     let localeSource: String
 }
+#endif

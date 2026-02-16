@@ -14,12 +14,11 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Morph Shape Type
 
 /// Defines the target shape for morphing animations
-public enum MorphShapeType: Equatable, Sendable {
+enum MorphShapeType: Equatable, Sendable {
     case circle
     case roundedRect(cornerRadius: CGFloat)
     case squircle(smoothing: CGFloat) // iOS-style continuous corners
@@ -27,7 +26,7 @@ public enum MorphShapeType: Equatable, Sendable {
     case custom(cornerRadius: CGFloat, smoothing: CGFloat)
 
     /// Default corner radius for this shape type
-    public var effectiveCornerRadius: CGFloat {
+    var effectiveCornerRadius: CGFloat {
         switch self {
         case .circle:
             .infinity // Will be clamped to half of min dimension
@@ -43,7 +42,7 @@ public enum MorphShapeType: Equatable, Sendable {
     }
 
     /// Smoothing factor for continuous corners (0 = sharp, 1 = full iOS squircle)
-    public var smoothing: CGFloat {
+    var smoothing: CGFloat {
         switch self {
         case .circle, .roundedRect, .square:
             0
@@ -58,11 +57,11 @@ public enum MorphShapeType: Equatable, Sendable {
 // MARK: - Animatable Morph Shape
 
 /// Shape that can smoothly morph between different corner radii
-public struct MorphableShape: Shape, Animatable {
+struct MorphableShape: Shape, Animatable {
     var cornerRadius: CGFloat
     var smoothing: CGFloat
 
-    public var animatableData: AnimatablePair<CGFloat, CGFloat> {
+    var animatableData: AnimatablePair<CGFloat, CGFloat> {
         get { AnimatablePair(cornerRadius, smoothing) }
         set {
             cornerRadius = newValue.first
@@ -70,17 +69,17 @@ public struct MorphableShape: Shape, Animatable {
         }
     }
 
-    public init(cornerRadius: CGFloat = 0, smoothing: CGFloat = 0) {
+    init(cornerRadius: CGFloat = 0, smoothing: CGFloat = 0) {
         self.cornerRadius = cornerRadius
         self.smoothing = smoothing
     }
 
-    public init(type: MorphShapeType) {
+    init(type: MorphShapeType) {
         self.cornerRadius = type.effectiveCornerRadius
         self.smoothing = type.smoothing
     }
 
-    public func path(in rect: CGRect) -> Path {
+    func path(in rect: CGRect) -> Path {
         let minDimension = min(rect.width, rect.height)
         let effectiveRadius = min(cornerRadius, minDimension / 2)
 
@@ -104,7 +103,7 @@ public struct MorphableShape: Shape, Animatable {
 // MARK: - Morphing Container View
 
 /// A container that morphs its shape based on state
-public struct MorphingContainer<Content: View>: View {
+struct MorphingContainer<Content: View>: View {
     let content: Content
     let shape: MorphShapeType
     let animation: Animation
@@ -112,7 +111,7 @@ public struct MorphingContainer<Content: View>: View {
     @State private var currentRadius: CGFloat = 0
     @State private var currentSmoothing: CGFloat = 0
 
-    public init(
+    init(
         shape: MorphShapeType,
         animation: Animation = ProMotionAnimation.smooth,
         @ViewBuilder content: () -> Content,
@@ -122,7 +121,7 @@ public struct MorphingContainer<Content: View>: View {
         self.content = content()
     }
 
-    public var body: some View {
+    var body: some View {
         content
             .clipShape(MorphableShape(cornerRadius: currentRadius, smoothing: currentSmoothing))
             .onChange(of: shape, initial: true) { _, newShape in
@@ -137,7 +136,7 @@ public struct MorphingContainer<Content: View>: View {
 // MARK: - Interactive Morph View
 
 /// View that morphs shape based on press state
-public struct InteractiveMorphView<Content: View>: View {
+struct InteractiveMorphView<Content: View>: View {
     let content: Content
     let normalShape: MorphShapeType
     let pressedShape: MorphShapeType
@@ -149,7 +148,7 @@ public struct InteractiveMorphView<Content: View>: View {
     @State private var smoothing: CGFloat = 0
     @State private var scale: CGFloat = 1
 
-    public init(
+    init(
         normalShape: MorphShapeType = .roundedRect(cornerRadius: CornerRadius.large),
         pressedShape: MorphShapeType = .roundedRect(cornerRadius: CornerRadius.xl),
         normalScale: CGFloat = 1.0,
@@ -163,7 +162,7 @@ public struct InteractiveMorphView<Content: View>: View {
         self.content = content()
     }
 
-    public var body: some View {
+    var body: some View {
         content
             .clipShape(MorphableShape(cornerRadius: cornerRadius, smoothing: smoothing))
             .scaleEffect(scale)
@@ -199,23 +198,23 @@ public struct InteractiveMorphView<Content: View>: View {
 // MARK: - Path Morphing Shape
 
 /// Shape that interpolates between two arbitrary paths
-public struct PathMorphShape: Shape, Animatable {
+struct PathMorphShape: Shape, Animatable {
     var progress: CGFloat
     let startPath: Path
     let endPath: Path
 
-    public var animatableData: CGFloat {
+    var animatableData: CGFloat {
         get { progress }
         set { progress = newValue }
     }
 
-    public init(progress: CGFloat, startPath: Path, endPath: Path) {
+    init(progress: CGFloat, startPath: Path, endPath: Path) {
         self.progress = progress
         self.startPath = startPath
         self.endPath = endPath
     }
 
-    public func path(in rect: CGRect) -> Path {
+    func path(in rect: CGRect) -> Path {
         // For simple path morphing, interpolate between normalized bounds
         // Complex path morphing would require path segment matching
         if progress <= 0 {
@@ -239,7 +238,7 @@ public struct PathMorphShape: Shape, Animatable {
 // MARK: - Avatar Morph View
 
 /// Specialized view for avatar → profile image transitions
-public struct AvatarMorphView: View {
+struct AvatarMorphView: View {
     let imageURL: URL?
     let isExpanded: Bool
     let collapsedSize: CGFloat
@@ -248,7 +247,7 @@ public struct AvatarMorphView: View {
     @State private var cornerRadius: CGFloat = 0
     @State private var size: CGFloat = 0
 
-    public init(
+    init(
         imageURL: URL?,
         isExpanded: Bool,
         collapsedSize: CGFloat = 44,
@@ -260,7 +259,7 @@ public struct AvatarMorphView: View {
         self.expandedSize = expandedSize
     }
 
-    public var body: some View {
+    var body: some View {
         AsyncImage(url: imageURL) { phase in
             switch phase {
             case let .success(image):
@@ -304,7 +303,7 @@ public struct AvatarMorphView: View {
 // MARK: - Card Expansion Morph
 
 /// Morphing card that expands from compact to full size
-public struct CardExpansionMorph<CompactContent: View, ExpandedContent: View>: View {
+struct CardExpansionMorph<CompactContent: View, ExpandedContent: View>: View {
     let isExpanded: Bool
     let compactContent: CompactContent
     let expandedContent: ExpandedContent
@@ -312,7 +311,7 @@ public struct CardExpansionMorph<CompactContent: View, ExpandedContent: View>: V
 
     @State private var cornerRadius: CGFloat = CornerRadius.large
 
-    public init(
+    init(
         isExpanded: Bool,
         namespace: Namespace.ID,
         @ViewBuilder compact: () -> CompactContent,
@@ -324,16 +323,20 @@ public struct CardExpansionMorph<CompactContent: View, ExpandedContent: View>: V
         self.expandedContent = expanded()
     }
 
-    public var body: some View {
+    var body: some View {
         Group {
             if isExpanded {
                 expandedContent
                     .clipShape(MorphableShape(cornerRadius: cornerRadius))
+                    #if !SKIP
                     .matchedGeometryEffect(id: "card", in: namespace)
+                    #endif
             } else {
                 compactContent
                     .clipShape(MorphableShape(cornerRadius: cornerRadius))
+                    #if !SKIP
                     .matchedGeometryEffect(id: "card", in: namespace)
+                    #endif
             }
         }
         .onChange(of: isExpanded, initial: true) { _, expanded in
@@ -347,7 +350,7 @@ public struct CardExpansionMorph<CompactContent: View, ExpandedContent: View>: V
 // MARK: - Liquid Morph Effect
 
 /// Advanced liquid-like morphing effect using multiple overlapping shapes
-public struct LiquidMorphEffect: View {
+struct LiquidMorphEffect: View {
     let isActive: Bool
     let baseColor: Color
     let size: CGFloat
@@ -356,13 +359,13 @@ public struct LiquidMorphEffect: View {
     @State private var phase2: CGFloat = 0
     @State private var phase3: CGFloat = 0
 
-    public init(isActive: Bool = true, baseColor: Color = .DesignSystem.brandGreen, size: CGFloat = 100) {
+    init(isActive: Bool = true, baseColor: Color = .DesignSystem.brandGreen, size: CGFloat = 100) {
         self.isActive = isActive
         self.baseColor = baseColor
         self.size = size
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             // Layer 1 - Slow morphing
             MorphableShape(cornerRadius: size * (0.3 + phase1 * 0.2))
@@ -409,14 +412,14 @@ public struct LiquidMorphEffect: View {
 
 extension View {
     /// Apply morphable clipping that animates between shapes
-    public func morphClip(_ shape: MorphShapeType, animation: Animation = ProMotionAnimation.smooth) -> some View {
+    func morphClip(_ shape: MorphShapeType, animation: Animation = ProMotionAnimation.smooth) -> some View {
         MorphingContainer(shape: shape, animation: animation) {
             self
         }
     }
 
     /// Apply interactive morphing on press
-    public func interactiveMorph(
+    func interactiveMorph(
         normalShape: MorphShapeType = .roundedRect(cornerRadius: CornerRadius.large),
         pressedShape: MorphShapeType = .roundedRect(cornerRadius: CornerRadius.xl),
         normalScale: CGFloat = 1.0,
@@ -437,22 +440,22 @@ extension View {
 
 extension MorphShapeType {
     /// Default card shape
-    public static let card = MorphShapeType.roundedRect(cornerRadius: CornerRadius.large)
+    static let card = MorphShapeType.roundedRect(cornerRadius: CornerRadius.large)
 
     /// iOS-style app icon shape
-    public static let appIcon = MorphShapeType.squircle(smoothing: 0.6)
+    static let appIcon = MorphShapeType.squircle(smoothing: 0.6)
 
     /// Avatar shape (circle)
-    public static let avatar = MorphShapeType.circle
+    static let avatar = MorphShapeType.circle
 
     /// Button shape
-    public static let button = MorphShapeType.roundedRect(cornerRadius: CornerRadius.medium)
+    static let button = MorphShapeType.roundedRect(cornerRadius: CornerRadius.medium)
 
     /// Full-screen modal shape
-    public static let modal = MorphShapeType.roundedRect(cornerRadius: CornerRadius.xxl)
+    static let modal = MorphShapeType.roundedRect(cornerRadius: CornerRadius.xxl)
 
     /// Sharp edge shape
-    public static let sharp = MorphShapeType.square
+    static let sharp = MorphShapeType.square
 }
 
 // MARK: - Preview

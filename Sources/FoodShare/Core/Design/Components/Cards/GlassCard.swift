@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Reusable glass card component with frosted glass effect
 struct GlassCard<Content: View>: View {
@@ -16,7 +15,7 @@ struct GlassCard<Content: View>: View {
     private let cornerRadius: CGFloat
     private let shadow: GlassShadow
 
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency: Bool
 
     // MARK: - Initialization
 
@@ -41,13 +40,13 @@ struct GlassCard<Content: View>: View {
                     .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
             )
             .shadow(
-                color: .black.opacity(shadow.opacity),
+                color: Color.black.opacity(shadow.opacity),
                 radius: shadow.radius,
                 x: 0,
                 y: shadow.offset,
             )
             .drawingGroup() // GPU rasterization for 120Hz ProMotion
-            .accessibilityElement(children: .contain)
+            .accessibilityElement(children: AccessibilityChildBehavior.contain)
     }
 
     // MARK: - Private Views

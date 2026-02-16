@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 /// Low-level HTTP client for making network requests
@@ -73,3 +74,4 @@ actor HTTPClientImpl: HTTPClient {
         }
     }
 }
+#endif

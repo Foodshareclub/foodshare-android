@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AnyCodable.swift
 //  Foodshare
@@ -6,6 +7,7 @@
 //  Provides backward compatibility for logging and analytics.
 //
 
+#if !SKIP
 import Foundation
 
 /// A type-erasing wrapper that can encode any value for JSON serialization.
@@ -157,3 +159,5 @@ public struct AnyCodable: Codable, Sendable, CustomStringConvertible, Hashable {
         value as? [String: AnyCodable]
     }
 }
+#endif
+#endif

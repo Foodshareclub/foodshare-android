@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockChallengeRepository.swift
 //  Foodshare
@@ -19,9 +20,9 @@ import Foundation
             // Initialize with sample data
             mockChallenges = Challenge.sampleChallenges
             mockLeaderboard = [
-                ChallengeLeaderboardEntry.fixture(rank: 1, nickname: "EcoChampion"),
-                ChallengeLeaderboardEntry.fixture(rank: 2, nickname: "FoodSaver"),
-                ChallengeLeaderboardEntry.fixture(rank: 3, nickname: "GreenHero")
+                ChallengeLeaderboardEntry.fixture(nickname: "EcoChampion", rank: 1),
+                ChallengeLeaderboardEntry.fixture(nickname: "FoodSaver", rank: 2),
+                ChallengeLeaderboardEntry.fixture(nickname: "GreenHero", rank: 3)
             ]
         }
 
@@ -64,7 +65,7 @@ import Foundation
             guard let challenge = mockChallenges.first(where: { $0.id == id }) else {
                 throw AppError.notFound(resource: "Challenge")
             }
-            return ChallengeWithStatus(challenge: challenge, status: .inProgress)
+            return ChallengeWithStatus(challenge: challenge, activity: nil, userId: userId)
         }
 
         func acceptChallenge(challengeId: Int, userId: UUID) async throws -> ChallengeActivity {
@@ -74,10 +75,10 @@ import Foundation
             return ChallengeActivity(
                 id: 1,
                 challengeId: challengeId,
-                profileId: userId,
-                status: .inProgress,
                 createdAt: Date(),
-                updatedAt: Date(),
+                userAcceptedChallenge: userId,
+                userRejectedChallenge: nil,
+                userCompletedChallenge: nil
             )
         }
 
@@ -88,10 +89,10 @@ import Foundation
             return ChallengeActivity(
                 id: 1,
                 challengeId: challengeId,
-                profileId: userId,
-                status: .completed,
                 createdAt: Date(),
-                updatedAt: Date(),
+                userAcceptedChallenge: userId,
+                userRejectedChallenge: nil,
+                userCompletedChallenge: userId
             )
         }
 
@@ -102,10 +103,10 @@ import Foundation
             return ChallengeActivity(
                 id: 1,
                 challengeId: challengeId,
-                profileId: userId,
-                status: .rejected,
                 createdAt: Date(),
-                updatedAt: Date(),
+                userAcceptedChallenge: nil,
+                userRejectedChallenge: userId,
+                userCompletedChallenge: nil
             )
         }
 
@@ -137,4 +138,5 @@ import Foundation
             return likedChallenges.contains(challengeId)
         }
     }
+#endif
 #endif

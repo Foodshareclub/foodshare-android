@@ -1,0 +1,146 @@
+# Codecov Configuration for FoodShare Cross-Platform (Skip Fuse)
+# https://docs.codecov.com/docs/codecovyml-reference
+
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "60...90"
+
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 2%
+        if_ci_failed: error
+        informational: false
+
+      # Core modules need higher coverage
+      core:
+        target: 80%
+        threshold: 1%
+        paths:
+          - "Sources/FoodShare/Core/**"
+
+      # Feature modules
+      features:
+        target: 70%
+        threshold: 2%
+        paths:
+          - "Sources/FoodShare/Features/**"
+
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+        if_ci_failed: error
+
+    changes:
+      default:
+        informational: true
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: true
+      loop: true
+      macro: false
+      method: false
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  hide_project_coverage: false
+
+flags:
+  unittests:
+    paths:
+      - Sources/FoodShare/
+    carryforward: true
+    after_n_builds: 1
+
+  integration:
+    paths:
+      - Sources/FoodShare/
+    carryforward: true
+    after_n_builds: 1
+
+ignore:
+  # Test files
+  - "Tests/**"
+  - "**/*Tests.swift"
+  - "**/*Test.swift"
+
+  # Mocks and fixtures
+  - "**/Mocks/**"
+  - "**/Mock*.swift"
+  - "**/Fixtures/**"
+  - "**/*Fixture*.swift"
+
+  # Preview providers
+  - "**/*Preview*.swift"
+  - "**/*_Previews.swift"
+
+  # Generated code
+  - "**/Generated/**"
+  - "**/*.generated.swift"
+
+  # Android-specific (not covered by Swift tests)
+  - "Android/**"
+
+  # Darwin-specific build artifacts
+  - "Darwin/DerivedData/**"
+
+  # Resources
+  - "Sources/FoodShare/Resources/**"
+
+  # App entry point (minimal logic)
+  - "Sources/FoodShare/FoodShareApp.swift"
+
+  # Skip configuration
+  - "Sources/FoodShare/Skip/**"
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 2%
+
+  individual_components:
+    - component_id: authentication
+      name: Authentication
+      paths:
+        - Sources/FoodShare/Features/Authentication/**
+
+    - component_id: feed
+      name: Feed
+      paths:
+        - Sources/FoodShare/Features/Feed/**
+
+    - component_id: messaging
+      name: Messaging
+      paths:
+        - Sources/FoodShare/Features/Messaging/**
+
+    - component_id: listings
+      name: Listings
+      paths:
+        - Sources/FoodShare/Features/Listing/**
+
+    - component_id: profile
+      name: Profile
+      paths:
+        - Sources/FoodShare/Features/Profile/**
+
+    - component_id: core
+      name: Core Infrastructure
+      paths:
+        - Sources/FoodShare/Core/**

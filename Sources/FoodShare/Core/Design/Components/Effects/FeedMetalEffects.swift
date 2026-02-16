@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  FeedMetalEffects.swift
 //  Foodshare
@@ -8,7 +9,6 @@
 
 import MetalKit
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Feed Metal Effect Type
 
@@ -554,3 +554,4 @@ struct MetalDistanceIndicator: View {
     .background(Color.DesignSystem.background)
     .preferredColorScheme(.dark)
 }
+#endif

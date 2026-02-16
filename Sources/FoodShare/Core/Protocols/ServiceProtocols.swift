@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ServiceProtocols.swift
 //  FoodShare
@@ -31,6 +32,7 @@ struct MockDateProvider: DateProviding {
 // MARK: - Haptic Service
 
 /// Protocol for haptic feedback, enabling testing without actual haptics
+@MainActor
 protocol HapticServiceProtocol: Sendable {
     func light()
     func medium()
@@ -45,31 +47,14 @@ protocol HapticServiceProtocol: Sendable {
 
 /// Default implementation using HapticManager
 struct SystemHapticService: HapticServiceProtocol {
-    @MainActor
     func light() { HapticManager.light() }
-
-    @MainActor
     func medium() { HapticManager.medium() }
-
-    @MainActor
     func heavy() { HapticManager.heavy() }
-
-    @MainActor
     func soft() { HapticManager.soft() }
-
-    @MainActor
     func rigid() { HapticManager.rigid() }
-
-    @MainActor
     func selection() { HapticManager.selection() }
-
-    @MainActor
     func success() { HapticManager.success() }
-
-    @MainActor
     func warning() { HapticManager.warning() }
-
-    @MainActor
     func error() { HapticManager.error() }
 }
 
@@ -120,8 +105,8 @@ protocol UserDefaultsProviding: Sendable {
 }
 
 /// Default implementation using system UserDefaults
-struct SystemUserDefaultsProvider: UserDefaultsProviding {
-    private let defaults: UserDefaults
+struct SystemUserDefaultsProvider: UserDefaultsProviding, @unchecked Sendable {
+    private nonisolated(unsafe) let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -277,4 +262,5 @@ enum TestingUtilities {
         )
     }
 }
+#endif
 #endif

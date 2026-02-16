@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 /// Mock network service for testing
@@ -29,3 +30,4 @@ actor MockNetworkService: NetworkService {
         lastRequest = nil
     }
 }
+#endif

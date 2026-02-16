@@ -7,28 +7,10 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
 #endif
-
-// MARK: - Legal Document Model (for future BFF integration)
-// Note: LegalDocumentService.swift exists but needs to be added to Xcode project
-
-private struct LegalDocument: Codable, Sendable {
-    let type: String
-    let locale: String
-    let title: String
-    let content: String
-    let version: String
-    let effectiveDate: Date?
-
-    enum CodingKeys: String, CodingKey {
-        case type, locale, title, content, version
-        case effectiveDate = "effective_date"
-    }
-}
 
 struct OnboardingView: View {
     
@@ -424,12 +406,14 @@ struct OnboardingView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     if let doc = document {
-                        // Version and effective date
+                        // Version and updated date
                         HStack {
-                            Text("\(t.t("onboarding.version")): \(doc.version)")
+                            if let version = doc.version {
+                                Text("\(t.t("onboarding.version")): \(version)")
+                            }
                             Spacer()
-                            if let date = doc.effectiveDate {
-                                Text(date, style: .date)
+                            if let updatedAt = doc.updatedAt {
+                                Text(updatedAt)
                             }
                         }
                         .font(.DesignSystem.caption)
@@ -528,7 +512,9 @@ private struct DisclaimerPoint: View {
                 Text(description)
                     .font(.DesignSystem.bodyMedium)
                     .foregroundColor(.white.opacity(0.75))
+                    #if !SKIP
                     .fixedSize(horizontal: false, vertical: true)
+                    #endif
             }
         }
     }
@@ -610,7 +596,9 @@ private struct DisclaimerSection: View {
             Text(content)
                 .font(.DesignSystem.bodyMedium)
                 .foregroundColor(.white.opacity(0.8))
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
         .padding(.bottom, Spacing.xxs)
     }

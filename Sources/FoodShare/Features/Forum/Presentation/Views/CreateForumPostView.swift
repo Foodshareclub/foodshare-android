@@ -9,7 +9,6 @@ import OSLog
 import PhotosUI
 import Supabase
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -19,7 +18,7 @@ private let logger = Logger(subsystem: "com.flutterflow.foodshare", category: "C
 
 struct CreateForumPostView: View {
     
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AppState.self) private var appState
 
@@ -297,7 +296,7 @@ struct CreateForumPostView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([PresentationDetent.medium, PresentationDetent.large])
     }
 
     // MARK: - Title Section

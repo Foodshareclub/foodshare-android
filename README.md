@@ -38,7 +38,7 @@ Share surplus food, reduce waste, and help your community.
 
 ```bash
 git clone https://github.com/yourorg/foodshare.git
-cd foodshare/foodshare-android
+cd foodshare/foodshare-app
 open Project.xcworkspace
 ```
 
@@ -94,7 +94,7 @@ Swift/SwiftUI (Single Source)
 
 ### Project Structure
 ```
-foodshare-android/
+foodshare-app/
 ├── Sources/FoodShare/          # Swift source code
 │   ├── FoodShareApp.swift      # App entry
 │   ├── Models/                 # Data models (7 files)

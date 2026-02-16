@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AnalyticsService.swift
 //  Foodshare
@@ -125,10 +126,10 @@ private struct AnalyticsRPCError: Decodable {
 // MARK: - Analytics Service
 
 /// Service for analytics operations using server-side RPCs
-actor AnalyticsService {
+actor AnalyticsRPCService {
     // MARK: - Singleton
 
-    static let shared = AnalyticsService()
+    static let shared = AnalyticsRPCService()
 
     // MARK: - Properties
 
@@ -318,3 +319,4 @@ enum AnalyticsError: LocalizedError, Sendable {
         }
     }
 }
+#endif

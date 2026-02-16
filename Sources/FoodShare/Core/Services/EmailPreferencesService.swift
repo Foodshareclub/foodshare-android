@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  EmailPreferencesService.swift
 //  Foodshare
@@ -55,38 +56,6 @@ struct EmailPreferences: Codable, Sendable {
             createdAt: nil,
             updatedAt: nil,
         )
-    }
-}
-
-// MARK: - Notification Frequency
-
-enum NotificationFrequency: String, Codable, Sendable, CaseIterable {
-    case instant
-    case dailyDigest = "daily_digest"
-    case weeklyDigest = "weekly_digest"
-
-    var titleKey: String {
-        switch self {
-        case .instant: "email_preferences.frequency.instant.title"
-        case .dailyDigest: "email_preferences.frequency.daily.title"
-        case .weeklyDigest: "email_preferences.frequency.weekly.title"
-        }
-    }
-
-    var descriptionKey: String {
-        switch self {
-        case .instant: "email_preferences.frequency.instant.description"
-        case .dailyDigest: "email_preferences.frequency.daily.description"
-        case .weeklyDigest: "email_preferences.frequency.weekly.description"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .instant: "bolt.fill"
-        case .dailyDigest: "sun.max.fill"
-        case .weeklyDigest: "calendar.badge.clock"
-        }
     }
 }
 
@@ -285,3 +254,4 @@ enum EmailPreferencesError: LocalizedError, Sendable {
         }
     }
 }
+#endif

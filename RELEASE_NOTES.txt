@@ -1,0 +1,211 @@
+What's New in Version 3.0.5
+
+• Implement server key encryption Edge Function
+• Production readiness improvements
+• Move version bump scripts to ci_scripts
+• Add auto-increment version script and bump to 3.0.5
+• Add auto-increment build script and bump to 326
+• Bump version to 3.0.4
+• Bump build number to 325 for TestFlight
+• Fix Swift 6 concurrency issues and accessibility hints
+• refactor: wire FeedViewModel to extracted services, fix DI coupling, clean up code
+• chore: replace cloud Supabase URLs with self-hosted api.foodshare.club
+• migrate all Cloud references to self-hosted Supabase
+• bump version to 3.0.3 and finalize self-hosted migration
+• chore: inject secrets into release Config.plist
+• chore: inject secrets into PR checks Config.plist
+• chore: inject Supabase and Sentry secrets in CI build and test
+• chore: point Config.plist at self-hosted Supabase
+• feat: fetch community fridges via get_nearby_posts RPC
+• fix: make all 777 unit tests pass — zero failures
+• fix: repair FoodShareTests target — all 24 test files compile cleanly
+• chore: test pre-push hook
+• fix: tune .swiftlint.yml thresholds for pre-existing violations
+• fix: add .swiftlint.yml to exclude .build and DerivedData from linting
+• refactor: migrate iOS BFF endpoints to api-v1 and remove dead code
+• refactor: update localization URLs to api-v1-localization
+• fix(images): deep review fixes for iOS ImageUploader
+• fix(images): resolve compilation errors in image upload system
+• feat(images): add camera capture and enterprise image upload
+• fix: use MARKETING_VERSION variable in Info.plist
+• chore: trigger build with version 3.0.2
+• chore: bump version to 3.0.2
+• fix(listing): resolve photo selection, geolocation, and posting issues
+• feat: add free_premium_trial feature flag and update category icons
+• chore: add documentation and cleanup tools
+• feat(premium): add free_premium_trial feature flag
+• feat: enterprise-grade componentization and optimization
+• fix(app-store): resolve auth hook rejection and preview compile errors
+• docs: add implementation documentation and notification tests
+• chore: cleanup old crash logs and update documentation
+• refactor(engagement): improve like button and engagement services
+• feat(notifications): enterprise notification center with dropdown and preferences
+• feat(design): componentize notification indicator system with atomic design
+• feat(engagement): add Instagram/Twitter-style like button animations
+• refactor(engagement): unify like buttons and optimize services
+• feat(storekit): Production-grade subscription sync with backend
+• perf: implement comprehensive caching and prefetching optimizations
+• feat: add graceful degradation for backend quota/network failures
+• fix(search-radius): increase max limit to 800km and add validation clamping
+• feat(map): redesign detail sheet with hero image and modern layout
+• fix(map): align control panel with badge horizontally
+• feat(map): restore polished Glass3D UI components
+• feat(map): enhance map UI with category icons and animated badge
+• fix: resolve Google OAuth PKCE flow interruption
+• Fix build errors and complete map engagement system
+• Add map engagement system with RPC functions
+• fix(ios): Fix iPad Settings crash and build errors for App Review
+• feat(blocking): Implement complete user blocking system for Apple App Review
+• fix: handle OAuth cancellation gracefully for Apple and Google Sign In
+• fix: Complete iOS localization - add missing settings translation keys
+• fix(premium): ensure PRO badge shows for guest mode users
+• feat(premium): gate Map and List views behind subscription paywall
+• fix(challenges): resolve CodingKeys conflict preventing image loading
+• refactor(feed): lift FeedViewModel to app-level environment
+• fix(i18n): correct Chinese locale code zh → zh-Hans in CFBundleLocalizations
+• feat(map): add premium 3D glass control panel with compact design
+• feat(map): redesign map controls with elegant glass UI
+• fix: add GlassSearchRadiusSection to Xcode project and fix searchRadiusMi
+• chore: bump build number to 248
+• fix: convert scripts section to proper lefthook hooks
+• feat(i18n): add localization bundle directories for 21 languages
+• chore: gitignore audit logs and build log directories
+• chore: track enterprise-grade lefthook.yml with safety features
+• feat(settings): add compact style to GlassSearchRadiusSection
+• fix: correct translation service endpoints to /localization
+• feat(map): add category filter and improve RPC reliability
+• fix(storekit): correct scheme path and update subscription prices
+• fix(icons): remove missing alternate app icons from Info.plist
+• fix(build): wrap Preview blocks in #if DEBUG for Release builds
+• chore(storekit): update diagnostic logging
+• chore(storekit): add enhanced diagnostic logging for App Store review
+• chore: major codebase update with localization, design system, and cleanup
+• fix(localization): sync locale reset to server to prevent restoration
+• feat(profile): add address management to Edit Profile
+• fix(profile): fix Edit Profile TextField rendering and translations
+• fix(profile): make Edit Profile presentation consistent
+• fix(challenges): handle nullable fields in JSON decoding
+• fix(data): resolve database column mapping errors
+• feat(profile): unified Edit Profile screen with Liquid Glass design
+• fix(feed): remove conflicting CodingKeys snake_case mappings
+• fix(feed): make FoodItem decoder resilient to null fields
+• docs: add componentization phase 1 victory report
+• feat(architecture): Phase 1 componentization - extract FoodShareDesignSystem package
+• fix(build): switch to Lottie source package and add componentization improvements
+• fix(ci): switch Lottie to source package and fix lefthook config
+• fix(build): correct scheme name from Foodshare to FoodShare
+• feat: enhance design system, translations, and network resilience
+• fix(feed): clarify default food category filter comment
+• fix(ui): remove redundant category badges from feed cards
+• feat(theme): default to dark theme for new users
+• fix: Add missing files to Xcode project and fix build errors
+• feat(localization): enhance BFF translation service with delta sync
+• fix: add fallback for category localization when translations not loaded
+• fix: localize category bar labels in FeedView and ForumView
+• fix: use correct translation keys in loading views
+• fix: add localized navigation titles to all tab views
+• refactor: use explicit translation keys, remove _title fallback
+• fix: localize ViewModel error messages and display names
+• feat: complete app-wide localization with EnhancedTranslationService
+• fix: move environment key back to EnhancedTranslationService.swift
+• fix: consolidate TranslationService environment key in LocalizationEnvironment.swift
+• refactor: remove duplicate TranslationServiceKey definition from LocalizationEnvironment
+• refactor: improve translation service and language picker
+• refactor: update translation service and localization
+• feat: add enhanced translation service with type-safe keys
+• feat(i18n): integrate TranslationService throughout iOS app
+• fix(i18n): simplify TranslationService for Swift 6 concurrency compliance
+• fix(settings): add buttonStyle(.plain) to Language picker button
+• fix(i18n): add supportedLocales property for LanguagePickerView
+• feat(i18n): enhance TranslationService with enterprise features
+• fix: add missing postStrippedAddress parameter in cache conversion
+• chore: migrate tools to unified foodshare-tools repository
+• fix: sync theme/dark mode across devices on login
+• feat(ios): use post_stripped_address for privacy-friendly address display on cards
+• docs: add Apple Sign In configuration and troubleshooting guide to CLAUDE.md
+• feat: add BFFService
+• chore: update Xcode project settings
+• fix(auth): add detailed Apple Sign In error logging for debugging
+• feat(auth): enable Sign in with Apple capability
+• refactor: unify search headers with TabSearchHeader component
+• fix: resolve memory leak patterns and improve validator
+• feat: add advanced design system components, accessibility, and core infrastructure
+• feat: add core infrastructure, design components, and UI consistency improvements
+• feat: add glass design components and animations
+• feat: add core services, security infrastructure, and repository improvements
+• docs: update CLAUDE.md to reflect symlink-based backend
+• chore: replace supabase submodule with symlink
+• chore: update supabase submodule (migration cleanup)
+• chore: migrate supabase to shared backend submodule
+• style: improve GlassCategoryBar scroll behavior and button styling
+• feat: enterprise-grade IP geolocation with circuit breakers and observability
+• feat: comprehensive UI/UX improvements and codebase cleanup
+• refactor: enterprise safety improvements and thread-safe error handling
+• style: add trailing comma in theme array
+• chore: update SwiftFormat config for Swift 6 compatibility
+• fix: add explicit self for Swift 6 closure capture
+• fix: add explicit self for Swift 6 closure capture
+• feat: add Theming system files
+• revert: restore auto-increment in CI script
+• ci: force set build 247 with regex replacement
+• ci: temporarily disable auto-increment for build 247
+• chore: Bump version to 3.0.1 (247)
+• feat: Complete push notification system with Edge Function integration
+• refactor: Use GlassCategoryBar and nature-style backgrounds
+• fix: Add explicit self captures in closures for Swift 6 compliance
+• feat: Add complete account deletion for Apple App Store compliance
+• fix: resolve @Observable macro closure capture issues in AuthenticationService
+• Update test results
+• Add detailed logging to forum post creation flow for debugging
+• feat: Add biometric authentication and security features
+• Update ForumPostDetailView and test results
+• Update app features and add Rust build artifacts to gitignore
+• feat: Add schema-diff command to detect DB/Swift model drift
+• feat: Add smoke test command and Forum type mappings to CLI
+• fix: Swift 6 self references, domain URLs, and forum improvements
+• fix: Add explicit self in async closures for Swift 6 compliance
+• fix: Correct scheme name casing in hooks config
+• feat: Add subscription system, enhance forum, and extend CLI tools
+• chore: Cleanup and sync codebase
+• fix: Quote string with colon in lefthook.yml
+• fix: Restore GPS to IP geolocation fallback for Map
+• Improve map UX and UI polish
+• fix: Add NSSpeechRecognitionUsageDescription for App Store compliance
+• Fix critical CI issues identified by iOS expert review
+• Add enterprise-grade CI utilities from CareEcho best practices
+• fix: Move PrivacyInfo.xcprivacy to repository root
+• fix: Add PrivacyInfo.xcprivacy to Xcode project target
+• fix: Add PrivacyInfo.xcprivacy and update device capability to arm64
+• fix: Convert app icon to 8-bit color depth
+• fix: Remove Forum #Preview blocks and fix app icon alpha channel
+• fix: remove #Preview blocks that reference DEBUG-only mocks
+• fix: Wrap #Preview blocks in #if DEBUG and add ForumUserStats.empty
+• fix: wrap all Mock repositories in #if DEBUG
+• fix: wrap MockFeedRepository in #if DEBUG and fix FeedViewModel fallback
+• fix: wrap Forum #Preview blocks using MockForumRepository in #if DEBUG
+• fix: wrap remaining DEBUG-only code in #if DEBUG
+• fix: wrap #Preview blocks in #if DEBUG for Release builds
+• chore: bump build number to 246
+• Update Forum repository and views
+• Update Forum UI, Challenges view, and loading components
+• chore: bump version to 3.0.1 (8) with CI auto-increment
+• Refactor forum search to use advanced RPC with author data
+• fix: add Config.plist for Xcode Cloud build
+• fix: add Package.resolved for Xcode Cloud CI
+• Update Core Data persistence, challenges UI, and forum repository
+• chore: add Claude settings
+• Add locale-aware distance units and user search radius
+• chore: sync all changes
+• Add Activity Feed, Widget Support, and comprehensive feature updates
+• Add Notifications feature and wire up tab views
+• Major refactoring: auth cleanup, design system consolidation, feature implementations
+• Clean up project structure and add documentation
+• Fix critical runtime bugs that would crash the app
+• Add FoodShare Claude Code Skills for team-wide consistency
+• Remove LiveKit and add useful packages (Kingfisher, SwiftUIIntrospect, KeychainAccess, SwiftUIX)
+• Update bundle identifier to club.foodshare.app
+• Refactor: Move scripts to scripts/ directory and update configuration
+• Clean up Redis cache services and update documentation
+• Initial commit: FoodShare iOS app with complete project structure
+
+Bug fixes and performance improvements

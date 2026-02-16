@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AddressPickerSheet.swift
 //  FoodShare
@@ -9,7 +10,6 @@
 #if !SKIP
 import CoreLocation
 #endif
-import FoodShareDesignSystem
 #if !SKIP
 import MapKit
 #endif
@@ -378,3 +378,4 @@ struct AddressPickerSheet: View {
         onSave: { print("Save tapped") }
     )
 }
+#endif

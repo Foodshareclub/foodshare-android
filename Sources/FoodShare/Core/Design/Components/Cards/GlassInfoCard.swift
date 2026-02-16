@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GlassInfoCard: View {
     let icon: String

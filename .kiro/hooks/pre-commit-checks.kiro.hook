@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Pre-Commit Checks",
+  "description": "Manual hook to run comprehensive checks before committing",
+  "version": "1",
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run pre-commit checks for the Foodshare project:\n\n1. Check for any TODO or FIXME comments that should be addressed\n2. Verify no sensitive data (API keys, tokens) in code\n3. Check that all Swift files compile without warnings\n4. Verify test coverage hasn't decreased\n5. Check for unused imports and variables\n6. Validate that all public APIs have documentation\n7. Run a quick security scan\n\nProvide a go/no-go recommendation for committing."
+  }
+}

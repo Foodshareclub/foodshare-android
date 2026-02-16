@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  SettingsBackupView.swift
 //  Foodshare
@@ -6,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 import UniformTypeIdentifiers
 
 struct SettingsBackupView: View {
@@ -387,3 +387,4 @@ struct DocumentPicker: UIViewControllerRepresentable {
         SettingsBackupView()
     }
 }
+#endif

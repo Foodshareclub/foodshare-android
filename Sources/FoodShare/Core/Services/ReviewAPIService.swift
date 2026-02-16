@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ReviewAPIService.swift
 //  Foodshare
@@ -50,7 +51,9 @@ actor ReviewAPIService {
 
 // MARK: - DTOs
 
-/// DTO for review data returned from the API
+/// DTO for review data returned from the API.
+/// Decoded by APIClient which uses `.convertFromSnakeCase` key decoding,
+/// so no explicit CodingKeys needed for standard snake_case fields.
 struct ReviewDTO: Codable, Identifiable, Sendable {
     let id: Int
     let profileId: UUID?
@@ -58,15 +61,6 @@ struct ReviewDTO: Codable, Identifiable, Sendable {
     let reviewedRating: Int
     let feedback: String?
     let createdAt: Date?
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case profileId = "profile_id"
-        case postId = "post_id"
-        case reviewedRating = "reviewed_rating"
-        case feedback
-        case createdAt = "created_at"
-    }
 }
 
 /// Request body for submitting a review
@@ -76,3 +70,4 @@ struct SubmitReviewRequest: Encodable, Sendable {
     let rating: Int
     let feedback: String?
 }
+#endif

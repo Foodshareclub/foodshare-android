@@ -10,7 +10,6 @@
 //  - "Tap to change photo" hint
 //
 
-import FoodShareDesignSystem
 import Kingfisher
 import PhotosUI
 import SwiftUI

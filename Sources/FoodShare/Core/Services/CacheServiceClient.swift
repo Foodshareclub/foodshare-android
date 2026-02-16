@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CacheServiceClient.swift
 //  Foodshare
@@ -456,4 +457,5 @@ actor CacheServiceClient: CacheServiceClientProtocol {
             storage.removeAll()
         }
     }
+#endif
 #endif

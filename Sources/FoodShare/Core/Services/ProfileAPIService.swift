@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ProfileAPIService.swift
 //  Foodshare
@@ -247,3 +248,4 @@ actor ProfileAPIService {
         try await client.delete("api-v1-profile", params: ["action": "account"])
     }
 }
+#endif

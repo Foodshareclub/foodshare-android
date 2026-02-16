@@ -6,13 +6,14 @@
 //  Leverages new SwiftUI capabilities for enhanced Liquid Glass design
 //
 
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Animated Mesh Glass Background
 
 /// Premium animated mesh gradient background
 /// Uses iOS 18+ MeshGradient with morphing control points
+@available(iOS 18.0, macOS 15.0, *)
 struct AnimatedMeshGlassBackground: View {
     let style: MeshStyle
     @State private var phase: CGFloat = 0
@@ -237,6 +238,7 @@ struct AnimatedMeshGlassBackground: View {
 
 /// Premium hero container with animated mesh background
 /// For featured content, onboarding, and splash screens
+@available(iOS 18.0, macOS 15.0, *)
 struct LiquidGlassHeroContainer<Content: View>: View {
     let meshStyle: AnimatedMeshGlassBackground.MeshStyle
     let showOverlay: Bool
@@ -277,7 +279,7 @@ struct FloatingGlassPanel<Content: View>: View {
     let elevation: PanelElevation
     let content: Content
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
     @State private var floatOffset: CGFloat = 0
 
     enum PanelElevation {
@@ -542,6 +544,7 @@ struct GlassStatusBar: View {
 
 extension View {
     /// Apply liquid glass hero container background
+    @available(iOS 18.0, macOS 15.0, *)
     func liquidGlassHero(
         style: AnimatedMeshGlassBackground.MeshStyle = .brand,
         showOverlay: Bool = true
@@ -564,6 +567,7 @@ extension View {
 
 // MARK: - Previews
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Animated Mesh Backgrounds") {
     TabView {
         AnimatedMeshGlassBackground(style: .brand)
@@ -584,6 +588,7 @@ extension View {
     .ignoresSafeArea()
 }
 
+@available(iOS 18.0, macOS 15.0, *)
 #Preview("Floating Glass Panel") {
     ZStack {
         AnimatedMeshGlassBackground(style: .brand)
@@ -627,3 +632,4 @@ extension View {
     .background(Color.DesignSystem.background)
     .preferredColorScheme(.dark)
 }
+#endif

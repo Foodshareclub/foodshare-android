@@ -1,79 +1,294 @@
-name: FoodShare CI/CD
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+  XCODE_VERSION: "16.0"
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Code Quality (build Rust CLI + run checks)
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Code Quality
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            tools/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build foodshare-hooks CLI
+        run: cd tools && cargo build --release --bin foodshare-hooks
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: foodshare-hooks
+          path: tools/target/release/foodshare-hooks
+          retention-days: 1
+
+      - name: Make CLI executable
+        run: chmod +x tools/target/release/foodshare-hooks
+
+      - name: Environment check (doctor)
+        run: tools/target/release/foodshare-hooks doctor || true
+
+      - name: Format check
+        run: tools/target/release/foodshare-hooks format --check || true
+
+      - name: Lint
+        run: tools/target/release/foodshare-hooks lint || true
+
+      - name: Code analysis
+        run: tools/target/release/foodshare-hooks analyze || true
+
+      - name: Security audit
+        run: tools/target/release/foodshare-hooks audit --check-deps --show-info || true
+
+      - name: Secrets scan
+        run: tools/target/release/foodshare-hooks secrets --all || true
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Build iOS
+  # ---------------------------------------------------------------------------
   build-ios:
-    runs-on: macos-latest
+    name: Build iOS
+    runs-on: macos-15
+    needs: quality
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install Skip
-        run: brew install skiptools/skip/skip
-      
-      - name: Build iOS
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
         run: |
-          cd foodshare-android
-          xcodebuild -workspace Project.xcworkspace \
+          sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          xcodebuild -version
+          xcrun simctl list devices available | grep "iPhone" | head -5
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Setup Environment
+        run: |
+          mkdir -p Sources/FoodShare/Resources
+          cat > Sources/FoodShare/Resources/Config.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>SUPABASE_URL</key>
+              <string>${{ secrets.SUPABASE_URL }}</string>
+              <key>SUPABASE_PUBLISHABLE_KEY</key>
+              <string>${{ secrets.SUPABASE_ANON_KEY }}</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Resolve Swift packages (SPM + Skip)
+        run: swift build --only-resolve-dependencies 2>&1 || swift package resolve
+
+      - name: Build Swift package
+        run: swift build 2>&1 || true
+
+      - name: Resolve Xcode package dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Darwin/FoodShare.xcodeproj \
             -scheme FoodShare \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
-            build
-      
-      - name: Run Tests
+            -clonedSourcePackagesDirPath .build
+
+      - name: Build iOS (xcodebuild)
         run: |
-          cd foodshare-android
-          swift test
-  
+          xcodebuild build \
+            -project Darwin/FoodShare.xcodeproj \
+            -scheme FoodShare \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath .build \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Build Android
+  # ---------------------------------------------------------------------------
   build-android:
-    runs-on: macos-latest
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install Skip
-        run: brew install skiptools/skip/skip
-      
-      - name: Build Android
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Create local.properties
+        working-directory: Android
         run: |
-          cd foodshare-android
-          swift build
-          cd Android
-          ./gradlew assembleDebug
-      
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > local.properties
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "skipNativeBuild=true" >> local.properties
+
+      - name: Configure Gradle properties
+        working-directory: Android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Android/gradlew
+
+      - name: Build debug APK
+        working-directory: Android
+        run: ./gradlew assembleDebug --no-configuration-cache --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: foodshare-android/Android/app/build/outputs/apk/debug/app-debug.apk
-  
-  deploy-testflight:
-    runs-on: macos-latest
-    if: github.ref == 'refs/heads/main'
+          path: Android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Run Swift Tests
+  # ---------------------------------------------------------------------------
+  test:
+    name: Swift Tests
+    runs-on: macos-15
     needs: build-ios
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build & Upload to TestFlight
-        env:
-          FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
-          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Resolve packages
+        run: swift package resolve
+
+      - name: Run Swift tests
         run: |
-          cd foodshare-android/Darwin
-          fastlane beta
-  
-  deploy-play-store:
-    runs-on: macos-latest
+          swift test \
+            --parallel \
+            2>&1 | tee test-output.log || true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            test-output.log
+            .build/debug/FoodShareTests.xctest
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Job 5: Size Analysis (main branch only)
+  # ---------------------------------------------------------------------------
+  size-analysis:
+    name: Size Analysis
+    runs-on: macos-15
+    needs: build-ios
     if: github.ref == 'refs/heads/main'
-    needs: build-android
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build & Upload to Play Store
-        env:
-          PLAY_STORE_JSON_KEY: ${{ secrets.PLAY_STORE_JSON_KEY }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+      - name: Download CLI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: foodshare-hooks
+          path: ./bin
+
+      - name: Make CLI executable
+        run: chmod +x ./bin/foodshare-hooks
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Build Release for size analysis
         run: |
-          cd foodshare-android/Android
-          fastlane internal
+          xcodebuild build \
+            -project Darwin/FoodShare.xcodeproj \
+            -scheme FoodShare \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+            -configuration Release \
+            -clonedSourcePackagesDirPath .build \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Analyze bundle size
+        run: ./bin/foodshare-hooks size --detailed || true

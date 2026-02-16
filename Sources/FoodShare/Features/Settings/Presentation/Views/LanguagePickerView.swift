@@ -7,10 +7,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct LanguagePickerView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var translationService
     @State private var selectedLocale: String
     @State private var isChanging = false
@@ -64,7 +63,9 @@ struct LanguagePickerView: View {
                     languagesSection
                 }
                 .listStyle(.insetGrouped)
+                #if !SKIP
                 .scrollDismissesKeyboard(.interactively)
+                #endif
             }
             .background(Color.DesignSystem.background)
             .navigationTitle(translationService.t("settings.language"))

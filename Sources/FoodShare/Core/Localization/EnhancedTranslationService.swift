@@ -1238,7 +1238,7 @@ extension EnhancedTranslationService {
 
             let startTime = Date()
             do {
-                let response: ContentTranslationsResponse = try await LocalizationAPIService.shared.getContentTranslations(
+                let response = try await LocalizationAPIService.shared.getContentTranslations(
                     contentType: contentType.rawValue,
                     contentIds: batch,
                     locale: currentLocale,

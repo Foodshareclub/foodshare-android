@@ -11,10 +11,10 @@ protocol DatabaseService: Sendable {
     func querySingle<T: Decodable & Sendable>(_ query: PostgrestQueryBuilder) async throws -> T
 
     /// Insert a record
-    func insert(_ table: String, values: some Encodable & Sendable) async throws
+    func insert<V: Encodable & Sendable>(_ table: String, values: V) async throws
 
     /// Update a record
-    func update(_ table: String, values: some Encodable & Sendable) async throws
+    func update<V: Encodable & Sendable>(_ table: String, values: V) async throws
 
     /// Delete a record
     func delete(_ table: String, id: UUID) async throws
@@ -88,13 +88,13 @@ actor SupabaseDatabaseService: DatabaseService {
         }
     }
 
-    func insert(_ table: String, values: some Encodable & Sendable) async throws {
+    func insert<V: Encodable & Sendable>(_ table: String, values: V) async throws {
         try await withRetry(operation: "insert:\(table)") {
             try await client.from(table).insert(values).execute()
         }
     }
 
-    func update(_ table: String, values: some Encodable & Sendable) async throws {
+    func update<V: Encodable & Sendable>(_ table: String, values: V) async throws {
         try await withRetry(operation: "update:\(table)") {
             try await client.from(table).update(values).execute()
         }

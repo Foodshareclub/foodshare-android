@@ -6,7 +6,6 @@
 //  Shimmer, pulse, glow, and breathing effects optimized for 120Hz ProMotion
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Glass Shimmer Effect
@@ -328,57 +327,6 @@ struct GlassRippleModifier: ViewModifier {
     }
 }
 
-// MARK: - Skeleton Loading Effect
-
-/// A skeleton loading placeholder with shimmer
-struct GlassSkeletonModifier: ViewModifier {
-    let isLoading: Bool
-    let cornerRadius: CGFloat
-
-    @State private var shimmerOffset: CGFloat = -300
-
-    func body(content: Content) -> some View {
-        Group {
-            if isLoading {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color.DesignSystem.glassBackground)
-                    .overlay(
-                        GeometryReader { geometry in
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0),
-                                    Color.white.opacity(0.2),
-                                    Color.white.opacity(0.3),
-                                    Color.white.opacity(0.2),
-                                    Color.white.opacity(0),
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing,
-                            )
-                            .frame(width: 150)
-                            .offset(x: shimmerOffset)
-                            .onAppear {
-                                withAnimation(
-                                    .linear(duration: 1.5)
-                                        .repeatForever(autoreverses: false),
-                                ) {
-                                    shimmerOffset = geometry.size.width + 150
-                                }
-                            }
-                        }
-                        .clipped(),
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
-                    )
-            } else {
-                content
-            }
-        }
-    }
-}
-
 // MARK: - View Extensions
 
 extension View {
@@ -483,16 +431,6 @@ extension View {
         ))
     }
 
-    /// Apply a skeleton loading state with shimmer
-    func glassSkeleton(
-        isLoading: Bool,
-        cornerRadius: CGFloat = CornerRadius.medium,
-    ) -> some View {
-        modifier(GlassSkeletonModifier(
-            isLoading: isLoading,
-            cornerRadius: cornerRadius,
-        ))
-    }
 }
 
 // MARK: - Phase Animator for Complex Sequences
@@ -528,7 +466,7 @@ struct GlassPhaseAnimator<Phase: Hashable, Content: View>: View {
         Task { @MainActor in
             for (index, phase) in phases.enumerated() {
                 if index > 0 {
-                    try? await Task.sleep(for: .seconds(0.3))
+                    try? await Task.sleep(nanoseconds: 300_000_000)
                 }
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     currentPhase = phase
@@ -555,7 +493,7 @@ struct GlassInteractiveButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
             .brightness(configuration.isPressed ? 0.05 : 0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
                     .fill(Color.white.opacity(configuration.isPressed ? 0.2 : 0))

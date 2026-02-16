@@ -281,7 +281,11 @@ struct FoodShareApp: App {
             .onAppear {
                 // Auto-trigger unlock on appear
                 Task {
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(500 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(500))
+                    #endif
                     await unlockApp()
                 }
             }

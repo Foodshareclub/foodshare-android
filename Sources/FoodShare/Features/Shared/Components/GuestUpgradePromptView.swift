@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct GuestUpgradePromptView: View {
     @Environment(GuestManager.self) var guestManager
@@ -120,7 +119,9 @@ struct GuestUpgradePromptView: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
         .opacity(isAnimating ? 1 : 0)
         .offset(y: isAnimating ? 0 : 20)

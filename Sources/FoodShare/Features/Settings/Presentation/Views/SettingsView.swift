@@ -13,13 +13,12 @@
 //  - Lazy loading
 //  - New features: App Lock, Data Export, Backup, Accessibility, App Icons
 
-import FoodShareDesignSystem
 import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(FeedViewModel.self) private var feedViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @State private var viewModel: SettingsViewModel
     @State private var preferencesService = PreferencesService.shared
@@ -412,7 +411,9 @@ struct SettingsView: View {
                     },
                 ),
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: preferencesService.locationEnabled)
+            #endif
 
             // Search Radius - separate card within preferences
             VStack(alignment: .leading, spacing: Spacing.sm) {
@@ -554,7 +555,9 @@ struct SettingsView: View {
                 title: t.t("push_notifications"),
                 isOn: $preferencesService.notificationsEnabled,
             )
+            #if !SKIP
             .sensoryFeedback(.selection, trigger: preferencesService.notificationsEnabled)
+            #endif
 
             // Notification preferences
             NavigationLink {

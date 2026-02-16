@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 struct ForgotPasswordSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(AuthViewModel.self) var authViewModel
     @State private var email = ""
@@ -42,7 +41,9 @@ struct ForgotPasswordSheet: View {
                     }
                     .padding(.horizontal, Spacing.lg)
                 }
+                #if !SKIP
                 .scrollDismissesKeyboard(.interactively)
+                #endif
             }
             .navigationTitle(t.t("auth.reset_password"))
             .navigationBarTitleDisplayMode(.inline)

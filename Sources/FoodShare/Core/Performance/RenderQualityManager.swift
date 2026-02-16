@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  RenderQualityManager.swift
 //  FoodShare
@@ -252,7 +253,7 @@ public struct QualitySettings: Sendable {
     }
 
     public var shouldReduceComplexity: Bool {
-        thermalState >= .serious || memoryPressure >= .critical || averageFPS < 30
+        thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue || memoryPressure >= .critical || averageFPS < 30
     }
 }
 
@@ -320,7 +321,7 @@ public final class RenderQualityManager {
 
     // MARK: - Private Properties
 
-    private var displayLink: CADisplayLink?
+    nonisolated(unsafe) private var displayLink: CADisplayLink?
     private var lastTimestamp: CFTimeInterval = 0
     private var frameCount = 0
     private var accumulatedTime: CFTimeInterval = 0
@@ -328,8 +329,8 @@ public final class RenderQualityManager {
     private let historySize = 60
     private var lowFPSCount = 0
     private var lastQualityReduction: Date?
-    private var thermalStateObserver: NSObjectProtocol?
-    private var lowPowerModeObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var thermalStateObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var lowPowerModeObserver: NSObjectProtocol?
 
     // Logger
     private let logger = Logger(subsystem: "com.flutterflow.foodshare", category: "RenderQualityManager")
@@ -337,11 +338,13 @@ public final class RenderQualityManager {
     // MARK: - Initialization
 
     private init() {
-        deviceCapabilities = Self.detectDeviceCapabilities()
-        currentQuality = deviceCapabilities.recommendedQuality
+        let caps = Self.detectDeviceCapabilities()
+        let quality = caps.recommendedQuality
+        deviceCapabilities = caps
+        currentQuality = quality
 
         settings = QualitySettings(
-            quality: currentQuality,
+            quality: quality,
             thermalState: .nominal,
             memoryPressure: .normal,
             averageFPS: 60,
@@ -352,16 +355,17 @@ public final class RenderQualityManager {
 
         logger.info("""
         [RenderQuality] Initialized
-        - Device: \(deviceCapabilities.deviceModel)
-        - GPU: \(deviceCapabilities.gpuFamily.rawValue)
-        - Memory: \(String(format: "%.1f", deviceCapabilities.totalMemoryGB))GB
-        - ProMotion: \(deviceCapabilities.supportsProMotion)
-        - Recommended Quality: \(currentQuality.description)
+        - Device: \(self.deviceCapabilities.deviceModel)
+        - GPU: \(self.deviceCapabilities.gpuFamily.rawValue)
+        - Memory: \(String(format: "%.1f", self.deviceCapabilities.totalMemoryGB))GB
+        - ProMotion: \(self.deviceCapabilities.supportsProMotion)
+        - Recommended Quality: \(self.currentQuality.description)
         """)
     }
 
     deinit {
-        stopMonitoring()
+        displayLink?.invalidate()
+        displayLink = nil
         if let observer = thermalStateObserver {
             NotificationCenter.default.removeObserver(observer)
         }
@@ -413,7 +417,7 @@ public final class RenderQualityManager {
         lowFPSCount = 0
         updateSettings()
 
-        logger.info("[RenderQuality] Reset to recommended: \(currentQuality.description)")
+        logger.info("[RenderQuality] Reset to recommended: \(self.currentQuality.description)")
     }
 
     /// Enable or disable auto-adjustment
@@ -526,17 +530,17 @@ public final class RenderQualityManager {
         thermalState = ProcessInfo.processInfo.thermalState
         updateSettings()
 
-        logger.info("[RenderQuality] Thermal state changed to \(thermalState)")
+        logger.info("[RenderQuality] Thermal state changed to \(self.thermalState.rawValue)")
 
         // Automatically reduce quality on thermal pressure
-        if thermalState >= .serious, isAutoAdjustEnabled {
+        if thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue, isAutoAdjustEnabled {
             reduceQuality(reason: "thermal_pressure")
         }
 
         NotificationCenter.default.post(
             name: .thermalStateChanged,
             object: nil,
-            userInfo: ["state": thermalState],
+            userInfo: ["state": thermalState.rawValue],
         )
     }
 
@@ -580,7 +584,7 @@ public final class RenderQualityManager {
         updateSettings()
 
         logger.warning(
-            "[RenderQuality] Reduced to \(currentQuality.description) (reason: \(reason), FPS: \(String(format: "%.1f", averageFPS)))",
+            "[RenderQuality] Reduced to \(self.currentQuality.description) (reason: \(reason), FPS: \(String(format: "%.1f", self.averageFPS)))",
         )
 
         NotificationCenter.default.post(
@@ -589,7 +593,7 @@ public final class RenderQualityManager {
             userInfo: ["quality": currentQuality, "reason": reason],
         )
 
-        logger.debug("[RenderQuality] Quality reduction metric: \(reason), FPS: \(String(format: "%.1f", averageFPS))")
+        logger.debug("[RenderQuality] Quality reduction metric: \(reason), FPS: \(String(format: "%.1f", self.averageFPS))")
     }
 
     private func increaseQuality() {
@@ -601,7 +605,7 @@ public final class RenderQualityManager {
         updateSettings()
 
         logger.info(
-            "[RenderQuality] Increased to \(currentQuality.description) (FPS: \(String(format: "%.1f", averageFPS)))",
+            "[RenderQuality] Increased to \(self.currentQuality.description) (FPS: \(String(format: "%.1f", self.averageFPS)))",
         )
 
         NotificationCenter.default.post(
@@ -618,7 +622,7 @@ public final class RenderQualityManager {
         }
 
         // Don't increase under thermal pressure
-        if thermalState >= .serious {
+        if thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue {
             return false
         }
 
@@ -727,7 +731,7 @@ public struct QualityMetrics: Sendable {
     public let adjustmentCount: Int
 
     public var isHealthy: Bool {
-        effectiveQuality >= .medium && averageFPS >= 50 && thermalState <= .nominal
+        effectiveQuality >= .medium && averageFPS >= 50 && thermalState.rawValue <= ProcessInfo.ThermalState.nominal.rawValue
     }
 
     public var formattedFPS: String {
@@ -780,7 +784,7 @@ extension View {
 extension View {
     /// Apply glass effect with adaptive quality
     /// Automatically adjusts blur and shadow based on current render quality
-    public func adaptiveGlassEffect(
+    func adaptiveGlassEffect(
         cornerRadius: CGFloat = Spacing.radiusLG,
         borderWidth: CGFloat = 1,
     ) -> some View {
@@ -932,3 +936,4 @@ extension Animation {
         }
     }
 }
+#endif

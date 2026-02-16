@@ -30,41 +30,45 @@ extension AnyTransition {
     /// Scale and fade transition
     static var scaleAndFade: AnyTransition {
         .asymmetric(
-            insertion: .scale(scale: 0.8).combined(with: .opacity),
-            removal: .scale(scale: 0.8).combined(with: .opacity),
+            insertion: .scale(scale: 0.8).combined(with: AnyTransition.opacity),
+            removal: .scale(scale: 0.8).combined(with: AnyTransition.opacity),
         )
     }
 
     /// Slide from bottom with fade
     static var slideUp: AnyTransition {
         .asymmetric(
-            insertion: .move(edge: .bottom).combined(with: .opacity),
-            removal: .move(edge: .bottom).combined(with: .opacity),
+            insertion: .move(edge: .bottom).combined(with: AnyTransition.opacity),
+            removal: .move(edge: .bottom).combined(with: AnyTransition.opacity),
         )
     }
 
     /// Slide from top with fade
     static var slideDown: AnyTransition {
         .asymmetric(
-            insertion: .move(edge: .top).combined(with: .opacity),
-            removal: .move(edge: .top).combined(with: .opacity),
+            insertion: .move(edge: .top).combined(with: AnyTransition.opacity),
+            removal: .move(edge: .top).combined(with: AnyTransition.opacity),
         )
     }
 
     /// Slide from right with fade
     static var slideRight: AnyTransition {
         .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity),
+            insertion: .move(edge: .trailing).combined(with: AnyTransition.opacity),
+            removal: .move(edge: .trailing).combined(with: AnyTransition.opacity),
         )
     }
 
     /// Scale with blur effect
     static var scaleAndBlur: AnyTransition {
+        #if !SKIP
         .modifier(
             active: ScaleAndBlurModifier(scale: 0.8, blur: 10),
             identity: ScaleAndBlurModifier(scale: 1.0, blur: 0),
         )
+        #else
+        .opacity
+        #endif
     }
 }
 

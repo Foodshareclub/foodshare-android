@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Forest theme with emerald and moss green colors
 struct ForestTheme: Theme {

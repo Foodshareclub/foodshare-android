@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  GlassSearchRadius.swift
 //  Foodshare
@@ -10,7 +11,6 @@ import SwiftUI
 #if !SKIP
 import MapKit
 #endif
-import FoodShareDesignSystem
 
 // MARK: - Glass Search Radius
 
@@ -453,3 +453,4 @@ struct GlassMapCircleOverlay: MapContent {
 
     return PreviewWrapper()
 }
+#endif

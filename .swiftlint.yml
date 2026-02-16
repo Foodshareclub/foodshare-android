@@ -1,0 +1,34 @@
+excluded:
+  - .build
+  - DerivedData
+  - Android
+  - Darwin/DerivedData
+  - Packages/.build
+  - supabase
+
+# Disable rules that have too many pre-existing violations to enforce now.
+# Re-enable incrementally as the codebase is cleaned up.
+disabled_rules:
+  - identifier_name
+  - large_tuple
+
+# Raise thresholds for rules where the defaults are too strict for this project.
+file_length:
+  warning: 500
+  error: 2500
+
+type_body_length:
+  warning: 300
+  error: 1200
+
+function_body_length:
+  warning: 60
+  error: 300
+
+cyclomatic_complexity:
+  warning: 15
+  error: 40
+
+line_length:
+  warning: 120
+  error: 300

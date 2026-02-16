@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  PrivacyProtectionService.swift
 //  Foodshare
@@ -396,3 +397,4 @@ enum SessionTimeoutOption: Double, CaseIterable, Identifiable {
         rawValue == 0 ? .infinity : rawValue
     }
 }
+#endif

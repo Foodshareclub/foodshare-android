@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
-#if DEBUG
-    import Inject
+#if canImport(Inject)
+import Inject
 #endif
 
 struct ActivityFeedView: View {

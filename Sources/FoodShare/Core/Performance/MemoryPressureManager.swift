@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MemoryPressureManager.swift
 //  FoodShare
@@ -120,7 +121,7 @@ public final class MemoryPressureManager {
 
     // MARK: - Configuration
 
-    public struct Configuration {
+    public struct Configuration: Sendable {
         public var warningThresholdMB: Double = 150
         public var criticalThresholdMB: Double = 250
         public var terminalThresholdMB: Double = 350
@@ -135,8 +136,8 @@ public final class MemoryPressureManager {
     // MARK: - Private Properties
 
     private var registeredCaches: [ObjectIdentifier: WeakCacheWrapper] = [:]
-    private var monitoringTask: Task<Void, Never>?
-    private var memoryWarningObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var monitoringTask: Task<Void, Never>?
+    nonisolated(unsafe) private var memoryWarningObserver: NSObjectProtocol?
 
     // Thresholds
     private var peakMemoryMB: Double = 0
@@ -287,10 +288,13 @@ public final class MemoryPressureManager {
 
         // Report to metrics
         Task {
-            await MetricsReporter.shared.record(event: .memoryWarning(
-                level: currentLevel.description,
-                usedMB: stats?.usedMB ?? 0,
-            ))
+            await MetricsReporter.shared.recordRequest(
+                endpoint: "system/memory-warning",
+                method: "EVENT",
+                statusCode: nil,
+                durationMs: 0,
+                errorType: "memory_warning_\(currentLevel.description.lowercased())"
+            )
         }
     }
 
@@ -420,3 +424,4 @@ extension View {
         modifier(MemoryAwareModifier())
     }
 }
+#endif

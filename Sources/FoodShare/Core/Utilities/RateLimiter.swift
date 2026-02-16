@@ -1,3 +1,4 @@
+#if !SKIP
 import Foundation
 
 // MARK: - Rate Limiter
@@ -198,3 +199,4 @@ final class APIRateLimiter: @unchecked Sendable {
         try await limiter.checkRateLimit()
     }
 }
+#endif

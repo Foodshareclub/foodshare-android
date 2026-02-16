@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  VoiceOverHelpers.swift
 //  Foodshare
@@ -752,3 +753,4 @@ extension View {
         VoiceOverDemo()
     }
 }
+#endif

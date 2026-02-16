@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 
 
@@ -17,7 +16,7 @@ import FoodShareDesignSystem
 struct NewsletterSubscriptionView: View {
     
     @Environment(\.translationService) private var t
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     // MARK: - State
 

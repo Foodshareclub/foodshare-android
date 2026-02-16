@@ -14,11 +14,12 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
+
+#if !SKIP
 
 // MARK: - Unlock State
 
-public enum UnlockAnimationState: Equatable, Sendable {
+enum UnlockAnimationState: Equatable, Sendable {
     case locked
     case unlocking(progress: Double)
     case unlocked
@@ -26,19 +27,19 @@ public enum UnlockAnimationState: Equatable, Sendable {
 
 // MARK: - Unlock Configuration
 
-public struct UnlockAnimationConfiguration: Sendable {
-    public let size: CGFloat
-    public let ringWidth: CGFloat
-    public let glowRadius: CGFloat
-    public let primaryColor: Color
-    public let secondaryColor: Color
-    public let backgroundColor: Color
-    public let unlockDuration: TimeInterval
-    public let celebrationDuration: TimeInterval
-    public let showParticles: Bool
-    public let enableHaptics: Bool
+struct UnlockAnimationConfiguration: Sendable {
+    let size: CGFloat
+    let ringWidth: CGFloat
+    let glowRadius: CGFloat
+    let primaryColor: Color
+    let secondaryColor: Color
+    let backgroundColor: Color
+    let unlockDuration: TimeInterval
+    let celebrationDuration: TimeInterval
+    let showParticles: Bool
+    let enableHaptics: Bool
 
-    public init(
+    init(
         size: CGFloat = 80,
         ringWidth: CGFloat = 4,
         glowRadius: CGFloat = 15,
@@ -63,15 +64,15 @@ public struct UnlockAnimationConfiguration: Sendable {
     }
 
     // Presets
-    public static let `default` = UnlockAnimationConfiguration()
+    static let `default` = UnlockAnimationConfiguration()
 
-    public static let badge = UnlockAnimationConfiguration(
+    static let badge = UnlockAnimationConfiguration(
         size: 100,
         ringWidth: 5,
         glowRadius: 20,
     )
 
-    public static let achievement = UnlockAnimationConfiguration(
+    static let achievement = UnlockAnimationConfiguration(
         size: 120,
         ringWidth: 6,
         glowRadius: 25,
@@ -80,14 +81,14 @@ public struct UnlockAnimationConfiguration: Sendable {
         celebrationDuration: 2.0,
     )
 
-    public static let compact = UnlockAnimationConfiguration(
+    static let compact = UnlockAnimationConfiguration(
         size: 50,
         ringWidth: 3,
         glowRadius: 10,
         showParticles: false,
     )
 
-    public static let milestone = UnlockAnimationConfiguration(
+    static let milestone = UnlockAnimationConfiguration(
         size: 140,
         ringWidth: 8,
         glowRadius: 30,
@@ -99,7 +100,7 @@ public struct UnlockAnimationConfiguration: Sendable {
 
 // MARK: - Unlock Animation View
 
-public struct UnlockAnimationView<Badge: View>: View {
+struct UnlockAnimationView<Badge: View>: View {
     let state: UnlockAnimationState
     let config: UnlockAnimationConfiguration
     let badge: Badge
@@ -113,7 +114,7 @@ public struct UnlockAnimationView<Badge: View>: View {
     @State private var showParticleBurst = false
     @State private var pulseScale: CGFloat = 1.0
 
-    public init(
+    init(
         state: UnlockAnimationState,
         config: UnlockAnimationConfiguration = .default,
         @ViewBuilder badge: () -> Badge,
@@ -125,7 +126,7 @@ public struct UnlockAnimationView<Badge: View>: View {
         self.onUnlocked = onUnlocked
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             // Glow effect (behind everything)
             glowLayer
@@ -332,7 +333,7 @@ public struct UnlockAnimationView<Badge: View>: View {
 
 extension UnlockAnimationView where Badge == Image {
     /// Create an unlock animation with a system icon
-    public init(
+    init(
         state: UnlockAnimationState,
         systemIcon: String,
         config: UnlockAnimationConfiguration = .default,
@@ -341,9 +342,6 @@ extension UnlockAnimationView where Badge == Image {
         self.state = state
         self.config = config
         self.badge = Image(systemName: systemIcon)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(config.primaryColor)
         self.onUnlocked = onUnlocked
     }
 }
@@ -351,7 +349,7 @@ extension UnlockAnimationView where Badge == Image {
 // MARK: - Progress Ring Only
 
 /// Simplified progress ring without badge content
-public struct UnlockProgressRing: View {
+struct UnlockProgressRing: View {
     let progress: Double
     let size: CGFloat
     let ringWidth: CGFloat
@@ -360,7 +358,7 @@ public struct UnlockProgressRing: View {
 
     @State private var animatedProgress: Double = 0
 
-    public init(
+    init(
         progress: Double,
         size: CGFloat = 60,
         ringWidth: CGFloat = 4,
@@ -374,7 +372,7 @@ public struct UnlockProgressRing: View {
         self.secondaryColor = secondaryColor
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             // Background
             Circle()
@@ -410,14 +408,14 @@ public struct UnlockProgressRing: View {
 // MARK: - Badge Unlock Cell
 
 /// Complete badge unlock cell for lists
-public struct BadgeUnlockCell: View {
+struct BadgeUnlockCell: View {
     let title: String
     let description: String
     let iconName: String
     let state: UnlockAnimationState
     let config: UnlockAnimationConfiguration
 
-    public init(
+    init(
         title: String,
         description: String,
         iconName: String,
@@ -431,7 +429,7 @@ public struct BadgeUnlockCell: View {
         self.config = config
     }
 
-    public var body: some View {
+    var body: some View {
         HStack(spacing: Spacing.md) {
             UnlockAnimationView(
                 state: state,
@@ -478,7 +476,7 @@ public struct BadgeUnlockCell: View {
 
 extension View {
     /// Apply unlock celebration overlay when trigger fires
-    public func unlockCelebration(
+    func unlockCelebration(
         isPresented: Binding<Bool>,
         title: String,
         icon: String,
@@ -505,7 +503,7 @@ extension View {
                             .foregroundStyle(Color.DesignSystem.text)
                             .multilineTextAlignment(.center)
 
-                        Text(t.t("common.tap_to_dismiss"))
+                        Text("Tap to dismiss")
                             .font(.LiquidGlass.caption)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
                     }
@@ -536,7 +534,7 @@ extension View {
             var body: some View {
                 ScrollView {
                     VStack(spacing: Spacing.xl) {
-                        Text(t.t("design.unlock_animations"))
+                        Text("Unlock Animations")
                             .font(.LiquidGlass.displayMedium)
 
                         // States demo
@@ -552,7 +550,7 @@ extension View {
                                         .foregroundStyle(.yellow)
                                 }
 
-                                Text(t.t("common.locked"))
+                                Text("Locked")
                                     .font(.LiquidGlass.caption)
                             }
 
@@ -567,7 +565,7 @@ extension View {
                                         .foregroundStyle(.orange)
                                 }
 
-                                Text(t.t("common.progress"))
+                                Text("Progress")
                                     .font(.LiquidGlass.caption)
                             }
 
@@ -582,7 +580,7 @@ extension View {
                                         .foregroundStyle(Color.DesignSystem.brandGreen)
                                 }
 
-                                Text(t.t("common.unlocked"))
+                                Text("Unlocked")
                                     .font(.LiquidGlass.caption)
                             }
                         }
@@ -592,7 +590,7 @@ extension View {
 
                         // Interactive unlock
                         VStack(spacing: Spacing.md) {
-                            Text(t.t("common.tap_to_unlock"))
+                            Text("Tap to unlock")
                                 .font(.LiquidGlass.headlineSmall)
 
                             UnlockAnimationView(
@@ -632,7 +630,7 @@ extension View {
                         Divider()
 
                         // Celebration overlay trigger
-                        Button(t.t("design.show_celebration")) {
+                        Button("Show Celebration") {
                             showCelebration = true
                         }
                         .buttonStyle(.borderedProminent)
@@ -651,4 +649,5 @@ extension View {
         return PreviewContent()
             .preferredColorScheme(.dark)
     }
+#endif
 #endif

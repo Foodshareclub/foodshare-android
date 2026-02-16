@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Poll Card
 
@@ -19,7 +18,9 @@ struct GlassPollCard: View {
     let onVote: ([UUID]) async -> Void
     let onRemoveVote: (UUID) async -> Void
 
+    #if !SKIP
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    #endif
     @Environment(\.translationService) private var t
 
     @State private var selectedOptions: Set<UUID> = []
@@ -78,7 +79,7 @@ struct GlassPollCard: View {
                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
         )
         .shadow(
-            color: .black.opacity(0.15),
+            color: Color.black.opacity(0.15),
             radius: 20,
             x: 0,
             y: 8,
@@ -120,7 +121,9 @@ struct GlassPollCard: View {
             Text(poll.question)
                 .font(.DesignSystem.headlineSmall)
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .fixedSize(horizontal: false, vertical: true)
+                #endif
         }
     }
 
@@ -135,7 +138,7 @@ struct GlassPollCard: View {
             HStack(spacing: Spacing.xs) {
                 if isVoting {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                         .scaleEffect(0.8)
                 } else {
                     Image(systemName: "checkmark.circle.fill")
@@ -191,12 +194,17 @@ struct GlassPollCard: View {
 
     @ViewBuilder
     private var cardBackground: some View {
+        #if !SKIP
         if reduceTransparency {
             Color(uiColor: .secondarySystemBackground)
         } else {
             Color.clear
                 .background(.ultraThinMaterial)
         }
+        #else
+        Color.clear
+            .background(.ultraThinMaterial)
+        #endif
     }
 
     // MARK: - Actions
@@ -272,7 +280,7 @@ private struct PollOptionRow: View {
     let animatedPercentage: Double
     let onTap: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     private var isUserVote: Bool {
         poll.userVotes?.contains(option.id) == true
@@ -337,7 +345,7 @@ private struct PollOptionRow: View {
                     Circle()
                         .fill(Color.DesignSystem.primary)
                         .frame(width: 12, height: 12)
-                        .transition(.scale.combined(with: .opacity))
+                        .transition(AnyTransition.scale.combined(with: AnyTransition.opacity))
                 }
             }
         } else {
@@ -359,7 +367,7 @@ private struct PollOptionRow: View {
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundStyle(.white),
                         )
-                        .transition(.scale.combined(with: .opacity))
+                        .transition(AnyTransition.scale.combined(with: AnyTransition.opacity))
                 }
             }
         }
@@ -372,8 +380,10 @@ private struct PollOptionRow: View {
             Text(option.formattedPercentage(totalVotes: poll.totalVotes))
                 .font(.DesignSystem.labelMedium)
                 .foregroundStyle(isWinning ? Color.DesignSystem.primary : Color.DesignSystem.textSecondary)
+                #if !SKIP
                 .contentTransition(.numericText())
                 .monospacedDigit()
+                #endif
 
             if isUserVote {
                 Image(systemName: "checkmark.circle.fill")
@@ -398,7 +408,7 @@ private struct PollOptionRow: View {
                         .fill(progressColor)
                         .frame(width: geometry.size.width * (animatedPercentage / 100))
                         .animation(
-                            reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8),
+                            reduceMotion ? Animation?.none : .spring(response: 0.5, dampingFraction: 0.8),
                             value: animatedPercentage,
                         )
                 }

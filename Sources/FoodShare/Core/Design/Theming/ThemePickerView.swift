@@ -7,13 +7,12 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Theme Picker View
 
 /// Full-screen theme picker with visual previews
 struct ThemePickerView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @State private var themeManager = ThemeManager.shared
 

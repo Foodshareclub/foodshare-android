@@ -7,7 +7,8 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
+
+#if !SKIP
 
 // MARK: - Premium Glass Card Style
 
@@ -18,7 +19,7 @@ struct PremiumGlassCard<Content: View>: View {
     let cornerRadius: CGFloat
     let content: Content
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var phase: CGFloat = 0
 
@@ -402,7 +403,7 @@ extension View {
 /// Creates a 3D depth illusion for glass cards
 struct GlassDepthModifier: ViewModifier {
     let depth: DepthLevel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     enum DepthLevel {
         case flat
@@ -688,3 +689,4 @@ extension View {
     .background(Color.DesignSystem.background)
     .preferredColorScheme(.dark)
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MockListingRepository.swift
 //  Foodshare
@@ -110,4 +111,5 @@ import Foundation
             // Mock: no-op
         }
     }
+#endif
 #endif

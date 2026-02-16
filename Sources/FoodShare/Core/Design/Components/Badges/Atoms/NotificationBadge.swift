@@ -19,7 +19,6 @@
 //  - GPU-optimized with .drawingGroup()
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 /// A numbered notification badge following Liquid Glass design principles.
@@ -39,7 +38,7 @@ struct NotificationBadge: View {
     @State private var glowScale: CGFloat = 1.0
     @State private var glowOpacity = 0.4
     @State private var animationTask: Task<Void, Never>?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     /// Dynamic Type support
     @ScaledMetric(relativeTo: .body) private var scaledSize: CGFloat = 20
@@ -118,14 +117,18 @@ struct NotificationBadge: View {
                     Text(displayText)
                         .font(.system(size: size.fontSize, weight: .bold))
                         .foregroundStyle(.white)
+                        #if !SKIP
                         .monospacedDigit() // Prevents layout shifts when count changes
+                        #endif
                 }
                 .frame(minWidth: size.diameter, minHeight: size.diameter)
                 .padding(.horizontal, count > 9 ? size.horizontalPadding : 0)
+                #if !SKIP
                 .fixedSize()
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(accessibilityLabel)
                 .accessibilityValue("\(count)")
+                #endif
                 .onAppear {
                     startGlowAnimation()
                 }
@@ -134,12 +137,14 @@ struct NotificationBadge: View {
                 }
                 .onChange(of: count) { oldValue, newValue in
                     // Announce count changes for VoiceOver
+                    #if !SKIP
                     if newValue > 0, newValue != oldValue {
                         UIAccessibility.post(
                             notification: .announcement,
                             argument: "Notification count: \(displayText)",
                         )
                     }
+                    #endif
 
                     if newValue > 0 {
                         startGlowAnimation()
@@ -167,7 +172,11 @@ struct NotificationBadge: View {
                     glowScale = 1.2
                     glowOpacity = 0.2
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(1.0))
+                #endif
 
                 guard !Task.isCancelled else { break }
 
@@ -176,7 +185,11 @@ struct NotificationBadge: View {
                     glowScale = 1.0
                     glowOpacity = 0.4
                 }
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(1.0 * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(1.0))
+                #endif
             }
         }
     }

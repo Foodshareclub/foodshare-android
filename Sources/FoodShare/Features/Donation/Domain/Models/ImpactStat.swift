@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Represents an impact statistic for the donation page
 struct ImpactStat: Identifiable, Sendable {
@@ -19,7 +18,7 @@ struct ImpactStat: Identifiable, Sendable {
     let color: Color
 
     /// Returns localized impact stats using the provided translation service
-    static func localizedStats(using t: EnhancedTranslationService) -> [ImpactStat] {
+    @MainActor static func localizedStats(using t: EnhancedTranslationService) -> [ImpactStat] {
         [
             ImpactStat(
                 value: t.t("donation.impact.direct.value"),

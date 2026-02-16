@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Swift Code Quality Analyzer",
+  "description": "Analyzes modified Swift files for code smells, design patterns, best practices, architecture compliance, and performance issues. Provides detailed refactoring suggestions with severity levels.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified Swift code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify long methods, large classes, duplicated code, complex conditionals, and other anti-patterns\n2. **Design Patterns**: Suggest appropriate design patterns (MVVM, Repository, Factory, Strategy, etc.) where applicable\n3. **Swift Best Practices**: Check for proper use of optionals, error handling, value types vs reference types, protocol-oriented programming, and Swift 6 concurrency features\n4. **Readability**: Evaluate naming conventions, code organization, comments, and documentation\n5. **Maintainability**: Assess testability, coupling, cohesion, and adherence to SOLID principles\n6. **Performance**: Identify potential performance bottlenecks, memory leaks, inefficient algorithms, and unnecessary computations\n7. **Architecture Compliance**: Ensure code follows the project's Clean Architecture and feature-based modular structure\n8. **SwiftUI Best Practices**: Check for proper state management, view composition, and performance optimizations\n\nFor each issue found, provide:\n- Severity level (Critical/High/Medium/Low)\n- Specific location in the code\n- Clear explanation of the problem\n- Concrete refactoring suggestion with code examples\n- Expected benefit of the improvement\n\nMaintain the existing functionality while suggesting improvements. Prioritize changes that have the highest impact on code quality."
+  }
+}

@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -33,7 +32,9 @@ struct AdminModerationView: View {
                 .padding(.horizontal)
             }
             .scrollBounceBehavior(.basedOnSize)
+            #if !SKIP
             .fixedSize(horizontal: false, vertical: true)
+            #endif
             .padding(.vertical, Spacing.sm)
             .background(Color.DesignSystem.glassSurface)
 
@@ -257,7 +258,7 @@ struct ModerationResolutionSheet: View {
     @State private var selectedResolution: ModerationResolution = .noAction
     @State private var notes = ""
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

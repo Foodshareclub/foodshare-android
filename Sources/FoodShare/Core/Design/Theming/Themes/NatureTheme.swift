@@ -8,7 +8,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Nature theme with green and blue colors
 /// Represents sustainability and freshness

@@ -1,0 +1,79 @@
+{
+  "mcpServers": {
+    "supabase-foodshare": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=foodshare"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_532e6c75a29d382da1a6cb20f83eda31973f1ee3"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "list_tables",
+        "describe_table",
+        "run_sql",
+        "execute_sql",
+        "list_projects",
+        "get_project",
+        "apply_migration",
+        "list_edge_functions",
+        "list_migrations",
+        "get_advisors",
+        "search_docs",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_edge_function",
+        "get_logs",
+        "deploy_edge_function",
+        "get_project_url",
+        "generate_typescript_types",
+        "get_publishable_keys"
+      ]
+    },
+    "upstash-foodshare": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/mcp-server",
+        "run",
+        "tamerlanium@gmail.com",
+        "6342f88d-89c6-435b-a0c4-68230fdfc87f"
+      ],
+      "disabled": true,
+      "autoApprove": [
+        "get",
+        "set",
+        "list",
+        "redis_database_list_databases",
+        "redis_database_get_details",
+        "redis_database_run_single_redis_command"
+      ]
+    },
+    "resend-foodshare": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "resend-mcp"
+      ],
+      "env": {
+        "RESEND_API_KEY": "re_dcSDs3Mi_J9gEyyvKnfX24EhDVkAeU6dN",
+        "SENDER_EMAIL_ADDRESS": "onboarding@resend.dev"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "send_email"
+      ]
+    }
+  }
+}

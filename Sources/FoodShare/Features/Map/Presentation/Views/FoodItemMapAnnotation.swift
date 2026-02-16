@@ -1,4 +1,5 @@
 #if !SKIP
+#if !SKIP
 import MapKit
 #endif
 import SwiftUI
@@ -41,3 +42,4 @@ struct FoodItemMapAnnotation: View {
         }
     }
 }
+#endif

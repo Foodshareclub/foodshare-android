@@ -1,58 +1,63 @@
-# Foodshare Hooks Configuration (Android)
+# FoodShare Hooks Configuration (Cross-Platform)
 # This file configures the foodshare-hooks CLI tool
+# Supports both iOS (Swift/Xcode) and Android (Skip Fuse/Gradle)
 
 [general]
-# Kotlin version
-kotlin_version = "2.0"
+# Swift version for formatting
+swift_version = "6.1"
 
-# Default Gradle module
-module = "app"
+# Default Xcode scheme (iOS)
+scheme = "FoodShare"
 
-# Default build variant
-build_variant = "debug"
+# Default simulator destination (iOS)
+destination = "platform=iOS Simulator,name=iPhone 17 Pro Max"
 
-# App package name
+# Default simulator device name (iOS)
+device = "iPhone 17 Pro Max"
+
+# App bundle identifier
+bundle_id = "com.flutterflow.foodshare"
+
+# Android package name
 package_name = "com.foodshare"
 
 # Paths to exclude from all operations
 exclude_paths = [
-    "**/build/**",
+    "**/Build/**",
+    "**/DerivedData/**",
+    "**/.build/**",
     "**/.gradle/**",
     "**/.idea/**",
+    "**/Pods/**",
     "**/generated/**",
+    "**/Android/app/build/**",
 ]
 
 [format]
 # Auto-stage formatted files
 stage_fixed = true
 
-# Paths to format
-paths = ["app/src"]
-
-# ktlint version
-ktlint_version = "1.0.1"
+# Paths to format (Swift sources)
+paths = ["Sources/FoodShare"]
 
 [lint]
 # Enable strict mode by default
 strict = false
 
-# Use detekt for additional analysis
-use_detekt = true
-
-# Reporter format (default, json, sarif)
+# Reporter format (default, json, checkstyle)
 reporter = "default"
 
-# Paths to lint
-paths = ["app/src"]
+# Paths to lint (Swift sources)
+paths = ["Sources/FoodShare"]
 
 [analyze]
 # Thresholds for warnings
 threshold_todos = 10
 threshold_fixmes = 5
-threshold_nullable_bang = 20
+threshold_force_unwraps = 20
 
 # Paths to analyze
-paths = ["app/src/main/kotlin"]
+paths = ["Sources/FoodShare"]
 
 [secrets]
 # Patterns to detect (regex, case-insensitive)
@@ -76,9 +81,13 @@ patterns = [
 exclude_files = [
     ".lefthook.yml",
     "*.md",
+    "Package.resolved",
     ".foodshare-hooks.toml",
     "Cargo.toml",
     "Cargo.lock",
+    "*.pbxproj",
+    "*.swift",
+    "*.rs",
     "gradle.properties.template",
     "local.properties.template",
 ]
@@ -96,10 +105,19 @@ skip_merge = true
 skip_revert = true
 
 [version]
-# Version file path (build.gradle.kts)
-build_file = "app/build.gradle.kts"
+# iOS project file path
+project_file = "Darwin/FoodShare.xcodeproj/project.pbxproj"
 
-# Version name pattern
+# Info.plist path
+info_plist = "Darwin/Info.plist"
+
+# Skip.env path (cross-platform version sync)
+skip_env = "Skip.env"
+
+# Android build file
+build_file = "Android/app/build.gradle.kts"
+
+# Version name pattern (Android)
 version_name_key = "versionName"
 version_code_key = "versionCode"
 
@@ -110,17 +128,20 @@ require_bump = false
 # Coverage threshold (percentage)
 coverage_threshold = 70
 
-# Test tasks
-unit_task = "testDebugUnitTest"
-integration_task = "connectedDebugAndroidTest"
+# iOS test targets
+unit_target = "FoodShareTests"
+integration_target = "FoodShareIntegrationTests"
+ui_target = "FoodShareUITests"
+
+# Android test tasks
+android_unit_task = "testDebugUnitTest"
+android_integration_task = "connectedDebugAndroidTest"
 
 # Results directory
-results_dir = "app/build/reports/tests"
+results_dir = "TestResults"
+android_results_dir = "Android/app/build/reports/tests"
 
 [build]
-# Default configuration
-configuration = "debug"
-
 # Clean before build
 clean_first = false
 
@@ -128,73 +149,90 @@ clean_first = false
 warnings_as_errors = false
 
 [deps]
-# Gradle lock file path (if using dependency locking)
-# lock_file = "gradle.lockfile"
+# Package.resolved path (iOS/Swift)
+resolved_file = "Package.resolved"
 
 [migrations]
-# Migrations directory (shared with iOS)
+# Migrations directory (shared with backend)
 migrations_dir = "supabase/migrations"
 
+[docs]
+# Output directory
+output_dir = "docs/api"
+
+# Documentation coverage threshold
+coverage_threshold = 50
+
+# Module name
+module = "FoodShare"
+
 [clean]
-# Paths to clean
-gradle_cache = ".gradle"
-build_dir = "build"
-app_build_dir = "app/build"
+# iOS paths to clean
+derived_data = "~/Library/Developer/Xcode/DerivedData/FoodShare-*"
+test_results = "TestResults"
+build_dir = ".build"
+
+# Android paths to clean
+gradle_cache = "Android/.gradle"
+android_build_dir = "Android/app/build"
 
 # Deep clean additional paths
+swift_cache = "~/Library/Caches/org.swift.swiftpm"
+xcode_cache = "~/Library/Caches/com.apple.dt.Xcode"
 kotlin_cache = "~/.gradle/caches"
-android_cache = "~/.android/build-cache"
+
+# =============================================================================
+# PRE-PUSH CONFIGURATION
+# =============================================================================
 
 [pre_push]
-# Enable fail-fast by default
+# Enable fail-fast by default (stop at first failure)
 fail_fast = true
 
-# Use release configuration for CI parity
-configuration = "release"
+# Use Release configuration to match CI behavior
+configuration = "Release"
 
 # Default timeout per check in seconds
 timeout = 300
 
-# Checks to run in quick mode
-quick_checks = ["lint", "analyze"]
+# Checks to run in quick mode (fast validators only)
+quick_checks = ["validate", "memory", "deps-graph", "version"]
 
-# Checks to run in full mode
-full_checks = ["lint", "analyze", "test", "build"]
+# Checks to run in full mode (all checks)
+full_checks = ["validate", "memory", "deps-graph", "version", "test", "build"]
+
+# Checks that can run in parallel
+parallel_checks = ["validate", "memory", "deps-graph", "version"]
+
+# Checks that must run sequentially
+sequential_checks = ["test", "build"]
 
 [pre_push.timeouts]
-lint = 120
-analyze = 60
+# Per-check timeout overrides (seconds)
+validate = 120
+memory = 30
+deps-graph = 30
+version = 10
 test = 300
 build = 300
 
-# ============================================================================
-# Swift on Android Configuration
-# ============================================================================
-
-[swift]
-# Enable Swift on Android support
+[pre_push.guidance]
+# Enable enhanced error guidance
 enabled = true
 
-# Path to Swift package (relative to project root)
-package_path = "swift-core"
+# Show documentation links in error messages
+show_docs = true
 
-# Default target architecture (arm64, x86_64, all)
-default_target = "arm64"
+# =============================================================================
+# Android Configuration (Skip Fuse)
+# =============================================================================
 
-# Android API level for cross-compilation (minimum 28)
-api_level = 28
+[android]
+# Android module (relative to Android/ directory)
+module = "app"
 
-# Use static Swift stdlib (recommended for Android)
-static_stdlib = true
+# Default build variant
+build_variant = "debug"
 
-# Package name for generated Java/Kotlin bindings
-bindings_package = "com.foodshare.swift"
-
-# Output path for generated bindings
-bindings_output = "app/src/main/java"
-
-# Swift source paths to format/lint
-source_paths = ["swift-core/Sources"]
-
-# Required NDK version (27 or later recommended)
-ndk_version = "27"
+# Gradle wrapper path
+gradlew = "Android/gradlew"

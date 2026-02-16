@@ -1,11 +1,11 @@
+#if !SKIP
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Wave Shimmer
 
 /// Premium skeleton loading effect with a coordinated wave sweep animation
 /// Uses Canvas and TimelineView for 120Hz ProMotion performance
-public struct GlassWaveShimmer: View {
+struct GlassWaveShimmer: View {
 
     // MARK: - Properties
 
@@ -17,11 +17,11 @@ public struct GlassWaveShimmer: View {
     let cornerRadius: CGFloat
 
     @State private var waveOffset: CGFloat = -1.0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
-    public init(
+    init(
         isActive: Bool = true,
         waveSpeed: Double = 1.5,
         waveWidth: CGFloat = 0.3,
@@ -39,7 +39,7 @@ public struct GlassWaveShimmer: View {
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         GeometryReader { _ in
             if reduceMotion {
                 // Fallback for reduced motion
@@ -118,12 +118,12 @@ public struct GlassWaveShimmer: View {
 // MARK: - Wave Shimmer Modifier
 
 /// Modifier to apply wave shimmer effect to any view
-public struct GlassWaveShimmerModifier: ViewModifier {
+struct GlassWaveShimmerModifier: ViewModifier {
     let isActive: Bool
     let waveSpeed: Double
     let waveWidth: CGFloat
 
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .overlay {
                 if isActive {
@@ -139,7 +139,7 @@ public struct GlassWaveShimmerModifier: ViewModifier {
 
 extension View {
     /// Applies a wave shimmer effect overlay
-    public func glassWaveShimmer(
+    func glassWaveShimmer(
         isActive: Bool = true,
         waveSpeed: Double = 1.5,
         waveWidth: CGFloat = 0.3,
@@ -155,42 +155,42 @@ extension View {
 // MARK: - Skeleton Wave Components
 
 /// Skeleton line with wave shimmer
-public struct SkeletonWaveLine: View {
+struct SkeletonWaveLine: View {
     let width: CGFloat?
     let height: CGFloat
 
-    public init(width: CGFloat? = nil, height: CGFloat = 16) {
+    init(width: CGFloat? = nil, height: CGFloat = 16) {
         self.width = width
         self.height = height
     }
 
-    public var body: some View {
+    var body: some View {
         GlassWaveShimmer(cornerRadius: height / 2)
             .frame(width: width, height: height)
     }
 }
 
 /// Skeleton circle with wave shimmer
-public struct SkeletonWaveCircle: View {
+struct SkeletonWaveCircle: View {
     let size: CGFloat
 
-    public init(size: CGFloat = 48) {
+    init(size: CGFloat = 48) {
         self.size = size
     }
 
-    public var body: some View {
+    var body: some View {
         GlassWaveShimmer(cornerRadius: size / 2)
             .frame(width: size, height: size)
     }
 }
 
 /// Skeleton rectangle with wave shimmer
-public struct SkeletonWaveRect: View {
+struct SkeletonWaveRect: View {
     let width: CGFloat?
     let height: CGFloat
     let cornerRadius: CGFloat
 
-    public init(
+    init(
         width: CGFloat? = nil,
         height: CGFloat = 100,
         cornerRadius: CGFloat = CornerRadius.medium,
@@ -200,7 +200,7 @@ public struct SkeletonWaveRect: View {
         self.cornerRadius = cornerRadius
     }
 
-    public var body: some View {
+    var body: some View {
         GlassWaveShimmer(cornerRadius: cornerRadius)
             .frame(width: width, height: height)
     }
@@ -209,7 +209,7 @@ public struct SkeletonWaveRect: View {
 // MARK: - Coordinated Wave Shimmer Group
 
 /// Container that coordinates wave shimmer timing across child elements
-public struct CoordinatedWaveShimmerGroup<Content: View>: View {
+struct CoordinatedWaveShimmerGroup<Content: View>: View {
 
     let waveSpeed: Double
     let waveWidth: CGFloat
@@ -218,7 +218,7 @@ public struct CoordinatedWaveShimmerGroup<Content: View>: View {
 
     @State private var startTime = Date()
 
-    public init(
+    init(
         waveSpeed: Double = 1.5,
         waveWidth: CGFloat = 0.3,
         staggerDelay: Double = 0.1,
@@ -230,7 +230,7 @@ public struct CoordinatedWaveShimmerGroup<Content: View>: View {
         self.content = content
     }
 
-    public var body: some View {
+    var body: some View {
         content()
             .environment(\.shimmerStartTime, startTime)
     }
@@ -252,11 +252,11 @@ extension EnvironmentValues {
 // MARK: - Skeleton Card Presets
 
 /// Skeleton for food item card with wave shimmer
-public struct SkeletonWaveFoodCard: View {
+struct SkeletonWaveFoodCard: View {
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             // Image placeholder
             SkeletonWaveRect(height: 180, cornerRadius: CornerRadius.large)
@@ -285,11 +285,11 @@ public struct SkeletonWaveFoodCard: View {
 }
 
 /// Skeleton for profile header with wave shimmer
-public struct SkeletonWaveProfileHeader: View {
+struct SkeletonWaveProfileHeader: View {
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         VStack(spacing: Spacing.md) {
             // Avatar
             SkeletonWaveCircle(size: 80)
@@ -318,11 +318,11 @@ public struct SkeletonWaveProfileHeader: View {
 }
 
 /// Skeleton for message row with wave shimmer
-public struct SkeletonWaveMessageRow: View {
+struct SkeletonWaveMessageRow: View {
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         HStack(spacing: Spacing.sm) {
             // Avatar
             SkeletonWaveCircle(size: 50)
@@ -368,3 +368,4 @@ public struct SkeletonWaveMessageRow: View {
     SkeletonWaveProfileHeader()
         .background(Color.DesignSystem.background)
 }
+#endif // !SKIP

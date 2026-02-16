@@ -143,6 +143,10 @@ public struct ChannelHeader: View {
             Text("Verify your phone")
                 .font(.DesignSystem.captionSmall)
                 .foregroundColor(.DesignSystem.warning)
+        case .inApp:
+            Text("Available in app")
+                .font(.DesignSystem.captionSmall)
+                .foregroundColor(.DesignSystem.warning)
         }
     }
 }

@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Validate Supabase Schema",
+  "description": "Check Swift models match Supabase schema when database files change",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "supabase/**/*.sql",
+      "**/Models/**/*.swift"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A database schema or model file was modified. Please:\n\n1. Compare Swift model definitions with Supabase schema in supabase/migrations/\n2. Check that property types match database column types\n3. Verify required fields are non-optional\n4. Ensure foreign key relationships are properly modeled\n5. Check if Edge Functions need updates\n\nReport any mismatches or inconsistencies found."
+  }
+}

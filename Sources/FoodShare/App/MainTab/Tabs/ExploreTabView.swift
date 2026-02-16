@@ -5,7 +5,6 @@
 //  Explore tab with integrated search, map toggle, and feed
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Explore Tab View

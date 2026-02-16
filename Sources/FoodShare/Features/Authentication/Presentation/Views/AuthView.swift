@@ -10,7 +10,6 @@
 #if !SKIP
 import AuthenticationServices
 #endif
-import FoodShareDesignSystem
 import OSLog
 import SwiftUI
 
@@ -88,7 +87,9 @@ struct AuthView: View {
                 }
                 .padding(.horizontal, Spacing.md + Spacing.xxxs)
             }
+            #if !SKIP
             .scrollDismissesKeyboard(.interactively)
+            #endif
         }
         .preferredColorScheme(.dark)
         .onAppear {

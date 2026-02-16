@@ -6,14 +6,13 @@
 //  Extracted from FeedView for better organization
 //
 
-import FoodShareDesignSystem
 import OSLog
 import SwiftUI
 
 // MARK: - Filter Sheet
 
 struct FilterSheet: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
     @Environment(FeedViewModel.self) private var viewModel
     @State private var radiusLocalized = 5.0 // In user's locale unit (km or mi)
@@ -37,7 +36,9 @@ struct FilterSheet: View {
             }
             .navigationTitle(t.t("search.filters_settings"))
             .navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            #endif
             .toolbar {
                 toolbarLeading
                 toolbarTrailing
@@ -62,10 +63,12 @@ struct FilterSheet: View {
                 animateSectionsIn()
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([PresentationDetent.large])
+        #if !SKIP
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(CornerRadius.xl)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
+        #endif
     }
 
     // MARK: - Main Content
@@ -80,7 +83,9 @@ struct FilterSheet: View {
             }
             .padding(Spacing.md)
         }
+        #if !SKIP
         .scrollDismissesKeyboard(.interactively)
+        #endif
     }
 
     // MARK: - Section Views
@@ -102,7 +107,9 @@ struct FilterSheet: View {
                         HStack(spacing: Spacing.xs) {
                             Image(systemName: mode.icon)
                                 .font(.system(size: 14, weight: .medium))
+                                #if !SKIP
                                 .symbolEffect(.bounce, value: viewModel.viewMode == mode)
+                                #endif
                             Text(mode == .list ? t.t("filter.view_list") : t.t("filter.view_grid"))
                                 .font(.DesignSystem.bodySmall)
                                 .fontWeight(.medium)
@@ -173,9 +180,11 @@ struct FilterSheet: View {
                                         : .DesignSystem.textSecondary,
                                 )
                                 .frame(width: 24)
+                                #if !SKIP
                                 .symbolEffect(
                                     .pulse, options: .repeating, value: viewModel.sortOption == option,
                                 )
+                                #endif
 
                             Text(option.rawValue)
                                 .font(.DesignSystem.bodySmall)
@@ -187,7 +196,9 @@ struct FilterSheet: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 18))
                                     .foregroundColor(.DesignSystem.brandGreen)
+                                    #if !SKIP
                                     .symbolEffect(.bounce, value: viewModel.sortOption)
+                                    #endif
                                     .transition(.scale.combined(with: .opacity))
                             }
                         }
@@ -290,7 +301,9 @@ struct FilterSheet: View {
                         Image(systemName: "clock.fill")
                             .font(.system(size: 12))
                             .foregroundColor(.DesignSystem.textSecondary)
+                            #if !SKIP
                             .symbolEffect(.pulse, options: .repeating)
+                            #endif
                         Text(viewModel.feedStats.formattedLastUpdated)
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundColor(.DesignSystem.text)
@@ -331,7 +344,9 @@ struct FilterSheet: View {
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 12, weight: .medium))
-                        .symbolEffect(.rotate, value: showResetConfirmation)
+                        #if !SKIP
+                        .symbolEffect(.bounce, value: showResetConfirmation)
+                        #endif
                     Text(t.t("common.reset"))
                         .font(.DesignSystem.bodySmall)
                         .fontWeight(.medium)
@@ -397,7 +412,11 @@ struct FilterSheet: View {
             logger.info("Filters reset successfully")
 
             // Success haptic after reset completes
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(300))
+            #endif
             HapticManager.success()
         }
     }
@@ -412,7 +431,11 @@ struct FilterSheet: View {
                 let delayMs = Int(Double(index) * baseDelay * 1000)
 
                 if delayMs > 0 {
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(delayMs * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(delayMs))
+                    #endif
                 }
 
                 withAnimation(ProMotionAnimation.smooth) {
@@ -457,9 +480,11 @@ struct FilterSheet: View {
                                 endPoint: .bottomTrailing,
                             ),
                         )
+                        #if !SKIP
                         .symbolEffect(
                             .bounce, options: .nonRepeating, value: sectionAppearStates[id] ?? false,
                         )
+                        #endif
                 }
 
                 Text(title)

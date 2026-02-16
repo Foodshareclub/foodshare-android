@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import FoodShareDesignSystem
 
 /// Represents a single activity item in the feed
 struct ActivityItem: Identifiable, Sendable {

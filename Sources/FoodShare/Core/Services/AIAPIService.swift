@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  AIAPIService.swift
 //  Foodshare
@@ -30,3 +31,4 @@ struct ModerationResponse: Codable {
     let safe: Bool
     let categories: [String]
 }
+#endif

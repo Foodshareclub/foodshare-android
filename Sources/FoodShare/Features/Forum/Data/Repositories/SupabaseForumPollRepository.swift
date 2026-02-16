@@ -1,4 +1,4 @@
-import FoodShareRepository
+#if !SKIP
 import Foundation
 import OSLog
 import Supabase
@@ -307,3 +307,4 @@ enum ForumPollError: LocalizedError, Sendable {
         }
     }
 }
+#endif

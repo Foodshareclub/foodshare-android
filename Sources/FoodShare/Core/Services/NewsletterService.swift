@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  NewsletterService.swift
 //  Foodshare
@@ -329,3 +330,4 @@ enum NewsletterError: LocalizedError, Sendable {
         }
     }
 }
+#endif

@@ -1,0 +1,232 @@
+name: Nightly Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+  XCODE_VERSION: "16.0"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: iOS Simulator Tests (multi-device matrix)
+  # ---------------------------------------------------------------------------
+  ios-tests:
+    name: iOS Tests (${{ matrix.device }})
+    runs-on: macos-15
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: "iPhone 17 Pro Max"
+            destination: "platform=iOS Simulator,name=iPhone 17 Pro Max"
+          - device: "iPad Pro M4"
+            destination: "platform=iOS Simulator,name=iPad Pro 13-inch (M4)"
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          xcodebuild -version
+          xcrun simctl list devices available | head -20
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-nightly-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-nightly-
+            ${{ runner.os }}-spm-
+
+      - name: Setup Environment
+        run: |
+          mkdir -p Sources/FoodShare/Resources
+          cat > Sources/FoodShare/Resources/Config.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>SUPABASE_URL</key>
+              <string>${{ secrets.SUPABASE_URL }}</string>
+              <key>SUPABASE_PUBLISHABLE_KEY</key>
+              <string>${{ secrets.SUPABASE_ANON_KEY }}</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Resolve Xcode package dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Darwin/FoodShare.xcodeproj \
+            -scheme FoodShare \
+            -clonedSourcePackagesDirPath .build
+
+      - name: Run xcodebuild tests (${{ matrix.device }})
+        run: |
+          xcodebuild test \
+            -project Darwin/FoodShare.xcodeproj \
+            -scheme FoodShare \
+            -destination '${{ matrix.destination }}' \
+            -configuration Debug \
+            -clonedSourcePackagesDirPath .build \
+            -resultBundlePath TestResults-${{ strategy.job-index }}.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            2>&1 | tee xcodebuild-test-${{ strategy.job-index }}.log
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-test-results-${{ strategy.job-index }}
+          path: |
+            TestResults-${{ strategy.job-index }}.xcresult
+            xcodebuild-test-${{ strategy.job-index }}.log
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Android Tests
+  # ---------------------------------------------------------------------------
+  android-tests:
+    name: Android Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Create local.properties
+        working-directory: Android
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > local.properties
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "skipNativeBuild=true" >> local.properties
+
+      - name: Configure Gradle properties
+        working-directory: Android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Android/gradlew
+
+      - name: Run Android tests
+        working-directory: Android
+        run: ./gradlew test --no-configuration-cache --stacktrace
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-results
+          path: Android/app/build/reports/tests/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Swift Package Tests
+  # ---------------------------------------------------------------------------
+  swift-tests:
+    name: Swift Package Tests
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+      - name: Cache SPM packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-nightly-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-nightly-
+            ${{ runner.os }}-spm-
+
+      - name: Resolve packages
+        run: swift package resolve
+
+      - name: Run Swift tests
+        run: |
+          swift test \
+            --parallel \
+            2>&1 | tee swift-test-output.log
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swift-test-results
+          path: swift-test-output.log
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Notify on failure
+  # ---------------------------------------------------------------------------
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [ios-tests, android-tests, swift-tests]
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          echo "iOS Tests: ${{ needs.ios-tests.result }}"
+          echo "Android Tests: ${{ needs.android-tests.result }}"
+          echo "Swift Tests: ${{ needs.swift-tests.result }}"
+
+          FAILED=false
+
+          if [ "${{ needs.ios-tests.result }}" = "failure" ]; then
+            echo "::error::iOS tests failed"
+            FAILED=true
+          fi
+
+          if [ "${{ needs.android-tests.result }}" = "failure" ]; then
+            echo "::error::Android tests failed"
+            FAILED=true
+          fi
+
+          if [ "${{ needs.swift-tests.result }}" = "failure" ]; then
+            echo "::error::Swift package tests failed"
+            FAILED=true
+          fi
+
+          if [ "$FAILED" = "true" ]; then
+            echo "::error::One or more nightly test suites failed. Check the individual job logs for details."
+            exit 1
+          fi
+
+          echo "All nightly tests passed."

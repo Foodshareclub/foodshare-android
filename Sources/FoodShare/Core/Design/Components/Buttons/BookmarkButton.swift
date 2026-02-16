@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Bookmark Button
 
@@ -140,7 +139,7 @@ struct BookmarkButton: View {
         // Trigger animation
         isAnimating = true
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(150))
+            try? await Task.sleep(nanoseconds: 150_000_000)
             isAnimating = false
         }
         

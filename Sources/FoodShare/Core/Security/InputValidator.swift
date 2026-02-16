@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  InputValidator.swift
 //  FoodShare
@@ -297,7 +298,7 @@ public struct InputValidator: Sendable {
     public func containsSQLInjectionPatterns(_ input: String) -> Bool {
         let patterns = [
             #"(?i)(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)"#,
-            #"(?i)(--|\#|/\*|\*/)"#,
+            ##"(?i)(--|#|/\*|\*/)"##,
             #"(?i)(\bOR\b\s+\d+\s*=\s*\d+)"#,
             #"(?i)(\bAND\b\s+\d+\s*=\s*\d+)"#,
             #"(?i)(;\s*(SELECT|INSERT|UPDATE|DELETE|DROP))"#,
@@ -522,3 +523,4 @@ public final class ValidationBuilder: @unchecked Sendable {
         return .invalid(errors)
     }
 }
+#endif

@@ -5,7 +5,6 @@
 //  Liquid Glass v26 View Modifiers
 //
 
-import FoodShareDesignSystem
 import SwiftUI
 
 // MARK: - Glass Effect Modifier
@@ -268,14 +267,16 @@ extension View {
 
 // MARK: - Glass Navigation Bar Modifier
 
-struct GlassNavigationBarModifier: ViewModifier {
+struct GlassNavigationBarTintModifier: ViewModifier {
     let tintColor: Color
     let showDivider: Bool
 
     func body(content: Content) -> some View {
         content
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            #endif
             .toolbarColorScheme(.dark, for: .navigationBar)
             .tint(tintColor)
             .overlay(alignment: .top) {
@@ -309,7 +310,7 @@ extension View {
         tintColor: Color = .DesignSystem.brandGreen,
         showDivider: Bool = true,
     ) -> some View {
-        modifier(GlassNavigationBarModifier(tintColor: tintColor, showDivider: showDivider))
+        modifier(GlassNavigationBarTintModifier(tintColor: tintColor, showDivider: showDivider))
     }
 }
 
@@ -364,9 +365,11 @@ extension ButtonStyle where Self == GlassToolbarButtonStyle {
 struct GlassSheetModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
+            #if !SKIP
             .presentationCornerRadius(CornerRadius.xl)
             .presentationDragIndicator(.visible)
             .presentationBackground(.ultraThinMaterial)
+            #endif
     }
 }
 
@@ -379,7 +382,7 @@ extension View {
 
 // MARK: - Glass Card Modifier (Reusable)
 
-struct GlassCardModifier: ViewModifier {
+struct GlassCardAccentModifier: ViewModifier {
     let cornerRadius: CGFloat
     let padding: CGFloat
     let shadowIntensity: Double
@@ -453,7 +456,7 @@ extension View {
         shadowIntensity: Double = 0.5,
         accentColor: Color? = nil,
     ) -> some View {
-        modifier(GlassCardModifier(
+        modifier(GlassCardAccentModifier(
             cornerRadius: cornerRadius,
             padding: padding,
             shadowIntensity: shadowIntensity,
@@ -675,6 +678,7 @@ extension View {
     }
 }
 
+#if !SKIP
 // MARK: - ProMotion Pulse Modifier (New in v27)
 
 /// Smooth pulsing indicator animation at 120Hz
@@ -685,7 +689,7 @@ struct ProMotionPulseModifier: ViewModifier {
     let intensity: Double
     let period: Double
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     func body(content: Content) -> some View {
         if isActive, !reduceMotion {
@@ -722,6 +726,7 @@ extension View {
         ))
     }
 }
+#endif // !SKIP - ProMotionPulseModifier
 
 // MARK: - ProMotion Shake Modifier (New in v27)
 
@@ -732,7 +737,7 @@ struct ProMotionShakeModifier: ViewModifier {
     let intensity: CGFloat
 
     @State private var shakeOffset: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     func body(content: Content) -> some View {
         content
@@ -744,15 +749,27 @@ struct ProMotionShakeModifier: ViewModifier {
                     withAnimation(ProMotionAnimation.shake) {
                         shakeOffset = intensity
                     }
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(80 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(80))
+                    #endif
                     withAnimation(ProMotionAnimation.shake) {
                         shakeOffset = -intensity
                     }
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(80 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(80))
+                    #endif
                     withAnimation(ProMotionAnimation.shake) {
                         shakeOffset = intensity * 0.5
                     }
+                    #if SKIP
+                    try? await Task.sleep(nanoseconds: UInt64(80 * 1_000_000))
+                    #else
                     try? await Task.sleep(for: .milliseconds(80))
+                    #endif
                     withAnimation(ProMotionAnimation.shake) {
                         shakeOffset = 0
                     }
@@ -790,6 +807,7 @@ extension View {
     }
 }
 
+#if !SKIP
 // MARK: - ProMotion Confetti Modifier (New in v27)
 
 /// Triggers confetti celebration effect
@@ -801,7 +819,7 @@ struct ProMotionConfettiModifier: ViewModifier {
     @State private var particles: [ConfettiParticle] = []
     @State private var animationStartTime: Date?
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     enum ConfettiStyle {
         case confetti
@@ -885,7 +903,11 @@ struct ProMotionConfettiModifier: ViewModifier {
         }
 
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            #else
             try? await Task.sleep(for: .seconds(duration))
+            #endif
             trigger = false
             particles = []
         }
@@ -902,6 +924,7 @@ extension View {
         modifier(ProMotionConfettiModifier(trigger: trigger, style: style, duration: duration))
     }
 }
+#endif // !SKIP - ProMotionConfettiModifier
 
 // Note: GlassBorderGlowModifier is defined in GlassAnimations.swift
 
@@ -912,7 +935,7 @@ extension View {
 struct DetailSectionModifier: ViewModifier {
     let index: Int
     @Binding var sectionsAppeared: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     func body(content: Content) -> some View {
         content
@@ -950,7 +973,9 @@ extension View {
     /// Uses ultraThinMaterial for glass effect consistency
     func detailNavigationBar() -> some View {
         self.navigationBarTitleDisplayMode(.inline)
+            #if !SKIP
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            #endif
     }
 }

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  DependencyContainer.swift
 //  Foodshare
@@ -287,3 +288,4 @@ extension DependencyContainer {
         DependencyContainer.create(from: .shared)
     }
 }
+#endif

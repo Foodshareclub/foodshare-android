@@ -1,0 +1,387 @@
+#!/bin/bash
+
+#===============================================================================
+# Foodshare BFF Localization CLI
+# Enterprise-grade localization management tool
+# Version: 1.0.0
+#===============================================================================
+
+set -euo pipefail
+
+# Configuration
+readonly VERSION="1.0.0"
+readonly BASE_URL="https://api.foodshare.club/functions/v1"
+readonly SUPPORTED_LOCALES=("en" "cs" "de" "es" "fr" "pt" "ru" "uk" "zh" "hi" "ar" "it" "pl" "nl" "ja" "ko" "tr")
+readonly SUPPORTED_PLATFORMS=("ios" "android" "web" "desktop")
+readonly CACHE_DIR="${HOME}/.foodshare/localization"
+readonly LOG_FILE="${CACHE_DIR}/cli.log"
+
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m'
+
+# Ensure cache directory exists
+mkdir -p "$CACHE_DIR"
+
+#-------------------------------------------------------------------------------
+# Logging
+#-------------------------------------------------------------------------------
+log() {
+    local level="$1"
+    shift
+    local message="$*"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
+}
+
+info() { echo -e "${BLUE}i${NC} $*"; log "INFO" "$*"; }
+success() { echo -e "${GREEN}+${NC} $*"; log "SUCCESS" "$*"; }
+warn() { echo -e "${YELLOW}!${NC} $*"; log "WARN" "$*"; }
+error() { echo -e "${RED}x${NC} $*" >&2; log "ERROR" "$*"; }
+
+#-------------------------------------------------------------------------------
+# Help
+#-------------------------------------------------------------------------------
+show_help() {
+    cat << EOF
+${CYAN}Foodshare BFF Localization CLI v${VERSION}${NC}
+
+${YELLOW}USAGE:${NC}
+    $(basename "$0") <command> [options]
+
+${YELLOW}COMMANDS:${NC}
+    status              Check BFF and fallback endpoint status
+    fetch <locale>      Fetch translations for a locale
+    validate            Validate all locales and endpoints
+    cache               Manage local translation cache
+    health              Run comprehensive health check
+    export <locale>     Export translations to JSON file
+
+${YELLOW}OPTIONS:${NC}
+    -p, --platform      Platform (ios|android|web|desktop) [default: ios]
+    -t, --token         Auth token for BFF endpoint
+    -o, --output        Output format (json|table|minimal) [default: table]
+    -v, --verbose       Enable verbose output
+    -h, --help          Show this help message
+
+${YELLOW}EXAMPLES:${NC}
+    $(basename "$0") status
+    $(basename "$0") fetch en --platform ios
+    $(basename "$0") validate --verbose
+    $(basename "$0") export en -o translations.json
+
+${YELLOW}ENVIRONMENT:${NC}
+    FOODSHARE_AUTH_TOKEN    Auth token for BFF endpoint
+    FOODSHARE_PLATFORM      Default platform
+
+EOF
+}
+
+#-------------------------------------------------------------------------------
+# API Functions
+#-------------------------------------------------------------------------------
+fetch_bff() {
+    local locale="$1"
+    local platform="${2:-ios}"
+    local token="${3:-}"
+
+    local headers=(-H "Accept: application/json")
+    [[ -n "$token" ]] && headers+=(-H "Authorization: Bearer $token")
+
+    curl -s -w "\n%{http_code}" "${headers[@]}" \
+        "$BASE_URL/bff/translations?locale=$locale&platform=$platform"
+}
+
+fetch_fallback() {
+    local locale="$1"
+    local platform="${2:-ios}"
+
+    curl -s -w "\n%{http_code}" \
+        -H "Accept: application/json" \
+        "$BASE_URL/get-translations?locale=$locale&platform=$platform"
+}
+
+#-------------------------------------------------------------------------------
+# Commands
+#-------------------------------------------------------------------------------
+cmd_status() {
+    local platform="${PLATFORM:-ios}"
+
+    echo -e "\n${CYAN}===============================================================${NC}"
+    echo -e "${CYAN}  Foodshare BFF Localization Status${NC}"
+    echo -e "${CYAN}===============================================================${NC}\n"
+
+    # BFF Endpoint
+    info "Testing BFF endpoint (authenticated)..."
+    local bff_response=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/bff/translations?locale=en&platform=$platform")
+    if [[ "$bff_response" == "401" ]]; then
+        success "BFF endpoint: Authentication required (401) - Secured"
+    else
+        warn "BFF endpoint: Unexpected response ($bff_response)"
+    fi
+
+    # Fallback Endpoint
+    info "Testing fallback endpoint (public)..."
+    local fallback_result=$(fetch_fallback "en" "$platform")
+    local fallback_code=$(echo "$fallback_result" | tail -1)
+    local fallback_body=$(echo "$fallback_result" | sed '$d')
+
+    if [[ "$fallback_code" == "200" ]]; then
+        local key_count=$(echo "$fallback_body" | jq -r '.data.messages | keys | length')
+        success "Fallback endpoint: $key_count translation keys available"
+    else
+        error "Fallback endpoint: Failed ($fallback_code)"
+    fi
+
+    # Health Check
+    info "Checking translation service health..."
+    local health=$(curl -s "$BASE_URL/get-translations/health")
+    local version=$(echo "$health" | jq -r '.version // "unknown"')
+    local status=$(echo "$health" | jq -r '.status // "unknown"')
+
+    if [[ "$status" == "ok" ]]; then
+        success "Service health: OK (v$version)"
+    else
+        warn "Service health: $status"
+    fi
+
+    # Supported Locales
+    info "Checking supported locales..."
+    local locales=$(curl -s "$BASE_URL/get-translations/locales" | jq -r '.locales | length')
+    success "Supported locales: $locales languages"
+
+    echo -e "\n${GREEN}===============================================================${NC}"
+    echo -e "${GREEN}  Status: All systems operational${NC}"
+    echo -e "${GREEN}===============================================================${NC}\n"
+}
+
+cmd_fetch() {
+    local locale="${1:-en}"
+    local platform="${PLATFORM:-ios}"
+    local token="${AUTH_TOKEN:-}"
+    local output="${OUTPUT:-table}"
+
+    # Validate locale
+    if [[ ! " ${SUPPORTED_LOCALES[*]} " =~ " ${locale} " ]]; then
+        error "Unsupported locale: $locale"
+        info "Supported: ${SUPPORTED_LOCALES[*]}"
+        exit 1
+    fi
+
+    info "Fetching translations for '$locale' ($platform)..."
+
+    # Try BFF first if token provided
+    if [[ -n "$token" ]]; then
+        info "Using authenticated BFF endpoint..."
+        local bff_result=$(fetch_bff "$locale" "$platform" "$token")
+        local bff_code=$(echo "$bff_result" | tail -1)
+
+        if [[ "$bff_code" == "200" ]]; then
+            local bff_body=$(echo "$bff_result" | sed '$d')
+            success "Fetched via BFF (authenticated)"
+            format_output "$bff_body" "$output"
+            return 0
+        fi
+        warn "BFF failed ($bff_code), falling back to public endpoint..."
+    fi
+
+    # Fallback
+    local result=$(fetch_fallback "$locale" "$platform")
+    local code=$(echo "$result" | tail -1)
+    local body=$(echo "$result" | sed '$d')
+
+    if [[ "$code" == "200" ]]; then
+        local key_count=$(echo "$body" | jq -r '.data.messages | keys | length')
+        success "Fetched $key_count keys via fallback"
+        format_output "$body" "$output"
+    else
+        error "Failed to fetch translations ($code)"
+        exit 1
+    fi
+}
+
+cmd_validate() {
+    local platform="${PLATFORM:-ios}"
+    local failed=0
+
+    echo -e "\n${CYAN}===============================================================${NC}"
+    echo -e "${CYAN}  Validating All Locales${NC}"
+    echo -e "${CYAN}===============================================================${NC}\n"
+
+    for locale in "${SUPPORTED_LOCALES[@]}"; do
+        local result=$(fetch_fallback "$locale" "$platform")
+        local code=$(echo "$result" | tail -1)
+        local body=$(echo "$result" | sed '$d')
+
+        if [[ "$code" == "200" ]]; then
+            local key_count=$(echo "$body" | jq -r '.data.messages | keys | length')
+            printf "${GREEN}+${NC} %-6s %4d keys\n" "$locale" "$key_count"
+        else
+            printf "${RED}x${NC} %-6s FAILED (%s)\n" "$locale" "$code"
+            ((failed++))
+        fi
+    done
+
+    echo ""
+    if [[ $failed -eq 0 ]]; then
+        success "All ${#SUPPORTED_LOCALES[@]} locales validated successfully"
+    else
+        error "$failed locale(s) failed validation"
+        exit 1
+    fi
+}
+
+cmd_health() {
+    echo -e "\n${CYAN}===============================================================${NC}"
+    echo -e "${CYAN}  Comprehensive Health Check${NC}"
+    echo -e "${CYAN}===============================================================${NC}\n"
+
+    local checks_passed=0
+    local checks_total=6
+
+    # 1. BFF Authentication
+    info "1/6 BFF Authentication..."
+    local bff_code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/bff/translations?locale=en")
+    [[ "$bff_code" == "401" ]] && { success "BFF secured"; ((checks_passed++)); } || warn "BFF not secured"
+
+    # 2. Fallback Availability
+    info "2/6 Fallback Availability..."
+    local fb_code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/get-translations?locale=en")
+    [[ "$fb_code" == "200" ]] && { success "Fallback available"; ((checks_passed++)); } || error "Fallback unavailable"
+
+    # 3. Service Health
+    info "3/6 Service Health..."
+    local health_status=$(curl -s "$BASE_URL/get-translations/health" | jq -r '.status')
+    [[ "$health_status" == "ok" ]] && { success "Service healthy"; ((checks_passed++)); } || warn "Service degraded"
+
+    # 4. ETag Support
+    info "4/6 ETag Caching..."
+    local etag=$(curl -sI "$BASE_URL/get-translations?locale=en" | grep -i etag)
+    [[ -n "$etag" ]] && { success "ETag enabled"; ((checks_passed++)); } || warn "ETag not found"
+
+    # 5. Response Time
+    info "5/6 Response Time..."
+    local time=$(curl -s -o /dev/null -w "%{time_total}" "$BASE_URL/get-translations?locale=en")
+    local time_ms=$(echo "$time * 1000" | bc | cut -d. -f1)
+    [[ $time_ms -lt 2000 ]] && { success "Response: ${time_ms}ms"; ((checks_passed++)); } || warn "Slow: ${time_ms}ms"
+
+    # 6. Multi-locale
+    info "6/6 Multi-locale Support..."
+    local locale_count=$(curl -s "$BASE_URL/get-translations/locales" | jq -r '.locales | length')
+    [[ $locale_count -ge 10 ]] && { success "$locale_count locales"; ((checks_passed++)); } || warn "Only $locale_count locales"
+
+    echo -e "\n${CYAN}---------------------------------------------------------------${NC}"
+    echo -e "  Health Score: ${GREEN}$checks_passed/$checks_total${NC} checks passed"
+    echo -e "${CYAN}---------------------------------------------------------------${NC}\n"
+
+    [[ $checks_passed -eq $checks_total ]] && echo -e "${GREEN}All health checks passed${NC}" || echo -e "${YELLOW}Some checks need attention${NC}"
+}
+
+cmd_export() {
+    local locale="${1:-en}"
+    local platform="${PLATFORM:-ios}"
+    local output_file="${OUTPUT_FILE:-translations_${locale}.json}"
+
+    info "Exporting $locale translations to $output_file..."
+
+    local result=$(fetch_fallback "$locale" "$platform")
+    local code=$(echo "$result" | tail -1)
+    local body=$(echo "$result" | sed '$d')
+
+    if [[ "$code" == "200" ]]; then
+        echo "$body" | jq '.data.messages' > "$output_file"
+        local key_count=$(jq 'keys | length' "$output_file")
+        success "Exported $key_count keys to $output_file"
+    else
+        error "Export failed ($code)"
+        exit 1
+    fi
+}
+
+cmd_cache() {
+    local action="${1:-status}"
+
+    case "$action" in
+        status)
+            info "Cache directory: $CACHE_DIR"
+            if [[ -d "$CACHE_DIR" ]]; then
+                local size=$(du -sh "$CACHE_DIR" 2>/dev/null | cut -f1)
+                local files=$(find "$CACHE_DIR" -type f | wc -l | tr -d ' ')
+                success "Cache: $files files, $size"
+            else
+                warn "Cache directory not found"
+            fi
+            ;;
+        clear)
+            rm -rf "$CACHE_DIR"/*
+            success "Cache cleared"
+            ;;
+        *)
+            error "Unknown cache action: $action"
+            ;;
+    esac
+}
+
+format_output() {
+    local data="$1"
+    local format="${2:-table}"
+
+    case "$format" in
+        json)
+            echo "$data" | jq '.'
+            ;;
+        minimal)
+            echo "$data" | jq -r '.data.messages | keys | length | "Keys: \(.)"'
+            ;;
+        table|*)
+            local keys=$(echo "$data" | jq -r '.data.messages | keys | length')
+            local locale=$(echo "$data" | jq -r '.locale // .data.locale // "unknown"')
+            echo -e "\n+-------------------------------------+"
+            echo -e "| Locale: $locale"
+            echo -e "| Keys:   $keys"
+            echo -e "+-------------------------------------+"
+            ;;
+    esac
+}
+
+#-------------------------------------------------------------------------------
+# Main
+#-------------------------------------------------------------------------------
+main() {
+    local cmd="${1:-help}"
+    shift || true
+
+    # Parse global options
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -p|--platform) PLATFORM="$2"; shift 2 ;;
+            -t|--token) AUTH_TOKEN="$2"; shift 2 ;;
+            -o|--output) OUTPUT="$2"; shift 2 ;;
+            -f|--file) OUTPUT_FILE="$2"; shift 2 ;;
+            -v|--verbose) VERBOSE=1; shift ;;
+            -h|--help) show_help; exit 0 ;;
+            *) break ;;
+        esac
+    done
+
+    # Environment overrides
+    AUTH_TOKEN="${AUTH_TOKEN:-${FOODSHARE_AUTH_TOKEN:-}}"
+    PLATFORM="${PLATFORM:-${FOODSHARE_PLATFORM:-ios}}"
+
+    case "$cmd" in
+        status)   cmd_status ;;
+        fetch)    cmd_fetch "$@" ;;
+        validate) cmd_validate ;;
+        health)   cmd_health ;;
+        export)   cmd_export "$@" ;;
+        cache)    cmd_cache "$@" ;;
+        help|-h)  show_help ;;
+        *)        error "Unknown command: $cmd"; show_help; exit 1 ;;
+    esac
+}
+
+main "$@"

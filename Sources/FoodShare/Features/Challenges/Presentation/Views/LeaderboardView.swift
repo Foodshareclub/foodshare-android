@@ -7,7 +7,6 @@
 
 import Supabase
 import SwiftUI
-import FoodShareDesignSystem
 
 #if DEBUG
     import Inject
@@ -114,7 +113,9 @@ struct LeaderboardView: View {
             .padding(.horizontal, Spacing.md)
         }
         .scrollBounceBehavior(.basedOnSize)
+        #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
+        #endif
     }
 
     private func categoryButton(_ category: LeaderboardCategory) -> some View {
@@ -633,7 +634,7 @@ struct ShareLeaderboardSheet: View {
     let entry: LeaderboardEntry
     let category: LeaderboardCategory
     let timePeriod: TimePeriod
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
     var body: some View {
@@ -647,6 +648,7 @@ struct ShareLeaderboardSheet: View {
 
                     // Share options
                     VStack(spacing: Spacing.md) {
+                        #if !SKIP
                         ShareLink(item: shareText) {
                             Label(t.t("leaderboard.share_achievement"), systemImage: "square.and.arrow.up")
                                 .frame(maxWidth: .infinity)
@@ -657,6 +659,18 @@ struct ShareLeaderboardSheet: View {
                                 .fontWeight(.semibold)
                                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                         }
+                        #else
+                        Button(action: {}) {
+                            Label(t.t("leaderboard.share_achievement"), systemImage: "square.and.arrow.up")
+                                .frame(maxWidth: .infinity)
+                                .padding(Spacing.md)
+                                .background(Color.DesignSystem.brandGreen)
+                                .foregroundColor(.white)
+                                .font(.DesignSystem.labelLarge)
+                                .fontWeight(.semibold)
+                                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                        }
+                        #endif
 
                         Button {
                             UIPasteboard.general.string = shareText

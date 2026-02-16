@@ -7,8 +7,8 @@
 //
 
 import SwiftUI
-import FoodShareDesignSystem
 
+#if !SKIP
 // MARK: - Glass Number Counter
 
 /// A ProMotion-optimized animated number counter with fluid digit transitions
@@ -31,7 +31,7 @@ struct GlassNumberCounter: View {
 
     @State private var displayValue: Double = 0
     @State private var isAnimating = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     // MARK: - Initialization
 
@@ -243,7 +243,7 @@ struct ProMotionNumberCounter: View {
     @State private var animationStartTime: Date?
     @State private var isAnimating = false
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         value: Double,
@@ -370,7 +370,7 @@ struct GlassStatCounter: View {
     let format: GlassNumberCounter.NumberFormat
 
     @State private var hasAppeared = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     init(
         value: Int,
@@ -503,3 +503,4 @@ struct GlassStatCounter: View {
     }
     .background(Color.DesignSystem.background)
 }
+#endif

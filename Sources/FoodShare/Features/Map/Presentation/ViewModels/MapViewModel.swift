@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  MapViewModel.swift
 //  Foodshare
@@ -8,8 +9,6 @@
 #if !SKIP
 import CoreLocation
 #endif
-import FoodShareNetworking
-import FoodShareRepository
 import Foundation
 #if !SKIP
 import MapKit
@@ -335,3 +334,4 @@ enum MapNetworkQuality: CustomStringConvertible {
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  StructuredLogger.swift
 //  Foodshare
@@ -358,3 +359,4 @@ extension StructuredLogger {
         )
     }
 }
+#endif

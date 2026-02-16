@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  CacheAPIService.swift
 //  Foodshare
@@ -20,8 +21,7 @@ actor CacheAPIService {
     }
     
     func set(key: String, value: String, ttl: Int? = nil) async throws {
-        var body: [String: Any] = ["key": key, "value": value]
-        if let ttl = ttl { body["ttl"] = ttl }
+        let body = CacheSetRequest(key: key, value: value, ttl: ttl)
         let _: EmptyResponse = try await client.post("api-v1-cache", body: body)
     }
     
@@ -39,7 +39,7 @@ actor CacheAPIService {
     }
     
     func expire(key: String, seconds: Int) async throws {
-        let _: EmptyResponse = try await client.post("api-v1-cache/expire", body: ["key": key, "seconds": seconds])
+        let _: EmptyResponse = try await client.post("api-v1-cache/expire", body: CacheExpireRequest(key: key, seconds: seconds))
     }
     
     func exists(key: String) async throws -> Bool {
@@ -51,6 +51,17 @@ actor CacheAPIService {
         let response: TTLResponse = try await client.get("api-v1-cache/ttl", params: ["key": key])
         return response.ttl
     }
+}
+
+struct CacheSetRequest: Encodable {
+    let key: String
+    let value: String
+    let ttl: Int?
+}
+
+struct CacheExpireRequest: Encodable {
+    let key: String
+    let seconds: Int
 }
 
 struct CacheValue: Codable {
@@ -69,3 +80,4 @@ struct ExistsResponse: Codable {
 struct TTLResponse: Codable {
     let ttl: Int
 }
+#endif

@@ -1,5 +1,4 @@
 import SwiftUI
-import FoodShareDesignSystem
 
 // MARK: - Glass Recovery Banner
 
@@ -17,7 +16,7 @@ public struct GlassRecoveryBanner: View {
     @State private var offsetY: CGFloat = -100
     @State private var iconRotation: Double = 0
     @State private var glowIntensity: CGFloat = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     private let autoDismissDelay: TimeInterval = 5.0
 
@@ -62,7 +61,11 @@ public struct GlassRecoveryBanner: View {
             .transition(.opacity)
             .onAppear(perform: animateIn)
             .task {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(autoDismissDelay * 1_000_000_000))
+                #else
                 try? await Task.sleep(for: .seconds(autoDismissDelay))
+                #endif
                 dismiss()
             }
         }
@@ -233,7 +236,11 @@ public struct GlassRecoveryBanner: View {
         }
 
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(300))
+            #endif
             isVisible = false
             onDismiss?()
         }

@@ -1,3 +1,4 @@
+#if !SKIP
 //
 //  ForumEngagementService.swift
 //  Foodshare
@@ -315,3 +316,4 @@ enum ForumEngagementError: LocalizedError, Sendable {
         }
     }
 }
+#endif
