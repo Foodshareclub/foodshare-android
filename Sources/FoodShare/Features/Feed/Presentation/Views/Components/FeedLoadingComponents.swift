@@ -12,7 +12,7 @@ import SwiftUI
 
 struct FeedSkeletonCard: View {
     @State private var shimmerPhase: CGFloat = -200
-    @Environment(\.accessibilityManager) private var accessibilityManager
+    @Environment(\.accessibilityManager) private var accessibilityManager: AccessibilityManager
     @Environment(\.translationService) private var t
 
     var body: some View {
@@ -55,7 +55,7 @@ struct FeedSkeletonCard: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .overlay(accessibilityManager.shouldReduceAnimations ? nil : shimmerOverlay)
         // Accessibility: Label for VoiceOver, hide decorative shimmer
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: AccessibilityChildBehavior.ignore)
         .accessibilityLabel(t.t("accessibility.loading_item"))
         .accessibilityHint(t.t("accessibility.loading_hint"))
     }
@@ -150,7 +150,7 @@ struct SearchPillPressStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 20), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 20), value: configuration.isPressed)
     }
 }
 

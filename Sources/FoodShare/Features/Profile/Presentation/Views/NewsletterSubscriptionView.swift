@@ -111,7 +111,9 @@ struct NewsletterSubscriptionView: View {
                     TextField(t.t("newsletter.form.email_placeholder"), text: $viewModel.email)
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
+                        #if !SKIP
                         .autocapitalization(.none)
+                        #endif
                         .autocorrectionDisabled()
                 }
                 .padding()

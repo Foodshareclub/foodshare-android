@@ -45,11 +45,14 @@ enum NetworkConfiguration {
         config.httpMaximumConnectionsPerHost = 6
 
         // HTTP/2 multiplexing (helps with multiple concurrent requests)
+        #if !SKIP
         config.multipathServiceType = .handover
+        #endif
 
         return config
     }
 
+    #if !SKIP
     /// Background session configuration for uploads/downloads
     static func backgroundConfiguration(identifier: String) -> URLSessionConfiguration {
         let config = URLSessionConfiguration.background(withIdentifier: identifier)
@@ -66,6 +69,7 @@ enum NetworkConfiguration {
 
         return config
     }
+    #endif
 
     /// Ephemeral session configuration (no caching, no cookies stored)
     static var ephemeralConfiguration: URLSessionConfiguration {

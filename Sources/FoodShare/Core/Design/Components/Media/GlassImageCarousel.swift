@@ -6,8 +6,10 @@
 //  Optimized for 120Hz ProMotion displays
 //
 
-import Kingfisher
 import SwiftUI
+
+#if !SKIP
+import Kingfisher
 
 struct GlassImageCarousel: View {
     let imageURLs: [URL]
@@ -249,3 +251,4 @@ extension GlassImageCarousel {
     )
     .background(Color.DesignSystem.background)
 }
+#endif

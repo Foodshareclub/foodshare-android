@@ -28,6 +28,7 @@ enum LocationError: LocalizedError, Sendable, Equatable {
         }
     }
 
+    #if !SKIP
     static func == (lhs: LocationError, rhs: LocationError) -> Bool {
         switch (lhs, rhs) {
         case (.permissionDenied, .permissionDenied),
@@ -35,12 +36,13 @@ enum LocationError: LocalizedError, Sendable, Equatable {
              (.locationUnavailable, .locationUnavailable),
              (.timeout, .timeout):
             true
-        case let (.unknown(lhsError), .unknown(rhsError)):
+        case (.unknown(let lhsError), .unknown(let rhsError)):
             lhsError.localizedDescription == rhsError.localizedDescription
         default:
             false
         }
     }
+    #endif
 }
 
 // MARK: - Location Model

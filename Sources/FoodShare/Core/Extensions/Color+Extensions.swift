@@ -11,6 +11,7 @@ import UIKit
 #endif
 
 extension Color {
+    #if !SKIP
     // MARK: - Hex Initialization (String)
 
     /// Initialize Color from hex string
@@ -57,6 +58,7 @@ extension Color {
         let b = Double(hex & 0xFF) / 255.0
         self.init(red: r, green: g, blue: b, opacity: alpha)
     }
+    #endif
 
     // MARK: - Color Interpolation
 

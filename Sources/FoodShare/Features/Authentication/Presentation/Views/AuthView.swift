@@ -42,7 +42,7 @@ struct AuthView: View {
     var body: some View {
         ZStack {
             // iOS 18+ Animated Mesh Gradient Background (Green/Blue Nature)
-            AuthBackground(useMeshGradient: true, style: .nature)
+            AuthBackground(useMeshGradient: true, style: AuthBackground.Style.nature)
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: Spacing.lg) {
@@ -101,8 +101,10 @@ struct AuthView: View {
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordSheet()
                 .environment(authViewModel)
+                #if !SKIP
                 .presentationBackground(.ultraThinMaterial)
                 .presentationCornerRadius(CornerRadius.xl)
+                #endif
         }
     }
 
@@ -485,6 +487,7 @@ struct AuthView: View {
         }
     }
 
+    #if !SKIP
     private func signInWithApple() {
         Task {
             await authViewModel.signInWithApple()
@@ -527,6 +530,7 @@ struct AuthView: View {
             }
         }
     }
+    #endif
 }
 
 // MARK: - Auth Glass Text Field

@@ -178,14 +178,13 @@ private actor SessionStateManager {
 
     /// Attempt to transition to a new state, returns true if successful
     func tryTransition(to newState: SessionState) -> Bool {
-        switch (state, newState) {
-        case (.idle, _), (.authenticated, _):
+        if state == .idle || state == .authenticated {
             state = newState
             return true
-        case (_, .idle):
+        } else if newState == .idle {
             state = newState
             return true
-        default:
+        } else {
             // Already in a transitional state, deny new transition
             return false
         }
@@ -382,8 +381,8 @@ final class AuthenticationService {
             supabaseURL: url,
             supabaseKey: key,
             options: SupabaseClientOptions(
-                auth: .init(flowType: .pkce, autoRefreshToken: true),
-                global: .init(session: session),
+                auth: SupabaseClientOptions.AuthOptions(flowType: AuthFlowType.pkce, autoRefreshToken: true),
+                global: SupabaseClientOptions.GlobalOptions(session: session),
             ),
         )
 
@@ -472,7 +471,11 @@ final class AuthenticationService {
         // This is more reliable than fixed delays
         for _ in 0 ..< 5 {
             await Task.yield()
+            #if !SKIP
             try await Task.sleep(for: .milliseconds(20))
+            #else
+            try await Task.sleep(nanoseconds: 20_000_000)
+            #endif
         }
         logger.debug("✅ [AUTH] Session ready for RLS queries")
     }
@@ -509,16 +512,20 @@ final class AuthenticationService {
             do {
                 user = try await loadUserProfile(userId: session.user.id, session: session)
                 logger.info("✅ [AUTH] Profile loaded successfully")
-            } catch let error as NSError where error.code == 404 {
-                logger.warning("⚠️ [AUTH] Profile not found (404), creating new profile")
-                try await createUserProfile(
-                    userId: session.user.id,
-                    email: session.user.email ?? email,
-                    fullName: nil,
-                    session: session,
-                )
-                user = try await loadUserProfile(userId: session.user.id, session: session)
-                logger.info("✅ [AUTH] New profile created and loaded")
+            } catch let error as NSError {
+                if error.code == 404 {
+                    logger.warning("⚠️ [AUTH] Profile not found (404), creating new profile")
+                    try await createUserProfile(
+                        userId: session.user.id,
+                        email: session.user.email ?? email,
+                        fullName: nil,
+                        session: session,
+                    )
+                    user = try await loadUserProfile(userId: session.user.id, session: session)
+                    logger.info("✅ [AUTH] New profile created and loaded")
+                } else {
+                    throw error
+                }
             }
 
             // Update state atomically using actor
@@ -669,7 +676,11 @@ final class AuthenticationService {
                         .warning(
                             "⚠️ [AUTH] Profile creation attempt \(attempt) failed (transient), retrying in \(delay)s: \(error.localizedDescription, privacy: .private)",
                         )
+                    #if !SKIP
                     try await Task.sleep(for: .seconds(delay))
+                    #else
+                    try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                    #endif
                 } else {
                     logger
                         .error(
@@ -777,7 +788,7 @@ final class AuthenticationService {
         do {
             let response: SessionInfoResponse = try await supabase.functions.invoke(
                 "api-v1-profile?action=session",
-                options: FunctionInvokeOptions(method: .get),
+                options: FunctionInvokeOptions(method: FunctionInvokeOptions.Method.get),
             )
 
             guard response.success, let data = response.data else {
@@ -863,7 +874,7 @@ final class AuthenticationService {
         logger.info("📧 [AUTH] Resending verification email to: \(email, privacy: .private(mask: .hash))")
 
         do {
-            try await supabase.auth.resend(email: email, type: .signup)
+            try await supabase.auth.resend(email: email, type: ResendEmailType.signup)
             HapticManager.success()
             logger.info("✅ [AUTH] Verification email resent to: \(email, privacy: .private(mask: .hash))")
         } catch {
@@ -946,7 +957,7 @@ final class AuthenticationService {
             supabaseURL: supabaseURL,
             supabaseKey: supabasePublishableKey,
             options: SupabaseClientOptions(
-                global: .init(headers: ["Authorization": "Bearer \(accessToken)"]),
+                global: SupabaseClientOptions.GlobalOptions(headers: ["Authorization": "Bearer \(accessToken)"]),
             ),
         )
     }
@@ -1012,6 +1023,12 @@ final class AuthenticationService {
         logger.info("✅ [AUTH] Profile reloaded successfully")
     }
 
+    /// Response from delete-user Edge Function
+    private struct DeleteResponse: Decodable {
+        let success: Bool
+        let message: String
+    }
+
     /// Delete user account and all associated data via Edge Function
     /// This is required for Apple App Store compliance - complete account deletion
     func deleteAccount() async throws {
@@ -1028,15 +1045,9 @@ final class AuthenticationService {
             // 1. Delete avatar files from storage
             // 2. Delete auth user (cascades to profiles and related data)
 
-            // Parse response to check for success
-            struct DeleteResponse: Decodable {
-                let success: Bool
-                let message: String
-            }
-
             let result: DeleteResponse = try await supabase.functions.invoke(
                 "delete-user",
-                options: .init(method: .post),
+                options: FunctionInvokeOptions(method: FunctionInvokeOptions.Method.post),
             )
 
             if !result.success {
@@ -1078,7 +1089,7 @@ final class AuthenticationService {
             supabaseURL: supabaseURL,
             supabaseKey: supabasePublishableKey,
             options: SupabaseClientOptions(
-                global: .init(headers: ["Authorization": "Bearer \(accessToken)"]),
+                global: SupabaseClientOptions.GlobalOptions(headers: ["Authorization": "Bearer \(accessToken)"]),
             ),
         )
 
@@ -1123,7 +1134,7 @@ final class AuthenticationService {
                 supabaseURL: supabaseURL,
                 supabaseKey: supabasePublishableKey,
                 options: SupabaseClientOptions(
-                    global: .init(headers: ["Authorization": "Bearer \(accessToken)"]),
+                    global: SupabaseClientOptions.GlobalOptions(headers: ["Authorization": "Bearer \(accessToken)"]),
                 ),
             )
 
@@ -1583,18 +1594,22 @@ final class AuthenticationService {
             let user: AuthUserProfile
             do {
                 user = try await loadUserProfile(userId: session.user.id, session: session)
-            } catch let error as NSError where error.code == 404 {
-                // Extract user metadata from OAuth provider
-                let fullName = (session.user.userMetadata["full_name"]?.stringValue)
-                    ?? (session.user.userMetadata["name"]?.stringValue)
+            } catch let error as NSError {
+                if error.code == 404 {
+                    // Extract user metadata from OAuth provider
+                    let fullName = (session.user.userMetadata["full_name"]?.stringValue)
+                        ?? (session.user.userMetadata["name"]?.stringValue)
 
-                try await createUserProfile(
-                    userId: session.user.id,
-                    email: session.user.email ?? "",
-                    fullName: fullName,
-                    session: session,
-                )
-                user = try await loadUserProfile(userId: session.user.id, session: session)
+                    try await createUserProfile(
+                        userId: session.user.id,
+                        email: session.user.email ?? "",
+                        fullName: fullName,
+                        session: session,
+                    )
+                    user = try await loadUserProfile(userId: session.user.id, session: session)
+                } else {
+                    throw error
+                }
             }
 
             // Update state atomically using actor

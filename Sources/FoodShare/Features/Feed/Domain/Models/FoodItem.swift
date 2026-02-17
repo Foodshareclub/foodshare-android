@@ -647,7 +647,7 @@ extension FoodItem {
         ]
 
         for pattern in patterns {
-            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options.caseInsensitive) {
                 cleaned = regex.stringByReplacingMatches(
                     in: cleaned,
                     range: NSRange(cleaned.startIndex..., in: cleaned),
@@ -657,7 +657,7 @@ extension FoodItem {
         }
 
         cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
-        cleaned = cleaned.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+        cleaned = cleaned.replacingOccurrences(of: "\\s+", with: " ", options: String.CompareOptions.regularExpression)
 
         return cleaned
     }

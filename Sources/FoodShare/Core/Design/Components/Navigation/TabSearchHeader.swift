@@ -244,19 +244,23 @@ struct GlassActionButtonWithNotification: View {
             showWhenZero: true,
             onTap: onNotificationTap,
         )
+        #if !SKIP
         .accessibilityElement(children: .ignore)
+        #endif
         .accessibilityLabel(combinedAccessibilityLabel)
         .accessibilityValue(unreadCount > 0
             ? "\(min(unreadCount, 999))\(unreadCount > 999 ? " plus" : "") unread"
             : "No unread notifications")
             .accessibilityHint("Swipe up or down for more actions")
             .accessibilityAddTraits(.updatesFrequently)
+            #if !SKIP
             .accessibilityAction(named: "Open Filters") {
                 onButtonTap()
             }
             .accessibilityAction(named: "Open Notifications") {
                 onNotificationTap()
             }
+            #endif
     }
 
     // MARK: - Accessibility

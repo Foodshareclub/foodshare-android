@@ -99,7 +99,9 @@ struct GlassBadgeItem: View {
             }
         }
         .buttonStyle(BadgePressStyle())
+        #if !SKIP
         .proMotionConfetti(trigger: $showCelebration, style: .stars)
+        #endif
         .onAppear {
             if isEarned, !reduceMotion {
                 withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
@@ -119,9 +121,11 @@ struct GlassBadgeItem: View {
                 }
             }
         }
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(isEarned ? "Double tap to view details" : "Badge not yet earned")
+        #endif
     }
 
     // MARK: - Badge Container
@@ -277,7 +281,7 @@ private struct BadgePressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
@@ -290,7 +294,7 @@ struct GlassBadgeCard: View {
     let userStats: ForumUserStats?
     let onToggleFeatured: (() -> Void)?
 
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency: Bool
 
     private var isEarned: Bool { userBadge != nil }
     private var isFeatured: Bool { userBadge?.isFeatured ?? false }

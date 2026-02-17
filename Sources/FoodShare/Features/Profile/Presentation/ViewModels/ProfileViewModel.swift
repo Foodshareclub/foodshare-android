@@ -143,13 +143,17 @@ final class ProfileViewModel {
 
     var memberSince: String {
         guard let profile else { return "" }
-        return "Member since \(profile.createdTime.formatted(.dateTime.month(.wide).year()))"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return "Member since \(formatter.string(from: profile.createdTime))"
     }
 
     /// Localized member since text (use in Views with translation service)
     func localizedMemberSince(using t: EnhancedTranslationService) -> String {
         guard let profile else { return "" }
-        let dateFormatted = profile.createdTime.formatted(.dateTime.month(.wide).year())
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        let dateFormatted = formatter.string(from: profile.createdTime)
         return t.t("profile.member_since_format", args: ["date": dateFormatted])
     }
 

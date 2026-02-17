@@ -117,7 +117,7 @@ struct CreateListingView: View {
             PhotosPicker(
                 selection: $selectedPhotoItems,
                 maxSelectionCount: 3 - viewModel.selectedImages.count,
-                matching: .images,
+                matching: PHPickerFilter.images,
             ) {
                 EmptyView()
             }
@@ -136,30 +136,10 @@ struct CreateListingView: View {
         isLoadingPhotos = true
         defer { isLoadingPhotos = false }
 
-        do {
-            let result = try await ImageUploader.shared.uploadOptimized(
-                data,
-                bucket: "food-images",
-                generateThumbnail: true,
-                extractEXIF: true,
-                enableAI: false,
-                supabase: appState.authService.supabase,
-            )
-
-            viewModel.addImage(data)
-
-            // Auto-fill location from EXIF GPS
-            if let gps = result.metadata.exif?.gps, viewModel.pickupAddress.isEmpty {
-                // TODO: Reverse geocode GPS to address
-                viewModel.pickupAddress = "\(gps.latitude), \(gps.longitude)"
-            }
-
-            HapticManager.success()
-        } catch {
-            viewModel.error = error.localizedDescription
-            viewModel.showError = true
-            HapticManager.error()
-        }
+        // ImageUploader is iOS-only (not available on Skip/Android)
+        // Add image data directly to the view model for now
+        viewModel.addImage(data)
+        HapticManager.success()
     }
 
     private var navigationTitle: String {
@@ -335,7 +315,7 @@ struct CreateListingView: View {
                                     RoundedRectangle(cornerRadius: CornerRadius.medium)
                                         .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
                                 )
-                                .overlay(alignment: .topTrailing) {
+                                .overlay(alignment: Alignment.topTrailing) {
                                     Button {
                                         withAnimation(ProMotionAnimation.bouncy) {
                                             viewModel.removeImage(at: index)
@@ -344,16 +324,16 @@ struct CreateListingView: View {
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.system(size: 22))
-                                            .foregroundStyle(.white, .black.opacity(0.6))
-                                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                                            .foregroundStyle(Color.white)
+                                            .shadow(color: Color.black.opacity(0.3), radius: 2, y: 1)
                                     }
                                     .padding(Spacing.xs)
                                     .buttonStyle(ProMotionButtonStyle())
                                 }
-                                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-                                .transition(.asymmetric(
-                                    insertion: .scale(scale: 0.8).combined(with: .opacity),
-                                    removal: .scale(scale: 0.8).combined(with: .opacity),
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, y: 2)
+                                .transition(AnyTransition.asymmetric(
+                                    insertion: AnyTransition.scale(scale: 0.8).combined(with: AnyTransition.opacity),
+                                    removal: AnyTransition.scale(scale: 0.8).combined(with: AnyTransition.opacity),
                                 ))
                         }
                     }
@@ -469,7 +449,7 @@ struct GlassDescriptionEditor: View {
             Image(systemName: "text.alignleft")
                 .foregroundStyle(isFocused ? Color.DesignSystem.brandGreen : Color.DesignSystem.textSecondary)
                 .font(.system(size: 18))
-                .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isFocused)
+                .animation(Animation.spring(response: 0.3, dampingFraction: 0.75), value: isFocused)
                 .padding(.top, Spacing.xs)
 
             ZStack(alignment: .topLeading) {
@@ -515,7 +495,7 @@ struct GlassDescriptionEditor: View {
                     lineWidth: isFocused ? 1.5 : 1,
                 ),
         )
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isFocused)
+        .animation(Animation.spring(response: 0.3, dampingFraction: 0.75), value: isFocused)
     }
 }
 

@@ -208,11 +208,11 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
 
         // Apply cursor-based pagination
         if let cursor = pagination.cursor {
-            let comparison = pagination.direction == .backward ? "lt" : "gt"
+            let comparison = pagination.direction == CursorDirection.backward ? "lt" : "gt"
             query = query.filter(pagination.cursorColumn, operator: comparison, value: cursor)
         }
 
-        let ascending = pagination.direction == .forward
+        let ascending = pagination.direction == CursorDirection.forward
 
         let response = try await query
             .order(pagination.cursorColumn, ascending: ascending)
@@ -353,6 +353,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         let result = try await dataSource.fetch(policy: currentCachePolicy)
 
         // Log cache usage for debugging
+        #if !SKIP
         switch result {
         case .fresh:
             logger.debug("📡 [Feed] Fetched fresh data from remote")
@@ -362,6 +363,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         case .empty:
             logger.debug("⚠️ [Feed] No data available (cache empty, offline)")
         }
+        #endif
 
         return result
     }

@@ -7,6 +7,7 @@
 //  GPU-accelerated glass effects for smooth rendering
 //
 
+#if !SKIP
 import SwiftUI
 
 // MARK: - Glass Toast View
@@ -376,3 +377,4 @@ extension View {
 
     return PreviewContainer()
 }
+#endif

@@ -6,6 +6,7 @@
 //  Centralizes all forum-related sheet state.
 //
 
+#if !SKIP
 import SwiftUI
 
 // MARK: - Forum Sheet Types
@@ -55,15 +56,15 @@ enum ForumSheet: SheetPresentable {
         switch (lhs, rhs) {
         case (.filters, .filters):
             return true
-        case let (.postDetail(lPost, _), .postDetail(rPost, _)):
+        case (.postDetail(let lPost, _), .postDetail(let rPost, _)):
             return lPost.id == rPost.id
-        case let (.notifications(_, lId), .notifications(_, rId)):
+        case (.notifications(_, let lId), .notifications(_, let rId)):
             return lId == rId
         case (.createPost, .createPost):
             return true
         case (.savedPosts, .savedPosts):
             return true
-        case let (.authorPreview(lAuthor, _, _), .authorPreview(rAuthor, _, _)):
+        case (.authorPreview(let lAuthor, _, _), .authorPreview(let rAuthor, _, _)):
             return lAuthor.id == rAuthor.id
         case (.appInfo, .appInfo):
             return true
@@ -142,9 +143,9 @@ enum ForumSimpleSheet: SheetPresentable {
 
     static func == (lhs: ForumSimpleSheet, rhs: ForumSimpleSheet) -> Bool {
         switch (lhs, rhs) {
-        case let (.postDetail(lPost, _), .postDetail(rPost, _)):
+        case (.postDetail(let lPost, _), .postDetail(let rPost, _)):
             return lPost.id == rPost.id
-        case let (.authorPreview(lAuthor, _), .authorPreview(rAuthor, _)):
+        case (.authorPreview(let lAuthor, _), .authorPreview(let rAuthor, _)):
             return lAuthor.id == rAuthor.id
         case (.appInfo, .appInfo):
             return true
@@ -166,3 +167,4 @@ enum ForumSimpleSheet: SheetPresentable {
         }
     }
 }
+#endif

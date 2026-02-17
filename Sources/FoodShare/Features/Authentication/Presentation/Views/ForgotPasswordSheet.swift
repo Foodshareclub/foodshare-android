@@ -22,7 +22,7 @@ struct ForgotPasswordSheet: View {
         NavigationStack {
             ZStack {
                 // Background
-                AuthBackground(style: .nature)
+                AuthBackground(style: AuthBackground.Style.nature)
 
                 ScrollView {
                     VStack(spacing: Spacing.xl) {

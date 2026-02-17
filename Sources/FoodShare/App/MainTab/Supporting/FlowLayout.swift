@@ -9,12 +9,13 @@ import SwiftUI
 
 // MARK: - Flow Layout
 
+#if !SKIP
 struct FlowLayout: Layout {
     var spacing: CGFloat = Spacing.sm
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let sizes = subviews.map { $0.sizeThatFits(ProposedViewSize.unspecified) }
-        return layout(sizes: sizes, containerWidth: proposal.width ?? 0).size
+        return layout(sizes: sizes, containerWidth: proposal.width ?? 0).totalSize
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
@@ -29,7 +30,7 @@ struct FlowLayout: Layout {
         }
     }
 
-    private func layout(sizes: [CGSize], containerWidth: CGFloat) -> (offsets: [CGPoint], size: CGSize) {
+    private func layout(sizes: [CGSize], containerWidth: CGFloat) -> (offsets: [CGPoint], totalSize: CGSize) {
         var offsets: [CGPoint] = []
         var currentX: CGFloat = 0
         var currentY: CGFloat = 0
@@ -52,3 +53,4 @@ struct FlowLayout: Layout {
         return (offsets, CGSize(width: maxWidth, height: currentY + lineHeight))
     }
 }
+#endif

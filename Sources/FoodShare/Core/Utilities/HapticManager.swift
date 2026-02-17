@@ -8,7 +8,6 @@
 
 #if !SKIP
 import UIKit
-#endif
 
 @MainActor
 enum HapticManager {
@@ -289,3 +288,52 @@ enum HapticManager {
         }
     }
 }
+#else
+// Skip stub — haptics are iOS-only, no-op on Android
+@MainActor
+enum HapticManager {
+    enum FeedbackStyle {
+        case light, medium, heavy, soft, rigid
+        case success, error, warning
+        case selection
+    }
+    static func prepare(_ style: FeedbackStyle) {}
+    static func light() {}
+    static func medium() {}
+    static func heavy() {}
+    static func soft() {}
+    static func rigid() {}
+    static func light(intensity: CGFloat) {}
+    static func medium(intensity: CGFloat) {}
+    static func heavy(intensity: CGFloat) {}
+    static func success() {}
+    static func error() {}
+    static func warning() {}
+    static func selection() {}
+    static func buttonTap() {}
+    static func toggle() {}
+    static func pullToRefresh() {}
+    static func swipeAction() {}
+    static func longPress() {}
+    static func dragStart() {}
+    static func dragEnd() {}
+    static func pageChange() {}
+    static func tabChange() {}
+    static func sliderTick() {}
+    static func messageSent() {}
+    static func messageReceived() {}
+    static func like() {}
+    static func unlike() {}
+    static func save() {}
+    static func delete() {}
+    static func refreshComplete() {}
+    static func validationError() {}
+    static func networkError() {}
+    static func doubleTap() {}
+    static func achievement() {}
+    static func heartbeat() {}
+    static func countdown(completion: @escaping () -> Void) { completion() }
+    static func feedback(_ style: FeedbackStyle) {}
+    static func setEnabled(_ enabled: Bool) {}
+}
+#endif

@@ -78,8 +78,8 @@ final class NotificationCenterViewModel {
     /// Maximum notifications to show in dropdown
     private let dropdownLimit = 10
 
-    /// Debounce interval for rapid actions (ms)
-    private let debounceInterval: UInt64 = 300_000_000 // 300ms
+    /// Debounce interval for rapid actions (ns)
+    private let debounceInterval: UInt64 = UInt64(300_000_000) // 300ms
 
     /// Maximum retry attempts
     private let maxRetryAttempts = 3
@@ -357,10 +357,12 @@ final class NotificationCenterViewModel {
                 self.trackAnalytics(.notificationReceived(type: notification.type.rawValue))
 
                 // Announce for VoiceOver
+                #if !SKIP
                 UIAccessibility.post(
                     notification: .announcement,
                     argument: "New notification: \(notification.title)",
                 )
+                #endif
             }
         }
     }

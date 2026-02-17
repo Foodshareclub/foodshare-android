@@ -15,6 +15,7 @@ struct GlassContextMenuModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            #if !SKIP
             .contextMenu {
                 ForEach(menuItems) { item in
                     if item.isDestructive {
@@ -33,6 +34,7 @@ struct GlassContextMenuModifier: ViewModifier {
                     }
                 }
             }
+            #endif
     }
 }
 
@@ -145,7 +147,9 @@ struct GlassActionMenu: View {
                 RoundedRectangle(cornerRadius: CornerRadius.small)
                     .fill(Color.clear)
             )
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
         }
         .buttonStyle(MenuItemButtonStyle())
         .disabled(item.isDisabled)
@@ -188,7 +192,11 @@ struct GlassActionMenu: View {
     private func animateItemsIn() {
         Task { @MainActor in
             for index in items.indices {
+                #if SKIP
+                try? await Task.sleep(nanoseconds: UInt64(50 * index * 1_000_000))
+                #else
                 try? await Task.sleep(for: .milliseconds(50 * UInt64(index)))
+                #endif
                 withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
                     if itemsVisible.indices.contains(index) {
                         itemsVisible[index] = true
@@ -215,7 +223,7 @@ private struct MenuItemButtonStyle: ButtonStyle {
                     .fill(configuration.isPressed ? Color.DesignSystem.glassBackground : Color.clear)
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
     }
 }
 

@@ -138,7 +138,7 @@ struct ArrangementView: View {
         case .arrange: t.t("arrangement.confirm.request_title")
         case .cancel: t.t("arrangement.confirm.cancel_title")
         case .complete: t.t("arrangement.confirm.complete_title")
-        case .none: ""
+        case nil: ""
         }
     }
 
@@ -147,7 +147,7 @@ struct ArrangementView: View {
         case .arrange: t.t("arrangement.confirm.request_button")
         case .cancel: t.t("arrangement.confirm.cancel_button")
         case .complete: t.t("common.complete")
-        case .none: ""
+        case nil: ""
         }
     }
 
@@ -162,7 +162,7 @@ struct ArrangementView: View {
         case .arrange: await onArrange()
         case .cancel: await onCancel()
         case .complete: await onComplete()
-        case .none: break
+        case nil: break
         }
     }
 }

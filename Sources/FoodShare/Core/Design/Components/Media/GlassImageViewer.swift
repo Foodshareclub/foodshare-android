@@ -7,8 +7,9 @@
 //  Optimized for ProMotion 120Hz displays with interpolating spring animations
 //
 
-import Kingfisher
 import SwiftUI
+#if !SKIP
+import Kingfisher
 
 // MARK: - Glass Image Viewer
 
@@ -399,3 +400,4 @@ extension View {
         isPresented: $isPresented
     )
 }
+#endif

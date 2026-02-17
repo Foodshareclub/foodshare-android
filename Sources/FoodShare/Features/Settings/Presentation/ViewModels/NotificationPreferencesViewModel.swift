@@ -120,7 +120,7 @@ public final class NotificationPreferencesViewModel {
     // MARK: - State
 
     /// Current preferences data
-    public internal(set) var preferences = NotificationPreferences()
+    public internal(set) var preferences: NotificationPreferences = NotificationPreferences()
 
     /// Loading state for initial fetch
     public private(set) var loadingState: SimpleLoadingState = .idle

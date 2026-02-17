@@ -31,8 +31,8 @@ struct ChallengeFiltersBar: View {
             }
             .padding(.horizontal, Spacing.md)
         }
-        .scrollBounceBehavior(.basedOnSize)
         #if !SKIP
+        .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
         #endif
         .padding(.top, Spacing.sm)

@@ -153,7 +153,9 @@ struct InviteView: View {
                 TextField(t.t("invite.email.placeholder"), text: $viewModel.currentEmail)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
+                    #if !SKIP
                     .autocapitalization(.none)
+                    #endif
                     .autocorrectionDisabled()
                     .onSubmit {
                         viewModel.addEmail()
@@ -173,6 +175,7 @@ struct InviteView: View {
 
             // Email chips
             if !viewModel.emails.isEmpty {
+                #if !SKIP
                 InviteFlowLayout(spacing: 8) {
                     ForEach(viewModel.emails, id: \.self) { email in
                         EmailChip(email: email) {
@@ -180,6 +183,15 @@ struct InviteView: View {
                         }
                     }
                 }
+                #else
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 8) {
+                    ForEach(viewModel.emails, id: \.self) { email in
+                        EmailChip(email: email) {
+                            viewModel.removeEmail(email)
+                        }
+                    }
+                }
+                #endif
             }
 
             GlassButton(
@@ -294,6 +306,7 @@ private struct EmailChip: View {
     }
 }
 
+#if !SKIP
 // MARK: - Invite Flow Layout
 
 private struct InviteFlowLayout: Layout {
@@ -341,6 +354,7 @@ private struct InviteFlowLayout: Layout {
         }
     }
 }
+#endif
 
 // MARK: - ViewModel
 

@@ -148,15 +148,15 @@ extension String {
     }
 
     fileprivate var containsUppercase: Bool {
-        range(of: "[A-Z]", options: .regularExpression) != nil
+        range(of: "[A-Z]", options: String.CompareOptions.regularExpression) != nil
     }
 
     fileprivate var containsLowercase: Bool {
-        range(of: "[a-z]", options: .regularExpression) != nil
+        range(of: "[a-z]", options: String.CompareOptions.regularExpression) != nil
     }
 
     fileprivate var containsNumber: Bool {
-        range(of: "[0-9]", options: .regularExpression) != nil
+        range(of: "[0-9]", options: String.CompareOptions.regularExpression) != nil
     }
 }
 

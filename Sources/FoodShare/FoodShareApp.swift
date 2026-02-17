@@ -12,6 +12,7 @@ import OSLog
 import Supabase
 import SwiftUI
 
+// Entry point when building through SPM directly (not through Xcode target)
 @main
 struct FoodShareApp: App {
     // MARK: - AppDelegate for Push Notifications (iOS only)
@@ -125,6 +126,7 @@ struct FoodShareApp: App {
         }
     }
 
+    #if !SKIP
     var body: some Scene {
         WindowGroup {
             // Modern @Observable pattern: Uses .environment() for @Observable objects
@@ -159,11 +161,9 @@ struct FoodShareApp: App {
                 // Recreate with current guest mode state now that app is fully initialized
                 reinitializeFeedViewModel()
             }
-            #if !SKIP
             .onChange(of: scenePhase) { _, newPhase in
                 appLockService.handleScenePhase(newPhase)
             }
-            #endif
             .onChange(of: appState.isAuthenticated) { _, _ in
                 // Recreate FeedViewModel when auth state changes to update user context
                 reinitializeFeedViewModel()
@@ -172,7 +172,6 @@ struct FoodShareApp: App {
                 // Recreate FeedViewModel when guest mode changes
                 reinitializeFeedViewModel()
             }
-            #if !SKIP
             .overlay {
                 // App lock overlay (iOS only - uses biometric authentication)
                 if appLockService.isLocked {
@@ -180,9 +179,28 @@ struct FoodShareApp: App {
                         .transition(.opacity)
                 }
             }
-            #endif
         }
     }
+    #else
+    var body: some View {
+        RootView()
+            .environment(appState)
+            .environment(authViewModel)
+            .environment(guestManager)
+            .environment(feedViewModel)
+            .withTheme()
+            .task {
+                await performInitialization()
+                reinitializeFeedViewModel()
+            }
+            .onChange(of: appState.isAuthenticated) { _, _ in
+                reinitializeFeedViewModel()
+            }
+            .onChange(of: guestManager.isGuestMode) { _, _ in
+                reinitializeFeedViewModel()
+            }
+    }
+    #endif
 
     // MARK: - FeedViewModel Reinitialization
 

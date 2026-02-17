@@ -54,9 +54,15 @@ struct ScreenRecordingAlertModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .safeAreaInset(edge: .top) {
+            #if !SKIP
+            .safeAreaInset(edge: VerticalEdge.top) {
                 ScreenRecordingWarningBanner(isVisible: $showWarning)
             }
+            #else
+            .overlay(alignment: Alignment.top) {
+                ScreenRecordingWarningBanner(isVisible: $showWarning)
+            }
+            #endif
             .onAppear {
                 showWarning = privacyService.isScreenRecording && privacyService.screenRecordingWarningEnabled
             }

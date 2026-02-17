@@ -19,7 +19,7 @@ struct GuestUpgradePromptView: View {
     var body: some View {
         ZStack {
             // Background
-            AuthBackground(style: .nature)
+            AuthBackground(style: AuthBackground.Style.nature)
 
             VStack(spacing: Spacing.xl) {
                 Spacer()

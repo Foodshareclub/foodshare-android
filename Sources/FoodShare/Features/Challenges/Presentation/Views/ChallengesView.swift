@@ -168,8 +168,8 @@ struct ChallengesView: View {
             Capsule()
                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 0.5),
         )
-        .padding(.horizontal, Spacing.md)
-        .padding(.top, Spacing.sm)
+        .padding(Edge.Set.horizontal, Spacing.md)
+        .padding(Edge.Set.top, Spacing.sm)
     }
 
     @ViewBuilder
@@ -332,7 +332,7 @@ struct ChallengesView: View {
                             .scaleEffect(1.0 - CGFloat(index) * 0.05)
                             .offset(y: CGFloat(index) * 12)
                             .rotation3DEffect(
-                                .degrees(Double(index) * 2),
+                                Angle.degrees(Double(index) * 2),
                                 axis: (x: 1, y: 0, z: 0),
                                 perspective: 0.5,
                             )

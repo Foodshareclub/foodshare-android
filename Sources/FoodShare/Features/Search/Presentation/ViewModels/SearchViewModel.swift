@@ -81,7 +81,7 @@ final class SearchViewModel {
     // MARK: - Debounce
 
     private var searchTask: Task<Void, Never>?
-    private let debounceDelay: UInt64 = 300_000_000 // 300ms in nanoseconds
+    private let debounceDelay: UInt64 = UInt64(300_000_000) // 300ms in nanoseconds
 
     // MARK: - Dependencies
 
@@ -139,7 +139,11 @@ final class SearchViewModel {
     }
 
     var isVoiceSearchAvailable: Bool {
+        #if !SKIP
         SFSpeechRecognizer.authorizationStatus() == .authorized
+        #else
+        false
+        #endif
     }
 
     // MARK: - Search Actions
@@ -299,11 +303,15 @@ final class SearchViewModel {
     }
 
     func requestVoiceSearchPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
+        #if !SKIP
+        return await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
                 continuation.resume(returning: status == .authorized)
             }
         }
+        #else
+        return false
+        #endif
     }
 
     func startVoiceSearch() {
@@ -494,7 +502,7 @@ final class SearchViewModel {
 
     private func loadSearchHistory() {
         let defaults = UserDefaults.standard
-        recentSearches = defaults.stringArray(forKey: "recentSearches") ?? []
+        recentSearches = (defaults.object(forKey: "recentSearches") as? [String]) ?? []
 
         if let savedData = defaults.data(forKey: "savedSearches"),
            let decoded = try? JSONDecoder().decode([SavedSearch].self, from: savedData)
@@ -523,9 +531,17 @@ struct SavedSearch: Codable, Identifiable, Sendable {
     let createdAt: Date
 
     var formattedDate: String {
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: createdAt, relativeTo: Date())
+        #else
+        let interval = Date().timeIntervalSince(createdAt)
+        if interval < 60 { return "just now" }
+        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+        return "\(Int(interval / 86400))d ago"
+        #endif
     }
 }
 

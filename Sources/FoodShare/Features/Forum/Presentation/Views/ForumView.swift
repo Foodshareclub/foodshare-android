@@ -3,6 +3,14 @@ import SwiftUI
 
 private let forumViewLogger = Logger(subsystem: "com.flutterflow.foodshare", category: "ForumView")
 
+private func relativeTime(from date: Date) -> String {
+    let interval = Date().timeIntervalSince(date)
+    if interval < 60 { return "just now" }
+    if interval < 3600 { return "\(Int(interval / 60))m ago" }
+    if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+    return "\(Int(interval / 86400))d ago"
+}
+
 // MARK: - Forum View
 
 struct ForumView: View {
@@ -654,9 +662,15 @@ struct ForumPostCard: View {
                             }
                         }
 
+                        #if !SKIP
                         Text(post.forumPostCreatedAt, style: .relative)
                             .font(.DesignSystem.captionSmall)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
+                        #else
+                        Text(relativeTime(from: post.forumPostCreatedAt))
+                            .font(.DesignSystem.captionSmall)
+                            .foregroundStyle(Color.DesignSystem.textSecondary)
+                        #endif
                     }
 
                     Spacer()
@@ -769,7 +783,7 @@ struct ForumPostCard: View {
                             ),
                     ),
             )
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
         }
         .buttonStyle(.plain)
     }
@@ -874,7 +888,7 @@ struct GlassForumPostCard: View {
             .overlay(glassOverlay)
             .overlay(highlightOverlay)
             .shadow(color: categoryColor.opacity(0.15), radius: 15, y: 8)
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
         }
         .buttonStyle(GlassPostCardButtonStyle())
     }
@@ -906,9 +920,15 @@ struct GlassForumPostCard: View {
                     }
                 }
 
+                #if !SKIP
                 Text(post.forumPostCreatedAt, style: .relative)
                     .font(.DesignSystem.captionSmall)
                     .foregroundStyle(Color.DesignSystem.textSecondary)
+                #else
+                Text(relativeTime(from: post.forumPostCreatedAt))
+                    .font(.DesignSystem.captionSmall)
+                    .foregroundStyle(Color.DesignSystem.textSecondary)
+                #endif
             }
 
             Spacer()
@@ -1242,7 +1262,9 @@ struct GlassStatBadge: View {
                 .symbolEffect(.bounce, value: value)
                 #endif
             Text("\(value)")
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
                 .animation(.interpolatingSpring(stiffness: 280, damping: 25), value: value)
         }
         .font(.DesignSystem.captionSmall)
@@ -1305,7 +1327,7 @@ private struct GlassCardPressWrapper<Content: View>: View {
                     .allowsHitTesting(false),
             )
             .animation(
-                reduceMotion ? .none : .spring(response: 0.2, dampingFraction: 0.65),
+                reduceMotion ? nil : Animation.spring(response: 0.2, dampingFraction: 0.65),
                 value: isPressed,
             )
     }

@@ -414,8 +414,10 @@ final class FeedViewModel {
         let expiringSoon = foodItems.count(where: { item in
             item.createdAt.timeIntervalSinceNow > -86400
         })
-        let categoryBreakdown = Dictionary(grouping: foodItems) { $0.postType }
-            .mapValues(\.count)
+        var categoryBreakdown: [String: Int] = [:]
+        for item in foodItems {
+            categoryBreakdown[item.postType, default: 0] += 1
+        }
 
         feedStats = FeedStats(
             totalItems: foodItems.count,
@@ -457,7 +459,11 @@ final class FeedViewModel {
 
     /// Group listings by post type
     var listingsByType: [String: [FoodItem]] {
-        Dictionary(grouping: filteredListings) { $0.postType }
+        var result: [String: [FoodItem]] = [:]
+        for item in filteredListings {
+            result[item.postType, default: []].append(item)
+        }
+        return result
     }
 
     /// Food listings only (excludes fridges, foodbanks, etc.)
@@ -525,9 +531,17 @@ struct FeedStats: Sendable {
     )
 
     var formattedLastUpdated: String {
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: lastUpdated, relativeTo: Date())
+        #else
+        let interval = Date().timeIntervalSince(lastUpdated)
+        if interval < 60 { return "just now" }
+        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+        return "\(Int(interval / 86400))d ago"
+        #endif
     }
 }
 

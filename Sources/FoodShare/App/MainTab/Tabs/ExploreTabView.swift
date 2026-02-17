@@ -336,6 +336,7 @@ struct ExploreTabView: View {
                             .foregroundColor(.DesignSystem.brandGreen)
                         }
 
+                        #if !SKIP
                         FlowLayout(spacing: Spacing.sm) {
                             ForEach(viewModel.recentSearches, id: \.self) { search in
                                 Button {
@@ -362,6 +363,34 @@ struct ExploreTabView: View {
                                 }
                             }
                         }
+                        #else
+                        LazyVGrid(columns: [GridItem(GridItem.Size.adaptive(minimum: 100), spacing: Spacing.sm)], spacing: Spacing.sm) {
+                            ForEach(viewModel.recentSearches, id: \.self) { search in
+                                Button {
+                                    searchText = search
+                                    viewModel.selectRecentSearch(search)
+                                } label: {
+                                    HStack(spacing: Spacing.xs) {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .font(.system(size: 12))
+                                        Text(search)
+                                            .font(.DesignSystem.bodySmall)
+                                    }
+                                    .foregroundColor(Color.DesignSystem.text)
+                                    .padding(.horizontal, Spacing.sm)
+                                    .padding(.vertical, Spacing.xs)
+                                    .background(
+                                        Capsule()
+                                            .fill(.ultraThinMaterial)
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                        #endif
                     }
                 }
 
@@ -493,7 +522,7 @@ struct ExploreTabView: View {
             HapticManager.medium()
             if guestManager.isGuestMode {
                 // Guest users: Show upgrade prompt sheet
-                guestManager.promptSignUp(for: .createListing)
+                guestManager.promptSignUp(for: GuestRestrictedFeature.createListing)
             } else if appState.currentUser != nil {
                 showCreateListing = true
             } else {

@@ -171,7 +171,7 @@ struct FoodItemDetailView: View {
             #else
             try? await Task.sleep(for: .milliseconds(300))
             #endif
-            withAnimation(reduceMotion ? .none : .easeOut(duration: 0.2)) {
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
                 isLoading = false
             }
 
@@ -206,7 +206,7 @@ struct FoodItemDetailView: View {
             }
 
             // Trigger staggered section entrance animations
-            withAnimation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.15)) {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.8).delay(0.15)) {
                 sectionsAppeared = true
             }
         }
@@ -215,6 +215,7 @@ struct FoodItemDetailView: View {
     // MARK: - Image Carousel (Enhanced with GlassImageCarousel)
 
     private var imageCarousel: some View {
+        #if !SKIP
         GlassImageCarousel(
             imageURLs: viewModel.item.imageURLs,
             height: 320,
@@ -231,6 +232,32 @@ struct FoodItemDetailView: View {
             selectedIndex: $currentImageIndex,
             isPresented: $showImageViewer,
         )
+        #else
+        // Simple fallback for Android (Skip) — uses AsyncImage instead of Kingfisher
+        TabView(selection: $currentImageIndex) {
+            ForEach(Array(viewModel.item.imageURLs.enumerated()), id: \.offset) { index, url in
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        Rectangle()
+                            .fill(Color.DesignSystem.glassBackground)
+                            .overlay {
+                                ProgressView()
+                            }
+                    }
+                }
+                .frame(height: 320)
+                .clipped()
+                .tag(index)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .automatic))
+        .frame(height: 320)
+        #endif
     }
 
     // MARK: - Title Section
@@ -303,7 +330,7 @@ struct FoodItemDetailView: View {
                 postId: viewModel.item.id,
                 initialLikeCount: likeCount,
                 initialIsLiked: isLiked,
-                size: .medium,
+                size: EngagementLikeButton.Size.medium,
                 showCount: true,
             ) { isLikedNow, count in
                 isLiked = isLikedNow
@@ -566,7 +593,9 @@ struct FoodItemDetailView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, Spacing.sm)
+                    #if !SKIP
                     .simultaneousGesture(TapGesture().onEnded { HapticManager.light() })
+                    #endif
                 }
             }
         }
@@ -788,8 +817,12 @@ struct ContactSellerSheet: View {
         } catch let error as AppError {
             // Elegant error handling for blocked users
             switch error {
-            case let .validationError(message) where message.contains("blocked"):
-                errorMessage = t.t("messaging.error.user_blocked")
+            case let .validationError(message):
+                if message.contains("blocked") {
+                    errorMessage = t.t("messaging.error.user_blocked")
+                } else {
+                    errorMessage = t.t("common.error.generic")
+                }
                 showError = true
             case .networkError:
                 errorMessage = t.t("common.error.network")

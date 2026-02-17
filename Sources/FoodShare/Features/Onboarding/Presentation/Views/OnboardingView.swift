@@ -66,7 +66,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, 28)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(ColorScheme.dark)
         .sheet(isPresented: $showFullDisclaimer) {
             fullDisclaimerSheet
         }
@@ -328,7 +328,7 @@ struct OnboardingView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(ColorScheme.dark)
     }
 
     private var termsSheet: some View {
@@ -352,7 +352,7 @@ struct OnboardingView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(ColorScheme.dark)
         .task {
             await fetchTermsDocument()
         }
@@ -379,7 +379,7 @@ struct OnboardingView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(ColorScheme.dark)
         .task {
             await fetchPrivacyDocument()
         }
@@ -610,7 +610,7 @@ private struct OnboardingScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 

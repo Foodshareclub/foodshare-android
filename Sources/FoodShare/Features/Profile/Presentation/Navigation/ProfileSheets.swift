@@ -6,6 +6,7 @@
 //  Centralizes all profile-related sheet state.
 //
 
+#if !SKIP
 import SwiftUI
 
 // MARK: - Profile Sheet Types
@@ -33,9 +34,9 @@ enum ProfileSheet: SheetPresentable {
 
     static func == (lhs: ProfileSheet, rhs: ProfileSheet) -> Bool {
         switch (lhs, rhs) {
-        case let (.avatarDetail(lUrl), .avatarDetail(rUrl)):
+        case (.avatarDetail(let lUrl), .avatarDetail(let rUrl)):
             lUrl == rUrl
-        case let (.qrCode(lProfile), .qrCode(rProfile)):
+        case (.qrCode(let lProfile), .qrCode(let rProfile)):
             lProfile.id == rProfile.id
         case (.appInfo, .appInfo):
             true
@@ -77,3 +78,4 @@ extension SheetCoordinator where Sheet == ProfileSheet {
         present(.appInfo)
     }
 }
+#endif

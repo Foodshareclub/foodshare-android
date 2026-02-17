@@ -79,6 +79,7 @@ struct GlassStepper: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!canDecrement)
+                #if !SKIP
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { _ in
@@ -92,13 +93,16 @@ struct GlassStepper: View {
                             }
                         },
                 )
+                #endif
 
                 // Value display
                 Text(valueFormatter(value))
                     .font(.DesignSystem.headlineSmall)
                     .foregroundStyle(Color.DesignSystem.text)
                     .frame(minWidth: 60)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
                     .animation(.spring(response: 0.25, dampingFraction: 0.8), value: value)
 
                 // Plus button
@@ -121,6 +125,7 @@ struct GlassStepper: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!canIncrement)
+                #if !SKIP
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { _ in
@@ -134,6 +139,7 @@ struct GlassStepper: View {
                             }
                         },
                 )
+                #endif
             }
             .padding(Spacing.xxxs)
             .background(
@@ -237,6 +243,7 @@ struct GlassCompactStepper: View {
             }
             .buttonStyle(.plain)
             .disabled(!canDecrement)
+            #if !SKIP
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in
@@ -250,13 +257,16 @@ struct GlassCompactStepper: View {
                         }
                     },
             )
+            #endif
 
             // Value
             Text("\(value)")
                 .font(.DesignSystem.labelLarge)
                 .foregroundStyle(Color.DesignSystem.text)
                 .frame(minWidth: 32)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
                 .animation(.spring(response: 0.25, dampingFraction: 0.8), value: value)
 
             // Plus button
@@ -275,6 +285,7 @@ struct GlassCompactStepper: View {
             }
             .buttonStyle(.plain)
             .disabled(!canIncrement)
+            #if !SKIP
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in
@@ -288,6 +299,7 @@ struct GlassCompactStepper: View {
                         }
                     },
             )
+            #endif
         }
         .padding(Spacing.xxxs)
         .background(

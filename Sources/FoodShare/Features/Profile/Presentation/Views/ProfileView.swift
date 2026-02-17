@@ -24,7 +24,7 @@ struct ProfileView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(\.translationService) private var t
-    @Environment(\.dependencies) private var dependencies
+    @Environment(\.dependencies) private var dependencies: DependencyContainer?
     @State private var viewModel: ProfileViewModel
     @Binding var navigationPath: NavigationPath
     @State private var showSignOutAlert = false
@@ -114,12 +114,18 @@ struct ProfileView: View {
         } message: {
             Text(t.t("profile.sign_out_confirm"))
         }
-        .alert(item: $viewModel.alertItem) { alert in
-            Alert(
-                title: Text(alert.title),
-                message: Text(alert.message),
-                dismissButton: .default(Text(t.t("common.ok"))),
+        .alert(
+            viewModel.alertItem?.title ?? "",
+            isPresented: Binding(
+                get: { viewModel.alertItem != nil },
+                set: { if !$0 { viewModel.alertItem = nil } }
             )
+        ) {
+            Button(t.t("common.ok"), role: .cancel) {}
+        } message: {
+            if let alertItem = viewModel.alertItem {
+                Text(alertItem.message)
+            }
         }
         .task {
             await viewModel.loadProfile()
@@ -249,15 +255,44 @@ enum ProfileDestination: Hashable {
     case help
 
     static func == (lhs: ProfileDestination, rhs: ProfileDestination) -> Bool {
+        #if !SKIP
         switch (lhs, rhs) {
-        case let (.listings(l, _), .listings(r, _)): l == r
-        case let (.history(l, _), .history(r, _)): l == r
-        case let (.badges(lc, ls), .badges(rc, rs)): lc.earnedBadges.count == rc.earnedBadges.count && ls
+        case (.listings(let l, _), .listings(let r, _)): l == r
+        case (.history(let l, _), .history(let r, _)): l == r
+        case (.badges(let lc, let ls), .badges(let rc, let rs)): lc.earnedBadges.count == rc.earnedBadges.count && ls
             .profileId == rs.profileId
-        case let (.reviews(lr, _, _), .reviews(rr, _, _)): lr.map(\.id) == rr.map(\.id)
+        case (.reviews(let lr, _, _), .reviews(let rr, _, _)): lr.map(\.id) == rr.map(\.id)
         case (.forum, .forum), (.settings, .settings), (.notifications, .notifications), (.help, .help): true
         default: false
         }
+        #else
+        switch lhs {
+        case .listings(let lId, _):
+            if case .listings(let rId, _) = rhs { return lId == rId }
+            return false
+        case .history(let lId, _):
+            if case .history(let rId, _) = rhs { return lId == rId }
+            return false
+        case .badges(let lc, let ls):
+            if case .badges(let rc, let rs) = rhs { return lc.earnedBadges.count == rc.earnedBadges.count && ls.profileId == rs.profileId }
+            return false
+        case .reviews(let lr, _, _):
+            if case .reviews(let rr, _, _) = rhs { return lr.map(\.id) == rr.map(\.id) }
+            return false
+        case .forum:
+            if case .forum = rhs { return true }
+            return false
+        case .settings:
+            if case .settings = rhs { return true }
+            return false
+        case .notifications:
+            if case .notifications = rhs { return true }
+            return false
+        case .help:
+            if case .help = rhs { return true }
+            return false
+        }
+        #endif
     }
 
     func hash(into hasher: inout Hasher) {
@@ -588,7 +623,7 @@ private struct EnhancedProfileAvatarView: View {
                     }
                     .fade(duration: 0.3)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: ContentMode.fill)
             } else {
                 avatarPlaceholder
             }
@@ -614,7 +649,7 @@ private struct EnhancedProfileAvatarView: View {
             duration: 2.0,
         )
         .scaleEffect(isPressed ? 0.95 : 1.0)
-        .animation(.interpolatingSpring(stiffness: 300, damping: 20), value: isPressed)
+        .animation(Animation.interpolatingSpring(stiffness: 300, damping: 20), value: isPressed)
         .onTapGesture {
             onTap()
         }
@@ -622,7 +657,7 @@ private struct EnhancedProfileAvatarView: View {
             isPressed = pressing
         }, perform: {})
         .accessibilityLabel(t.t("profile.photo_tap_to_view"))
-        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(AccessibilityTraits.isButton)
     }
 
     private var avatarPlaceholder: some View {
@@ -652,7 +687,7 @@ struct AvatarDetailView: View {
             if let avatarUrl, let url = URL(string: avatarUrl) {
                 KFImage(url)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: ContentMode.fit)
                     .scaleEffect(zoomScale)
                     .gesture(
                         MagnificationGesture()
@@ -662,7 +697,7 @@ struct AvatarDetailView: View {
                             .onEnded { _ in
                                 lastZoomScale = zoomScale
                                 if zoomScale < 1.0 {
-                                    withAnimation(.interpolatingSpring(stiffness: 300, damping: 20)) {
+                                    withAnimation(Animation.interpolatingSpring(stiffness: 300, damping: 20)) {
                                         zoomScale = 1.0
                                         lastZoomScale = 1.0
                                     }
@@ -672,7 +707,7 @@ struct AvatarDetailView: View {
                     .gesture(
                         TapGesture(count: 2)
                             .onEnded {
-                                withAnimation(.interpolatingSpring(stiffness: 300, damping: 20)) {
+                                withAnimation(Animation.interpolatingSpring(stiffness: 300, damping: 20)) {
                                     if zoomScale > 1.0 {
                                         zoomScale = 1.0
                                         lastZoomScale = 1.0
@@ -918,10 +953,12 @@ struct ProfileMenuRow: View {
                 .foregroundStyle(Color.DesignSystem.textSecondary)
         }
         .padding(Spacing.md)
+        #if !SKIP
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(title)
-        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(AccessibilityTraits.isButton)
     }
 }
 
@@ -1070,7 +1107,9 @@ struct LevelProgressCard: View {
                     Text(t.t("profile.to_next_level", args: ["percent": "\(Int(animatedProgress * 100))"]))
                         .font(.LiquidGlass.captionSmall)
                         .foregroundStyle(Color.DesignSystem.textSecondary)
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
                 }
             }
 
@@ -1106,7 +1145,7 @@ struct LevelProgressCard: View {
         .onAppear {
             guard !hasAnimated else { return }
             hasAnimated = true
-            withAnimation(.interpolatingSpring(stiffness: 100, damping: 15).delay(0.3)) {
+            withAnimation(Animation.interpolatingSpring(stiffness: 100, damping: 15).delay(0.3)) {
                 animatedProgress = level.progress
             }
             HapticManager.light()
@@ -1183,7 +1222,9 @@ struct StreakIndicatorCard: View {
                         .font(.LiquidGlass.displaySmall)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.DesignSystem.text)
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
 
                     Text(t.t("profile.streak.day_streak"))
                         .font(.LiquidGlass.bodyMedium)
@@ -1208,7 +1249,9 @@ struct StreakIndicatorCard: View {
         }
         .padding(Spacing.md)
         .glassEffect(cornerRadius: CornerRadius.large)
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(t.t(
             "profile.streak.accessibility",
             args: ["days": "\(streakDays)", "message": t.t(streakMessageKey)],
@@ -1245,7 +1288,7 @@ struct ProfileQRCodeView: View {
                         if let avatarUrl = profile.avatarUrl, let url = URL(string: avatarUrl) {
                             KFImage(url)
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .aspectRatio(contentMode: ContentMode.fill)
                                 .frame(width: 80, height: 80)
                                 .clipShape(Circle())
                                 .overlay(

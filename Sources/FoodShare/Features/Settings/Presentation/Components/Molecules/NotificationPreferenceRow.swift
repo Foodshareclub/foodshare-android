@@ -74,7 +74,7 @@ public struct NotificationPreferenceRow: View {
                 // Icon
                 NotificationIcon(
                     category: category,
-                    size: .small,
+                    size: NotificationIcon.Size.small,
                 )
 
                 // Content
@@ -98,7 +98,9 @@ public struct NotificationPreferenceRow: View {
                 )
             }
             .padding(Spacing.md)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
             .onTapGesture {
                 if isEnabled, !isLoading, !isDisabled {
                     withAnimation(.smooth) {
@@ -120,7 +122,9 @@ public struct NotificationPreferenceRow: View {
         .background(Color.DesignSystem.glassBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .opacity(isDisabled ? 0.5 : 1.0)
+        #if !SKIP
         .accessibilityElement(children: .contain)
+        #endif
         .accessibilityLabel("\(category.displayName) notifications")
         .accessibilityValue(isEnabled ? "Enabled, \(frequency.displayName)" : "Disabled")
     }
@@ -217,7 +221,7 @@ public struct SimpleNotificationPreferenceRow: View {
             // Icon
             NotificationIcon(
                 category: category,
-                size: .small,
+                size: NotificationIcon.Size.small,
             )
 
             // Content

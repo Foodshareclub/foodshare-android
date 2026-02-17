@@ -200,7 +200,7 @@ struct ActivityCard: View {
                                 switch phase {
                                 case let .success(image):
                                     image.resizable().aspectRatio(contentMode: .fill)
-                                        .transition(.opacity.animation(.interpolatingSpring(stiffness: 300, damping: 24)))
+                                        .transition(.opacity)
                                 default:
                                     defaultAvatar
                                 }
@@ -236,7 +236,7 @@ struct ActivityCard: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .transition(.opacity.animation(.interpolatingSpring(stiffness: 300, damping: 24)))
+                            .transition(.opacity)
                     default:
                         Rectangle()
                             .fill(Color.DesignSystem.glassBackground)

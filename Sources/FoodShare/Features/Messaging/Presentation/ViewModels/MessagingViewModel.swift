@@ -150,19 +150,28 @@ final class MessagingViewModel {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
 
-        return Dictionary(grouping: displayedRooms) { room in
-            guard let date = room.lastMessageTime else { return "No messages" }
-
-            if Calendar.current.isDateInToday(date) {
-                return "Today"
-            } else if Calendar.current.isDateInYesterday(date) {
-                return "Yesterday"
-            } else if Calendar.current.isDate(date, equalTo: Date(), toGranularity: .weekOfYear) {
-                return "This Week"
-            } else {
-                return formatter.string(from: date)
+        var result: [String: [Room]] = [:]
+        for room in displayedRooms {
+            let key: String
+            guard let date = room.lastMessageTime else {
+                key = "No messages"
+                result[key, default: []].append(room)
+                continue
             }
+
+            let interval = Date().timeIntervalSince(date)
+            if Calendar.current.isDateInToday(date) {
+                key = "Today"
+            } else if interval < 172800 && interval >= 86400 {
+                key = "Yesterday"
+            } else if interval < 604800 {
+                key = "This Week"
+            } else {
+                key = formatter.string(from: date)
+            }
+            result[key, default: []].append(room)
         }
+        return result
     }
 
     // MARK: - Actions

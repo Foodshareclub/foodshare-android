@@ -92,7 +92,7 @@ final class SupabaseNotificationRepository: BaseSupabaseRepository, Notification
     func fetchUnreadCount(for userId: UUID) async throws -> Int {
         let response = try await supabase
             .from("user_notifications")
-            .select("id", head: true, count: .exact)
+            .select("id", head: true, count: CountOption.exact)
             .eq("recipient_id", value: userId.uuidString)
             .eq("is_read", value: false)
             .execute()
@@ -146,7 +146,7 @@ final class SupabaseNotificationRepository: BaseSupabaseRepository, Notification
 
         let totalResponse = try await supabase
             .from("user_notifications")
-            .select("id", head: true, count: .exact)
+            .select("id", head: true, count: CountOption.exact)
             .eq("recipient_id", value: userId.uuidString)
             .execute()
 
@@ -242,7 +242,7 @@ final class SupabaseNotificationRepository: BaseSupabaseRepository, Notification
         Task { [weak self] in
             for await insertion in insertions {
                 do {
-                    let notification = try insertion.decodeRecord(as: UserNotification.self, decoder: .isoDecoder)
+                    let notification = try insertion.decodeRecord(as: UserNotification.self, decoder: JSONDecoder.isoDecoder)
                     onNotification(notification)
                 } catch {
                     self?.logger.error("Failed to decode notification: \(error.localizedDescription)")

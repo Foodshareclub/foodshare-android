@@ -7,6 +7,41 @@
 
 import SwiftUI
 
+#if SKIP
+// MARK: - Skip-compatible Font.DesignSystem
+
+/// Standalone namespace for design system typography (Skip cannot nest types in external type extensions)
+enum _FontDesignSystem {
+    static var displayLarge: Font { Font.system(size: 57, weight: .bold) }
+    static var displayMedium: Font { Font.system(size: 45, weight: .bold) }
+    static var displaySmall: Font { Font.system(size: 36, weight: .bold) }
+
+    static var headlineLarge: Font { Font.system(size: 32, weight: .semibold) }
+    static var headlineMedium: Font { Font.system(size: 28, weight: .semibold) }
+    static var headlineSmall: Font { Font.system(size: 24, weight: .semibold) }
+
+    static var titleLarge: Font { Font.system(size: 22, weight: .medium) }
+    static var titleMedium: Font { Font.system(size: 16, weight: .medium) }
+    static var titleSmall: Font { Font.system(size: 14, weight: .medium) }
+
+    static var bodyLarge: Font { Font.system(size: 16, weight: .regular) }
+    static var bodyMedium: Font { Font.system(size: 14, weight: .regular) }
+    static var bodySmall: Font { Font.system(size: 12, weight: .regular) }
+
+    static var labelLarge: Font { Font.system(size: 14, weight: .medium) }
+    static var labelMedium: Font { Font.system(size: 12, weight: .medium) }
+    static var labelSmall: Font { Font.system(size: 11, weight: .medium) }
+
+    static var caption: Font { Font.system(size: 12, weight: .regular) }
+    static var captionMedium: Font { Font.system(size: 11, weight: .medium) }
+    static var captionSmall: Font { Font.system(size: 10, weight: .regular) }
+}
+
+extension Font {
+    /// Provides `Font.DesignSystem.xxx` access for Skip by returning the standalone enum metatype
+    static var DesignSystem: _FontDesignSystem.Type { _FontDesignSystem.self }
+}
+#else
 extension Font {
     enum DesignSystem {
         // MARK: - Display
@@ -73,3 +108,4 @@ extension Font {
         static let captionSmall = Font.DesignSystem.captionSmall
     }
 }
+#endif

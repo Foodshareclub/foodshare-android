@@ -355,7 +355,9 @@ private struct AuthorStatCard: View {
                 .font(.DesignSystem.headlineSmall)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             Text(label)
                 .font(.DesignSystem.captionSmall)

@@ -292,7 +292,7 @@ struct GlassCarouselCard<Content: View>: View {
                     lineWidth: 1
                 )
         )
-        .shadow(color: .black.opacity(0.15), radius: 15, y: 8)
+        .shadow(color: Color.black.opacity(0.15), radius: 15, y: 8)
     }
 }
 

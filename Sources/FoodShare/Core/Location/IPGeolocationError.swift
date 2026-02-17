@@ -228,8 +228,8 @@ enum IPGeolocationError: Error, LocalizedError, Sendable {
         switch self {
         case .timeout, .networkError, .rateLimited:
             true
-        case let .httpError(_, code) where code >= 500:
-            true
+        case let .httpError(_, code):
+            if code >= 500 { true } else { false }
         default:
             false
         }

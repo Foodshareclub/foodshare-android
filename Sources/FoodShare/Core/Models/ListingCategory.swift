@@ -194,6 +194,6 @@ struct CategoryFilter: Identifiable, Hashable {
     }
 
     static var feedFilters: [CategoryFilter] {
-        [.all] + ListingCategory.feedCategories.map { .from($0) }
+        [CategoryFilter.all] + ListingCategory.feedCategories.map { CategoryFilter.from($0) }
     }
 }

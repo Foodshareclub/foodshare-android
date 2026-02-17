@@ -258,7 +258,7 @@ public struct GlobalSettingsSection: View {
                 statItem(
                     icon: "bell.badge.fill",
                     color: .DesignSystem.brandGreen,
-                    count: viewModel.preferences.preferences(for: .push).count(where: { $0.enabled }),
+                    count: viewModel.preferences.preferences(for: NotificationChannel.push).filter({ $0.enabled }).count,
                     total: NotificationCategory.allCases.count,
                     label: "Push",
                 )
@@ -269,7 +269,7 @@ public struct GlobalSettingsSection: View {
                 statItem(
                     icon: "envelope.fill",
                     color: .DesignSystem.brandBlue,
-                    count: viewModel.preferences.preferences(for: .email).count(where: { $0.enabled }),
+                    count: viewModel.preferences.preferences(for: NotificationChannel.email).filter({ $0.enabled }).count,
                     total: NotificationCategory.allCases.count,
                     label: "Email",
                 )
@@ -280,7 +280,7 @@ public struct GlobalSettingsSection: View {
                 statItem(
                     icon: "text.bubble.fill",
                     color: .DesignSystem.accentPurple,
-                    count: viewModel.preferences.preferences(for: .sms).count(where: { $0.enabled }),
+                    count: viewModel.preferences.preferences(for: NotificationChannel.sms).filter({ $0.enabled }).count,
                     total: NotificationCategory.allCases.count,
                     label: "SMS",
                 )

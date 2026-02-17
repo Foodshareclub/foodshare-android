@@ -292,7 +292,7 @@ public actor ConflictResolver<T: Syncable> {
         case .mergePreferServer:
             let (merged, mergedFields) = conflict.localVersion.merge(
                 with: conflict.remoteVersion,
-                preferring: .remote,
+                preferring: ConflictWinner.remote,
             )
             result = ConflictResolutionResult(
                 resolved: merged,
@@ -304,7 +304,7 @@ public actor ConflictResolver<T: Syncable> {
         case .mergePreferClient:
             let (merged, mergedFields) = conflict.localVersion.merge(
                 with: conflict.remoteVersion,
-                preferring: .local,
+                preferring: ConflictWinner.local,
             )
             result = ConflictResolutionResult(
                 resolved: merged,
@@ -357,7 +357,7 @@ public actor ConflictResolver<T: Syncable> {
             } else {
                 let (merged, _) = conflict.localVersion.merge(
                     with: conflict.remoteVersion,
-                    preferring: .remote,
+                    preferring: ConflictWinner.remote,
                 )
                 resolved = merged
             }
@@ -474,6 +474,7 @@ public struct SyncConflictEvent: Sendable {
 
 // MARK: - Default Syncable Extensions
 
+#if !SKIP
 /// Default implementation helpers for common patterns
 extension Syncable {
     /// Default conflicting fields detection (compares all Codable properties)
@@ -486,3 +487,4 @@ extension Syncable {
         }
     }
 }
+#endif

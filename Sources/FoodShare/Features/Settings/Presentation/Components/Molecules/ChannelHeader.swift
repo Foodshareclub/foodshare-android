@@ -76,7 +76,7 @@ public struct ChannelHeader: View {
                 // Channel icon
                 NotificationIcon(
                     channel: channel,
-                    size: .small,
+                    size: NotificationIcon.Size.small,
                 )
 
                 // Title
@@ -100,7 +100,9 @@ public struct ChannelHeader: View {
                 )
             }
             .padding(Spacing.md)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
             .onTapGesture {
                 if let action = onTapAction {
                     action()
@@ -120,7 +122,9 @@ public struct ChannelHeader: View {
             }
         }
         .background(Color.DesignSystem.glassBackground)
+        #if !SKIP
         .accessibilityElement(children: .contain)
+        #endif
         .accessibilityLabel("\(channel.displayName) notifications")
         .accessibilityValue(isExpanded ? "Expanded" : "Collapsed")
         .accessibilityHint(isExpanded ? "Tap to collapse" : "Tap to expand")
@@ -177,7 +181,7 @@ public struct CompactChannelHeader: View {
             // Channel icon
             NotificationIcon(
                 channel: channel,
-                size: .medium,
+                size: NotificationIcon.Size.medium,
             )
 
             // Title and description

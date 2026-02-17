@@ -75,7 +75,7 @@ struct PostActivityTimelineView: View {
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .DesignSystem.brandGreen))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.DesignSystem.brandGreen))
             Text(t.t("post_activity.loading"))
                 .font(.subheadline)
                 .foregroundColor(.DesignSystem.textSecondary)
@@ -193,9 +193,21 @@ private struct ActivityItemView: View {
 
                     Spacer()
 
+                    #if !SKIP
                     Text(activity.createdAt, style: .relative)
                         .font(.caption)
                         .foregroundColor(.DesignSystem.textTertiary)
+                    #else
+                    Text({
+                        let interval = Date().timeIntervalSince(activity.createdAt)
+                        if interval < 60 { return "just now" }
+                        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+                        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+                        return "\(Int(interval / 86400))d ago"
+                    }())
+                        .font(.caption)
+                        .foregroundColor(Color.DesignSystem.textTertiary)
+                    #endif
                 }
 
                 // Reason/Notes

@@ -405,7 +405,9 @@ struct ForumFiltersSheet: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 24))
                     .foregroundStyle(.tint)
+                    #if !SKIP
                     .symbolRenderingMode(.hierarchical)
+                    #endif
             }
         }
     }
@@ -555,7 +557,7 @@ struct ForumFiltersSheet: View {
                     RoundedRectangle(cornerRadius: CornerRadius.large)
                         .stroke(Color.DesignSystem.glassBorder, lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
         )
         .opacity(sectionAppearStates[id] == true ? 1 : 0)
         .offset(y: sectionAppearStates[id] == true ? 0 : 20)

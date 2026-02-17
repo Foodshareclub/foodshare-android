@@ -697,12 +697,21 @@ extension EnhancedTranslationService {
 
     /// Format distance (locale-aware km/mi)
     public func formatDistance(_ meters: Double) -> String {
+        #if !SKIP
         let formatter = MeasurementFormatter()
         formatter.locale = Locale(identifier: currentLocaleInfo?.fullCode ?? "en-US")
-        formatter.unitOptions = .naturalScale
+        formatter.unitOptions = MeasurementFormatter.UnitOptions.naturalScale
         formatter.numberFormatter.maximumFractionDigits = 1
         let measurement = Measurement(value: meters, unit: UnitLength.meters)
         return formatter.string(from: measurement)
+        #else
+        // Skip: simple fallback formatting
+        if meters < 1000 {
+            return String(format: "%.0f m", meters)
+        } else {
+            return String(format: "%.1f km", meters / 1000.0)
+        }
+        #endif
     }
 
     private func trackMissingKey(_ key: String) {
@@ -800,7 +809,7 @@ extension EnhancedTranslationService {
             state = .ready
             isReady = true
             translationRevision += 1
-            NotificationCenter.default.post(name: .localeDidChange, object: nil, userInfo: ["locale": locale])
+            NotificationCenter.default.post(name: Notification.Name.localeDidChange, object: nil, userInfo: ["locale": locale])
             logger.info("✅ Changed locale to \(locale)")
 
             // Sync to profile with proper tracking (fire-and-forget but tracked)
@@ -900,7 +909,7 @@ extension EnhancedTranslationService {
             state = .ready
             isReady = true
             translationRevision += 1
-            NotificationCenter.default.post(name: .localeDidChange, object: nil, userInfo: ["locale": locale])
+            NotificationCenter.default.post(name: Notification.Name.localeDidChange, object: nil, userInfo: ["locale": locale])
             logger.info("✅ Locale synced from server: \(locale)")
         } catch {
             logger.error("❌ Failed to sync locale from server: \(error.localizedDescription)")
@@ -949,26 +958,30 @@ extension EnhancedTranslationService {
         state = .ready
         isReady = true
         translationRevision += 1
-        NotificationCenter.default.post(name: .localeDidChange, object: nil, userInfo: ["locale": currentLocale])
+        NotificationCenter.default.post(name: Notification.Name.localeDidChange, object: nil, userInfo: ["locale": currentLocale])
     }
 
     /// Opens iOS Settings to the app's language settings (iOS 17+)
     /// This allows users to change the app language via iOS per-app language settings
     @MainActor
     public func openLanguageSettings() {
+        #if !SKIP
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
         }
+        #endif
     }
 
     /// Returns the iOS per-app language setting if set
     public var iOSPerAppLanguage: String? {
+        #if !SKIP
         // iOS stores per-app language in AppleLanguages
         if let languages = UserDefaults.standard.array(forKey: "AppleLanguages") as? [String],
            let first = languages.first
         {
             return String(first.prefix(2))
         }
+        #endif
         return nil
     }
 
@@ -1272,7 +1285,10 @@ extension EnhancedTranslationService {
         }
 
         // Merge cached and fetched translations
-        let allTranslations = cachedTranslations.merging(allFetchedTranslations) { _, new in new }
+        var allTranslations = cachedTranslations
+        for (key, value) in allFetchedTranslations {
+            allTranslations[key] = value
+        }
         logger.debug("✅ Total: \(allFetchedTranslations.count) new translations fetched")
         return ContentTranslationResult(translations: allTranslations, error: lastError)
     }
@@ -1401,10 +1417,14 @@ extension EnhancedTranslationService {
         for attempt in 0 ..< TranslationConfig.maxRetryAttempts {
             do {
                 return try await fetchTranslations(locale: locale)
-            } catch let error as TranslationError where error.isRetryable {
-                lastError = error
-                let delay = TranslationConfig.retryDelayBase * pow(2, Double(attempt))
-                try? await Task.sleep(for: .seconds(delay))
+            } catch let error as TranslationError {
+                if error.isRetryable {
+                    lastError = error
+                    let delay = TranslationConfig.retryDelayBase * pow(2, Double(attempt))
+                    try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                } else {
+                    throw error
+                }
             } catch {
                 throw error
             }
@@ -1509,7 +1529,7 @@ extension EnhancedTranslationService {
                 logger.debug("📊 BFF response: \(responseTime)ms, cached: \(cached)")
             }
 
-            NotificationCenter.default.post(name: .translationsDidUpdate, object: nil)
+            NotificationCenter.default.post(name: Notification.Name.translationsDidUpdate, object: nil)
             return messages
 
         case 304:
@@ -1556,7 +1576,7 @@ extension EnhancedTranslationService {
         flatCache.removeAll()
         lastSyncDate = Date()
 
-        NotificationCenter.default.post(name: .translationsDidUpdate, object: nil, userInfo: ["delta": true])
+        NotificationCenter.default.post(name: Notification.Name.translationsDidUpdate, object: nil, userInfo: ["delta": true])
         return result
     }
 
@@ -1705,7 +1725,7 @@ extension EnhancedTranslationService {
                 flatCache.removeAll()
             }
 
-            NotificationCenter.default.post(name: .translationsDidUpdate, object: nil)
+            NotificationCenter.default.post(name: Notification.Name.translationsDidUpdate, object: nil)
             return messages
 
         case 304:
@@ -1842,7 +1862,7 @@ extension EnhancedTranslationService {
         backgroundTask?.cancel()
         backgroundTask = Task {
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(TranslationConfig.backgroundRefreshInterval))
+                try? await Task.sleep(nanoseconds: UInt64(TranslationConfig.backgroundRefreshInterval * 1_000_000_000))
                 guard !Task.isCancelled else { break }
                 await syncFromServer(locale: currentLocale, force: false)
             }
@@ -1850,6 +1870,7 @@ extension EnhancedTranslationService {
     }
 
     private func setupObservers() {
+        #if !SKIP
         // System locale change
         localeObserver = NotificationCenter.default.addObserver(
             forName: NSLocale.currentLocaleDidChangeNotification,
@@ -1880,14 +1901,18 @@ extension EnhancedTranslationService {
                 await self?.revalidateIfStale()
             }
         }
+        #endif
     }
 
+    #if !SKIP
     private var cacheURL: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("translations_\(currentLocale).json")
     }
+    #endif
 
     private func saveToCache() {
+        #if !SKIP
         let cache: [String: Any] = [
             "locale": currentLocale,
             "messages": translations,
@@ -1898,9 +1923,11 @@ extension EnhancedTranslationService {
         if let data = try? JSONSerialization.data(withJSONObject: cache) {
             try? data.write(to: cacheURL)
         }
+        #endif
     }
 
     private func loadFromCache() {
+        #if !SKIP
         guard let data = try? Data(contentsOf: cacheURL),
               let cache = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               (cache["locale"] as? String) == currentLocale,
@@ -1914,6 +1941,7 @@ extension EnhancedTranslationService {
         if let dateStr = cache["lastSync"] as? String {
             lastSyncDate = ISO8601DateFormatter().date(from: dateStr)
         }
+        #endif
     }
 }
 

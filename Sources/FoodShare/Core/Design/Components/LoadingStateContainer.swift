@@ -228,6 +228,7 @@ public struct LoadingStateContainer<T: Sendable, Content: View>: View {
     }
 }
 
+#if !SKIP
 // MARK: - Paginated Loading State Container
 
 /// A specialized container for paginated data with infinite scroll support
@@ -286,6 +287,7 @@ public struct PaginatedLoadingStateContainer<T: Identifiable & Sendable, Content
             }
     }
 }
+#endif
 
 // MARK: - Convenience Modifiers
 

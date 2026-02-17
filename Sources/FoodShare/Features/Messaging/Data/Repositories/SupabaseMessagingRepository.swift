@@ -65,7 +65,7 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
     // MARK: - Cache Policy Selection
 
     /// Determines the appropriate cache policy based on network state
-    private var currentCachePolicy: CachePolicy {
+    private var currentCachePolicy: OfflineCachePolicy {
         if networkMonitor.isOffline {
             .cacheOnly
         } else if networkMonitor.isConstrained {
@@ -85,7 +85,7 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
     // MARK: - DTO Mapping Helpers
 
     /// Map ChatRoomDTO from Edge Function to Room domain object
-    private func mapRoomDTO(_ dto: ChatRoomDTO) -> Room {
+    nonisolated private func mapRoomDTO(_ dto: ChatRoomDTO) -> Room {
         Room(
             id: dto.id,
             postId: dto.postId ?? 0,
@@ -101,7 +101,7 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
     }
 
     /// Map ChatRoomDetailDTO from Edge Function to Room domain object
-    private func mapRoomDetailDTO(_ dto: ChatRoomDetailDTO) -> Room {
+    nonisolated private func mapRoomDetailDTO(_ dto: ChatRoomDetailDTO) -> Room {
         Room(
             id: dto.id,
             postId: dto.postId ?? 0,
@@ -117,7 +117,7 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
     }
 
     /// Map ChatMessageDTO from Edge Function to Message domain object
-    private func mapMessageDTO(_ dto: ChatMessageDTO) -> Message {
+    nonisolated private func mapMessageDTO(_ dto: ChatMessageDTO) -> Message {
         Message(
             id: dto.id,
             roomId: dto.roomId,
@@ -138,7 +138,8 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
                 let result = try await self.fetchRoomsOfflineFirst(userId: userId)
                 return result.items
             }
-        } catch let error as DeduplicationError where error.isDeduplicated {
+        } catch let error as DeduplicationError {
+            guard error.isDeduplicated else { throw error }
             // Request already in flight - wait briefly and fetch directly
             try await Task.sleep(nanoseconds: 100_000_000) // 100ms
             let result = try await fetchRoomsOfflineFirst(userId: userId)
@@ -321,7 +322,7 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
 
         let unreadQuery = try await supabase
             .from("rooms")
-            .select("id", head: true, count: .exact)
+            .select("id", head: true, count: CountOption.exact)
             .or("sharer.eq.\(userId.uuidString),requester.eq.\(userId.uuidString)")
             .neq("last_message_sent_by", value: userId.uuidString)
             .neq("last_message_seen_by", value: userId.uuidString)
@@ -353,13 +354,13 @@ final class SupabaseMessagingRepository: BaseSupabaseRepository, MessagingReposi
 
         // Apply cursor-based pagination (ideal for chat history)
         if let cursor = pagination.cursor {
-            let comparison = pagination.direction == .backward ? "lt" : "gt"
+            let comparison = pagination.direction == CursorDirection.backward ? "lt" : "gt"
             query = query.filter(pagination.cursorColumn, operator: comparison, value: cursor)
         }
 
         // For chat, backward direction = older messages, forward = newer
         // We typically want oldest-first display, so we order accordingly
-        let ascending = pagination.direction == .forward
+        let ascending = pagination.direction == CursorDirection.forward
 
         let response = try await query
             .order(pagination.cursorColumn, ascending: ascending)

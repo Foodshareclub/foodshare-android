@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+#if !SKIP
 // MARK: - Custom Transitions
 
 extension AnyTransition {
@@ -336,3 +337,4 @@ extension View {
         modifier(BounceEffect(trigger: trigger))
     }
 }
+#endif

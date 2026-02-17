@@ -539,9 +539,19 @@ final class CreateListingViewModel {
 
     var draftSavedText: String? {
         guard let savedAt = lastSavedAt else { return nil }
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return "Draft saved \(formatter.localizedString(for: savedAt, relativeTo: Date()))"
+        #else
+        let interval = Date().timeIntervalSince(savedAt)
+        let timeAgo: String
+        if interval < 60 { timeAgo = "just now" }
+        else if interval < 3600 { timeAgo = "\(Int(interval / 60))m ago" }
+        else if interval < 86400 { timeAgo = "\(Int(interval / 3600))h ago" }
+        else { timeAgo = "\(Int(interval / 86400))d ago" }
+        return "Draft saved \(timeAgo)"
+        #endif
     }
 }
 

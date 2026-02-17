@@ -115,7 +115,7 @@ struct ChallengeCard: View {
                 challengeId: challenge.id,
                 initialLikeCount: viewModel.likeCount(for: challenge.id),
                 initialIsLiked: viewModel.isLiked(challengeId: challenge.id),
-                size: .small,
+                size: EngagementLikeButton.Size.small,
                 showCount: true,
             ) { isLiked, likeCount in
                 // Update ViewModel state after successful toggle

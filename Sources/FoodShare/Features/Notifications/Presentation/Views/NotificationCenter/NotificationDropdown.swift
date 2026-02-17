@@ -68,13 +68,13 @@ struct NotificationDropdown: View {
             radius: 20,
             y: 10,
         )
-        .transition(.asymmetric(
-            insertion: .opacity
-                .combined(with: .move(edge: .top))
-                .combined(with: .scale(scale: 0.95, anchor: .top)),
-            removal: .opacity
-                .combined(with: .move(edge: .top))
-                .combined(with: .scale(scale: 0.95, anchor: .top)),
+        .transition(AnyTransition.asymmetric(
+            insertion: AnyTransition.opacity
+                .combined(with: AnyTransition.move(edge: Edge.top))
+                .combined(with: AnyTransition.scale(scale: 0.95, anchor: UnitPoint.top)),
+            removal: AnyTransition.opacity
+                .combined(with: AnyTransition.move(edge: Edge.top))
+                .combined(with: AnyTransition.scale(scale: 0.95, anchor: UnitPoint.top)),
         ))
     }
 
@@ -129,8 +129,12 @@ struct NotificationDropdown: View {
     @ViewBuilder
     private var contentView: some View {
         switch viewModel.state {
-        case .loading where !viewModel.hasNotifications:
-            loadingView
+        case .loading:
+            if !viewModel.hasNotifications {
+                loadingView
+            } else {
+                notificationsList
+            }
         case let .error(message):
             errorView(message: message)
         case .offline:
@@ -224,7 +228,9 @@ struct NotificationDropdown: View {
         }
         .frame(height: 180)
         .frame(maxWidth: .infinity)
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel("No notifications. You're all caught up!")
     }
 

@@ -85,6 +85,7 @@ struct GlassPicker<SelectionValue: Hashable, Content: View>: View {
 
 // MARK: - Glass Segmented Picker
 
+#if !SKIP
 struct GlassSegmentedPicker<SelectionValue: Hashable & CaseIterable & CustomStringConvertible>: View
     where SelectionValue.AllCases: RandomAccessCollection {
     let label: String?
@@ -159,6 +160,7 @@ struct GlassSegmentedPicker<SelectionValue: Hashable & CaseIterable & CustomStri
         }
     }
 }
+#endif
 
 // MARK: - Glass Option Picker (Inline Options)
 
@@ -414,6 +416,7 @@ struct GlassDropdown<T: Hashable & Identifiable>: View {
 
 // MARK: - Preview Helpers
 
+#if !SKIP
 private enum GlassPickerSortOption: String, CaseIterable, CustomStringConvertible {
     case newest = "Newest"
     case nearest = "Nearest"
@@ -470,3 +473,4 @@ private struct CategoryOption: Identifiable, Hashable {
         }
     }
 }
+#endif

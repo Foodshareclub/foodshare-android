@@ -146,7 +146,7 @@ final class MFAService {
                     id: factor.id,
                     factorType: factor.factorType,
                     friendlyName: factor.friendlyName,
-                    status: factor.status == .verified ? .verified : .unverified,
+                    status: factor.status.rawValue == "verified" ? MFAFactorInfo.FactorStatus.verified : MFAFactorInfo.FactorStatus.unverified,
                     createdAt: factor.createdAt,
                 )
             }
@@ -181,7 +181,7 @@ final class MFAService {
         defer { isLoading = false }
 
         do {
-            let response = try await supabase.auth.mfa.enroll(params: .totp())
+            let response = try await supabase.auth.mfa.enroll(params: MFAEnrollParams.totp())
 
             guard let totp = response.totp else {
                 throw MFAError.enrollmentFailed("No TOTP data returned")
@@ -211,7 +211,7 @@ final class MFAService {
         isLoading = true
         defer { isLoading = false }
 
-        guard code.count == 6, code.allSatisfy(\.isNumber) else {
+        guard code.count == 6, code.allSatisfy({ $0 >= "0" && $0 <= "9" }) else {
             throw MFAError.invalidCode
         }
 
@@ -239,7 +239,7 @@ final class MFAService {
         isLoading = true
         defer { isLoading = false }
 
-        guard code.count == 6, code.allSatisfy(\.isNumber) else {
+        guard code.count == 6, code.allSatisfy({ $0 >= "0" && $0 <= "9" }) else {
             throw MFAError.invalidCode
         }
 

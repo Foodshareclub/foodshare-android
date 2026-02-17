@@ -78,6 +78,10 @@ struct Review: Codable, Identifiable, Sendable, Hashable {
 
     var rating: Int { reviewedRating }
 
+    var formattedDate: String {
+        createdAt.formatted(date: .abbreviated, time: .omitted)
+    }
+
     var reviewType: ReviewType {
         if postId != nil { return .post }
         if forumId != nil { return .forum }

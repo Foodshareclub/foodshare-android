@@ -84,7 +84,7 @@ final class LimitedDictionary<Key: Hashable, Value> {
     }
 
     /// Remove entries for keys not in the provided set (cleanup stale entries)
-    func retainOnly<S: Sequence>(keys: S) where S.Element == Key {
+    func retainOnly(keys: [Key]) {
         let keySet = Set(keys)
         let keysToRemove = storage.keys.filter { !keySet.contains($0) }
         for key in keysToRemove {

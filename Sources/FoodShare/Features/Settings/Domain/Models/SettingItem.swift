@@ -384,7 +384,11 @@ extension SettingItem {
 
     /// Get items grouped by category
     static var itemsByCategory: [SettingsCategory: [SettingItem]] {
-        Dictionary(grouping: allItems, by: \.category)
+        var result: [SettingsCategory: [SettingItem]] = [:]
+        for item in allItems {
+            result[item.category, default: []].append(item)
+        }
+        return result
     }
 
     /// Search all items and return matches sorted by relevance

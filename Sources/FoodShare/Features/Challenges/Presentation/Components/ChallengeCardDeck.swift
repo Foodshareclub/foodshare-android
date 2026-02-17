@@ -302,7 +302,7 @@ struct ChallengeCardDeck: View {
 
         // Accept indicator (right swipe)
         if dragOffset.width > 20 {
-            SwipeIndicator(type: .accept, intensity: min(1, swipeProgress))
+            SwipeIndicator(type: SwipeIndicator.IndicatorType.accept, intensity: min(1, swipeProgress))
                 .opacity(min(1, dragOffset.width / (swipeThreshold * 0.6)))
                 .offset(x: -70, y: -120)
                 .scaleEffect(0.9 + (swipeProgress * 0.2))
@@ -311,7 +311,7 @@ struct ChallengeCardDeck: View {
 
         // Decline indicator (left swipe)
         if dragOffset.width < -20 {
-            SwipeIndicator(type: .decline, intensity: min(1, swipeProgress))
+            SwipeIndicator(type: SwipeIndicator.IndicatorType.decline, intensity: min(1, swipeProgress))
                 .opacity(min(1, abs(dragOffset.width) / (swipeThreshold * 0.6)))
                 .offset(x: 70, y: -120)
                 .scaleEffect(0.9 + (swipeProgress * 0.2))
@@ -681,7 +681,7 @@ struct DeckChallengeCard: View {
                     )
                 }
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: ContentMode.fill)
                 .frame(width: cardSize.width, height: cardSize.height)
                 .clipped()
 

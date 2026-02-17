@@ -314,14 +314,15 @@ extension IPGeolocationResult {
 
         let hasMetadata = primaryResult.metadata.city != nil
 
-        switch (agreementCount, hasMetadata) {
-        case (2..., true):
-            return .high
-        case (1..., true):
-            return .medium
-        case (_, true):
-            return .low
-        default:
+        if hasMetadata {
+            if agreementCount >= 2 {
+                return .high
+            } else if agreementCount >= 1 {
+                return .medium
+            } else {
+                return .low
+            }
+        } else {
             return .veryLow
         }
     }

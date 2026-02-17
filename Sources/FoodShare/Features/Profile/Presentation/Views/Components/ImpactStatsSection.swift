@@ -85,21 +85,21 @@ struct ImpactStatsSection: View {
                 value: stats.formattedCO2,
                 label: t.t("profile.impact.co2_saved"),
                 comparison: t.t("profile.impact.trees_equivalent", args: ["count": "\(treesEquivalent)"]),
-                color: .DesignSystem.brandBlue
+                color: Color.DesignSystem.brandBlue
             )
             ImpactMetricView(
                 icon: "drop.fill",
                 value: stats.formattedWater,
                 label: t.t("profile.impact.water_saved"),
                 comparison: t.t("profile.impact.shower_equivalent", args: ["minutes": "\(showerMinutes)"]),
-                color: .DesignSystem.brandTeal
+                color: Color.DesignSystem.brandTeal
             )
             ImpactMetricView(
                 icon: "fork.knife",
                 value: "\(stats.mealsShared + stats.mealsReceived)",
                 label: t.t("profile.impact.meals"),
                 comparison: t.t("profile.impact.meals_shared", args: ["count": "\(stats.mealsShared)"]),
-                color: .DesignSystem.brandOrange
+                color: Color.DesignSystem.brandOrange
             )
         }
     }
@@ -184,7 +184,9 @@ struct ImpactMetricView: View {
                 .font(.LiquidGlass.headlineSmall)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             Text(label)
                 .font(.LiquidGlass.captionSmall)
@@ -225,7 +227,9 @@ struct SimpleImpactMetricView: View {
                 .font(.LiquidGlass.headlineSmall)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             Text(label)
                 .font(.LiquidGlass.captionSmall)

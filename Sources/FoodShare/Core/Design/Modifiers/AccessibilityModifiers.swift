@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+#if !SKIP
 // MARK: - Accessible Glass Modifier
 
 /// Modifier that adds proper accessibility support to glass components
@@ -608,3 +609,4 @@ public enum GlassAccessibilityPreset {
 
     return AccessibilityDemo()
 }
+#endif

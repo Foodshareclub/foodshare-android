@@ -161,8 +161,10 @@ final class FeedPreferencesService: FeedPreferencesServiceProtocol {
             sortOption = sort
         }
 
+        #if !SKIP
         savedItems = Set(defaults.array(forKey: Keys.savedItems) as? [Int] ?? [])
         preferredCategories = defaults.array(forKey: Keys.preferredCategories) as? [Int] ?? []
+        #endif
 
         logger.debug("Loaded preferences: viewMode=\(self.viewMode.rawValue), sortOption=\(self.sortOption.rawValue)")
     }

@@ -1,6 +1,6 @@
 # FoodShare App (Cross-Platform)
 
-**Version:** 3.0.2 | **Framework:** Skip Fuse | **Platforms:** iOS 17+ & Android 28+ | **Swift:** 6.1 | **Status:** Production
+**Version:** 3.0.2 | **Framework:** Skip Fuse | **Platforms:** iOS 17+ & Android 28+ | **Swift:** 6.3 | **Status:** Production
 
 > Unified cross-platform FoodShare app using Skip Fuse. Single Swift codebase builds native iOS and Android apps.
 
@@ -28,7 +28,7 @@ swift test                               # Run tests
 
 | Component | Technology |
 |-----------|------------|
-| Language | Swift 6.1 |
+| Language | Swift 6.3 |
 | UI Framework | SwiftUI (via Skip Fuse → Jetpack Compose on Android) |
 | Cross-Platform | Skip Fuse 1.7.2 |
 | Backend | Self-hosted Supabase (supabase-swift 2.41+) |

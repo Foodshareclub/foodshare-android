@@ -198,10 +198,23 @@ extension EnhancedTranslationService {
     
     /// Duration formatting (e.g., "2h 30m")
     public func formatDuration(_ seconds: TimeInterval) -> String {
+        #if !SKIP
         let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .abbreviated
-        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = DateComponentsFormatter.UnitsStyle.abbreviated
+        formatter.allowedUnits = [NSCalendar.Unit.hour, NSCalendar.Unit.minute]
         formatter.calendar?.locale = Locale(identifier: currentLocaleInfo?.fullCode ?? "en-US")
         return formatter.string(from: seconds) ?? ""
+        #else
+        let totalSeconds = Int(seconds)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        if hours > 0 && minutes > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if hours > 0 {
+            return "\(hours)h"
+        } else {
+            return "\(minutes)m"
+        }
+        #endif
     }
 }

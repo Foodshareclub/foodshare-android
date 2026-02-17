@@ -172,6 +172,7 @@ struct ReviewCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             HStack {
+                #if !SKIP
                 if let avatarUrl = review.reviewer?.avatarUrl, let url = URL(string: avatarUrl) {
                     GlassAsyncImage.avatar(url: url, size: 32, borderWidth: 1)
                 } else {
@@ -184,6 +185,16 @@ struct ReviewCard: View {
                                 .foregroundStyle(Color.DesignSystem.textSecondary)
                         )
                 }
+                #else
+                Circle()
+                    .fill(Color.DesignSystem.glassBackground)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.DesignSystem.textSecondary)
+                    )
+                #endif
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(review.reviewer?.nickname ?? "Anonymous")

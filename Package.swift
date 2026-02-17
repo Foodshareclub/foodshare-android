@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 // FoodShare - Skip Fuse cross-platform app (iOS + Android)
 import PackageDescription
 

@@ -10,6 +10,213 @@
 
 import SwiftUI
 
+#if SKIP
+// MARK: - Skip-compatible Color.DesignSystem
+
+/// Helper to create Color from hex UInt on Skip
+private func _colorFromHex(_ hex: UInt) -> Color {
+    let r = Double((hex >> 16) & 0xFF) / 255.0
+    let g = Double((hex >> 8) & 0xFF) / 255.0
+    let b = Double(hex & 0xFF) / 255.0
+    return Color(red: r, green: g, blue: b)
+}
+
+/// Opacity tokens for Skip
+enum _ColorOpacity {
+    static let micro = 0.05
+    static let extraSubtle = 0.08
+    static let subtle = 0.1
+    static let semiLight = 0.12
+    static let light = 0.15
+    static let medium = 0.2
+    static let emphasized = 0.3
+    static let moderate = 0.4
+    static let prominent = 0.5
+    static let strong = 0.7
+    static let almostOpaque = 0.9
+    static let fillQuaternary = 0.04
+    static let fillTertiary = 0.07
+    static let fillSecondary = 0.10
+    static let fill = 0.15
+    static let separator = 0.24
+}
+
+/// Standalone namespace for design system colors (Skip cannot nest types in external type extensions)
+enum _ColorDesignSystem {
+    // MARK: - Opacity
+    typealias Opacity = _ColorOpacity
+
+    // MARK: - Brand Colors
+    static var brandPink: Color { _colorFromHex(0xFF2D55) }
+    static var brandTeal: Color { _colorFromHex(0x00A699) }
+    static var brandOrange: Color { _colorFromHex(0xFC642D) }
+    static var brandGreen: Color { _colorFromHex(0x30D158) }
+    static var brandBlue: Color { _colorFromHex(0x3498DB) }
+
+    // MARK: - Primary Colors
+    static var primary: Color { brandPink }
+    static var primaryLight: Color { brandPink.opacity(Opacity.strong) }
+    static var primaryDark: Color { _colorFromHex(0xE6284C) }
+
+    // MARK: - Semantic Background Colors
+    static var background: Color { Color(red: 0x1C/255, green: 0x1C/255, blue: 0x1E/255) }
+    static var surface: Color { Color(red: 0x1C/255, green: 0x1C/255, blue: 0x1E/255) }
+    static var surfaceElevated: Color { Color(red: 0x2C/255, green: 0x2C/255, blue: 0x2E/255) }
+
+    // MARK: - Text Colors
+    static var text: Color { Color.primary }
+    static var textPrimary: Color { Color.primary }
+    static var textSecondary: Color { Color.secondary }
+    static var textTertiary: Color { Color.primary.opacity(Opacity.prominent) }
+
+    // MARK: - Status Colors
+    static var success: Color { _colorFromHex(0x30D158) }
+    static var warning: Color { _colorFromHex(0xF39C12) }
+    static var error: Color { _colorFromHex(0xE74C3C) }
+    static var info: Color { _colorFromHex(0x3498DB) }
+
+    // MARK: - Accent Colors
+    static var accentBlue: Color { _colorFromHex(0x0A84FF) }
+    static var accentCyan: Color { _colorFromHex(0x32D4DE) }
+    static var accentPink: Color { _colorFromHex(0xE91E63) }
+    static var accentPurple: Color { _colorFromHex(0x9B59B6) }
+    static var accentYellow: Color { _colorFromHex(0xF1C40F) }
+    static var accentOrange: Color { _colorFromHex(0xE67E22) }
+    static var accentBrown: Color { _colorFromHex(0x8D6E63) }
+    static var accentGray: Color { _colorFromHex(0x95A5A6) }
+
+    // MARK: - Glass Effect Colors
+    static var glassMicro: Color { Color.white.opacity(Opacity.micro) }
+    static var glassExtraSubtle: Color { Color.white.opacity(Opacity.extraSubtle) }
+    static var glassBackground: Color { Color.white.opacity(Opacity.subtle) }
+    static var glassSemiLight: Color { Color.white.opacity(Opacity.semiLight) }
+    static var glassSurface: Color { Color.white.opacity(Opacity.light) }
+    static var glassBorder: Color { Color.white.opacity(Opacity.medium) }
+    static var glassHighlight: Color { Color.white.opacity(Opacity.emphasized) }
+    static var glassStroke: Color { Color.white.opacity(Opacity.medium) }
+    static var glassOverlay: Color { Color.white.opacity(Opacity.subtle) }
+
+    // MARK: - Semantic Overlay Colors
+    static var overlayLight: Color { Color.white.opacity(0.6) }
+    static var overlayMedium: Color { Color.white.opacity(0.7) }
+    static var overlayStrong: Color { Color.white.opacity(0.8) }
+    static var overlayDark: Color { Color.black.opacity(0.3) }
+    static var overlayShadow: Color { Color.black.opacity(0.15) }
+    static var scrim: Color { Color.black.opacity(0.4) }
+
+    // MARK: - Category Colors
+    static var categoryProduce: Color { _colorFromHex(0x27AE60) }
+    static var categoryDairy: Color { _colorFromHex(0x3498DB) }
+    static var categoryBakedGoods: Color { _colorFromHex(0xE67E22) }
+    static var categoryPreparedMeals: Color { _colorFromHex(0xE74C3C) }
+    static var categoryPantryItems: Color { _colorFromHex(0x95A5A6) }
+
+    // MARK: - Medal Colors
+    static var medalGold: Color { _colorFromHex(0xFFD700) }
+    static var medalSilver: Color { _colorFromHex(0xC0C0C0) }
+    static var medalBronze: Color { _colorFromHex(0xCD7F32) }
+
+    // MARK: - Contrast Colors
+    static var contrastText: Color { Color.white }
+    static var contrastTextSecondary: Color { Color.white.opacity(Opacity.almostOpaque) }
+    static var contrastSubtle: Color { Color.white.opacity(Opacity.medium) }
+    static var contrastShadow: Color { Color.black.opacity(Opacity.light) }
+
+    // MARK: - Dark/Light Mode Palette
+    static var lightPrimaryColor: Color { _colorFromHex(0x9168FF) }
+    static var lightBackgroundColor: Color { _colorFromHex(0xEDFBFF) }
+    static var lightTextColor: Color { _colorFromHex(0x14151F) }
+    static var lightAccentColor: Color { _colorFromHex(0x87FFB5) }
+    static var darkPrimaryColor: Color { _colorFromHex(0xBB86FC) }
+    static var darkBackgroundColor: Color { _colorFromHex(0x000000) }
+    static var darkTextColor: Color { _colorFromHex(0xE0E0E0) }
+    static var darkAccentColor: Color { _colorFromHex(0x00FF7F) }
+
+    // MARK: - Dark Auth Background Colors
+    static var darkAuthBase: Color { _colorFromHex(0x000000) }
+    static var darkAuthMid: Color { _colorFromHex(0x1C1C1E) }
+    static var darkAuthLight: Color { _colorFromHex(0x2C2C2E) }
+
+    // MARK: - Legacy Compatibility
+    static var blueDark: Color { _colorFromHex(0x2C3E50) }
+    static var blueLight: Color { _colorFromHex(0x5DADE2) }
+    static var mainColor: Color { accentBlue }
+    static var brandCyan: Color { _colorFromHex(0x1ABC9C) }
+    static var brandPurple: Color { _colorFromHex(0x9B59B6) }
+
+    // MARK: - Gradients
+    static var brandGradient: LinearGradient {
+        LinearGradient(colors: [brandPink.opacity(0.95), brandTeal.opacity(0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var primaryGradient: LinearGradient {
+        LinearGradient(colors: [primary, primaryDark], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var pinkTealGradient: LinearGradient {
+        LinearGradient(colors: [brandPink, brandTeal], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var authGradient: LinearGradient {
+        LinearGradient(colors: [brandPink, brandTeal], startPoint: .leading, endPoint: .trailing)
+    }
+    static var blueGradient: LinearGradient {
+        LinearGradient(colors: [accentBlue, accentCyan], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var blueCyanGradient: LinearGradient {
+        LinearGradient(colors: [accentBlue.opacity(0.95), accentCyan.opacity(0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var surfaceGradient: LinearGradient {
+        LinearGradient(colors: [surface, surfaceElevated], startPoint: .top, endPoint: .bottom)
+    }
+    static var backgroundGradient: LinearGradient {
+        LinearGradient(colors: [background, surface], startPoint: .top, endPoint: .bottom)
+    }
+    static var starRatingGradient: LinearGradient {
+        LinearGradient(colors: [medalGold, accentOrange], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var starEmptyGradient: LinearGradient {
+        LinearGradient(colors: [accentGray.opacity(0.3), accentGray.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var darkAuthGradient: LinearGradient {
+        LinearGradient(colors: [darkAuthBase, darkAuthMid, darkAuthLight], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    static var natureAccentGradient: LinearGradient {
+        LinearGradient(colors: [brandGreen.opacity(0.35), Color.clear, brandBlue.opacity(0.25)], startPoint: .top, endPoint: .bottom)
+    }
+}
+
+extension Color {
+    /// Provides `Color.DesignSystem.xxx` access for Skip
+    static var DesignSystem: _ColorDesignSystem.Type { _ColorDesignSystem.self }
+
+    // Backward compat aliases
+    static var brandPink: Color { _ColorDesignSystem.brandPink }
+    static var brandTeal: Color { _ColorDesignSystem.brandTeal }
+    static var brandOrange: Color { _ColorDesignSystem.brandOrange }
+    static var brandGreen: Color { _ColorDesignSystem.brandGreen }
+    static var brandBlue: Color { _ColorDesignSystem.brandBlue }
+    static var blueDark: Color { _ColorDesignSystem.blueDark }
+    static var blueLight: Color { _ColorDesignSystem.blueLight }
+    static var success: Color { _ColorDesignSystem.success }
+    static var warning: Color { _ColorDesignSystem.warning }
+    static var error: Color { _ColorDesignSystem.error }
+    static var info: Color { _ColorDesignSystem.info }
+    static var background: Color { _ColorDesignSystem.background }
+    static var backgroundSecondary: Color { _ColorDesignSystem.surface }
+    static var backgroundGradient: LinearGradient { _ColorDesignSystem.backgroundGradient }
+    static var glassBackground: Color { _ColorDesignSystem.glassBackground }
+    static var glassBorder: Color { _ColorDesignSystem.glassBorder }
+    static var glassStroke: Color { _ColorDesignSystem.glassStroke }
+    static var glassOverlay: Color { _ColorDesignSystem.glassOverlay }
+    static var textPrimary: Color { _ColorDesignSystem.textPrimary }
+    static var textSecondary: Color { _ColorDesignSystem.textSecondary }
+    static var textTertiary: Color { _ColorDesignSystem.textTertiary }
+    static var categoryProduce: Color { _ColorDesignSystem.categoryProduce }
+    static var categoryDairy: Color { _ColorDesignSystem.categoryDairy }
+    static var categoryBakedGoods: Color { _ColorDesignSystem.categoryBakedGoods }
+    static var categoryPreparedMeals: Color { _ColorDesignSystem.categoryPreparedMeals }
+    static var categoryPantryItems: Color { _ColorDesignSystem.categoryPantryItems }
+}
+
+#else
 // MARK: - Design System Colors
 
 extension Color {
@@ -60,7 +267,6 @@ extension Color {
 
         // MARK: - Semantic Background Colors (Apple HIG dark mode palette)
 
-        #if !SKIP
         static let background = Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
                 ? UIColor.secondarySystemBackground // #1C1C1E (Apple dark mode)
@@ -76,11 +282,6 @@ extension Color {
                 ? UIColor(red: 0x2C/255, green: 0x2C/255, blue: 0x2E/255, alpha: 1) // #2C2C2E (tertiarySystemBg)
                 : .tertiarySystemBackground
         })
-        #else
-        static let background = Color(red: 0x1C/255, green: 0x1C/255, blue: 0x1E/255)
-        static let surface = Color(red: 0x1C/255, green: 0x1C/255, blue: 0x1E/255)
-        static let surfaceElevated = Color(red: 0x2C/255, green: 0x2C/255, blue: 0x2E/255)
-        #endif
 
         // MARK: - Text Colors
 
@@ -385,3 +586,4 @@ enum LiquidGlassColors {
     static var blueGradient: LinearGradient { Color.DesignSystem.blueGradient }
     static var blueCyanGradient: LinearGradient { Color.DesignSystem.blueCyanGradient }
 }
+#endif

@@ -26,8 +26,10 @@ struct TranslatedIndicator: View {
                 .font(.DesignSystem.caption)
         }
         .foregroundColor(.DesignSystem.textTertiary)
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Content translated from English")
+        #endif
     }
 }
 

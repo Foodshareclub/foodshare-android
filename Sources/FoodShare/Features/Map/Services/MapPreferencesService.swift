@@ -1,14 +1,11 @@
 #if !SKIP
-#if !SKIP
 import CoreHaptics
 import CoreMotion
-#endif
 import Foundation
-#if !SKIP
 import MapKit
-#endif
 import Observation
 import OSLog
+import Supabase
 
 @MainActor
 @Observable
@@ -27,10 +24,10 @@ final class MapPreferencesService {
     private var isLowPowerModeEnabled = false
 
     /// Haptic Feedback
-    private var hapticEngine: CHHapticEngine?
+    nonisolated(unsafe) private var hapticEngine: CHHapticEngine?
 
     // Motion-based Quality Adaptation
-    private let motionManager = CMMotionManager()
+    nonisolated(unsafe) private let motionManager = CMMotionManager()
     private var currentMotionState: MotionState = .stationary
 
     // Debouncing
@@ -347,7 +344,7 @@ final class MapPreferencesService {
             let response: MapPreferencesResponse = try await supabase.functions
                 .invoke("map-services/preferences", options: FunctionInvokeOptions(
                     method: .get,
-                    query: [("platform", "ios")],
+                    query: [URLQueryItem(name: "platform", value: "ios")],
                 ))
             return response.preferences
         } catch {
@@ -387,15 +384,30 @@ final class MapPreferencesService {
 
 // MARK: - Supporting Types
 
-enum HapticEvent {
+enum HapticEvent: CustomStringConvertible {
     case mapSync
     case qualityChange
     case preloadComplete
+
+    var description: String {
+        switch self {
+        case .mapSync: "mapSync"
+        case .qualityChange: "qualityChange"
+        case .preloadComplete: "preloadComplete"
+        }
+    }
 }
 
-enum MotionState {
+enum MotionState: CustomStringConvertible {
     case stationary
     case moving
+
+    var description: String {
+        switch self {
+        case .stationary: "stationary"
+        case .moving: "moving"
+        }
+    }
 }
 
 struct MapQualitySettings: Codable {

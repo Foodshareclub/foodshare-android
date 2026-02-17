@@ -39,6 +39,17 @@ android {
         // applicationId = ANDROID_APPLICATION_ID ?? PRODUCT_BUNDLE_IDENTIFIER
         // versionCode = CURRENT_PROJECT_VERSION
         // versionName = MARKETING_VERSION
+
+        // Inject Supabase config from local.properties (gitignored) or CI environment
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = Properties()
+        if (localPropsFile.isFile) {
+            localProps.load(localPropsFile.inputStream())
+        }
+        buildConfigField("String", "SUPABASE_URL",
+            "\"${localProps.getProperty("SUPABASE_URL") ?: System.getenv("SUPABASE_URL") ?: ""}\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY",
+            "\"${localProps.getProperty("SUPABASE_ANON_KEY") ?: System.getenv("SUPABASE_ANON_KEY") ?: ""}\"")
     }
 
     buildFeatures {

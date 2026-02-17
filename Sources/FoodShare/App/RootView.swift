@@ -9,7 +9,7 @@
 import Supabase
 import SwiftUI
 
-struct RootView: View {
+public struct RootView: View {
     // Modern @Observable pattern: Use @Environment for @Observable objects
     @Environment(AppState.self) var appState
     @Environment(AuthViewModel.self) var authViewModel // Keep for AuthView bindings
@@ -21,7 +21,7 @@ struct RootView: View {
     /// Translation service for locale-aware view updates
     @Environment(\.translationService) private var translationService
 
-    var body: some View {
+    public var body: some View {
         // Observe translationRevision to trigger re-render when translations load
         let _ = translationService.translationRevision
 

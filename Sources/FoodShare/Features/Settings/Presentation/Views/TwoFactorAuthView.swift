@@ -199,8 +199,8 @@ struct TwoFactorAuthView: View {
                 ),
         )
         .shadow(color: statusColor.opacity(0.15), radius: 20, y: 8)
-        .padding(.horizontal, Spacing.md)
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: mfaService.status)
+        .padding(Edge.Set.horizontal, Spacing.md)
+        .animation(Animation.spring(response: 0.4, dampingFraction: 0.8), value: mfaService.status)
     }
 
     private var statusTitle: String {

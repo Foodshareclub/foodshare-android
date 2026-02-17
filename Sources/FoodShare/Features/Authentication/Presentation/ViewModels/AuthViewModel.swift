@@ -203,7 +203,7 @@ final class AuthViewModel {
     /// Validates email format using a simple regex pattern
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = #"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
-        return email.range(of: emailRegex, options: .regularExpression) != nil
+        return email.range(of: emailRegex, options: String.CompareOptions.regularExpression) != nil
     }
 
     /// Validates password meets minimum requirements
@@ -211,8 +211,8 @@ final class AuthViewModel {
         // At least 8 characters
         guard password.count >= 8 else { return false }
         // Contains at least one letter and one number
-        let hasLetter = password.range(of: "[A-Za-z]", options: .regularExpression) != nil
-        let hasNumber = password.range(of: "[0-9]", options: .regularExpression) != nil
+        let hasLetter = password.range(of: "[A-Za-z]", options: String.CompareOptions.regularExpression) != nil
+        let hasNumber = password.range(of: "[0-9]", options: String.CompareOptions.regularExpression) != nil
         return hasLetter && hasNumber
     }
 
@@ -341,6 +341,7 @@ final class AuthViewModel {
         }
     }
 
+    #if !SKIP
     // MARK: - OAuth (Deprecated - Use AuthenticationService methods instead)
 
     /// Legacy OAuth method - Deprecated in favor of AuthenticationService.signInWithGoogle()
@@ -460,6 +461,7 @@ final class AuthViewModel {
             HapticManager.error()
         }
     }
+    #endif
 
     // MARK: - Resend Confirmation Email
 
@@ -480,7 +482,7 @@ final class AuthViewModel {
             logger.info("[AUTH] Resending confirmation email to: \(email, privacy: .private)")
 
             // Note: The type is .signup to resend the initial confirmation email
-            try await supabase.auth.resend(email: email, type: .signup)
+            try await supabase.auth.resend(email: email, type: ResendEmailType.signup)
 
             // Use a success message instead of error for positive feedback
             errorMessage = "A new confirmation link has been sent to \(email)"

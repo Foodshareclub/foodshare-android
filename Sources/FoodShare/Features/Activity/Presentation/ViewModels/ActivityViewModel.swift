@@ -10,6 +10,40 @@ import Observation
 import OSLog
 import Supabase
 
+// MARK: - Realtime Decode Helpers
+
+private struct RealtimeNewPost: Decodable {
+    let id: Int
+    let postName: String
+    let postDescription: String?
+    let images: [String]?
+    let createdAt: Date
+    let isArranged: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case postName = "post_name"
+        case postDescription = "post_description"
+        case images
+        case createdAt = "created_at"
+        case isArranged = "is_arranged"
+    }
+}
+
+private struct RealtimeNewForumPost: Decodable {
+    let id: Int
+    let forumPostName: String
+    let forumPostDescription: String?
+    let forumPostCreatedAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case forumPostName = "forum_post_name"
+        case forumPostDescription = "forum_post_description"
+        case forumPostCreatedAt = "forum_post_created_at"
+    }
+}
+
 @MainActor
 @Observable
 final class ActivityViewModel {
@@ -213,25 +247,7 @@ final class ActivityViewModel {
                 guard let self else { return }
 
                 do {
-                    struct NewPost: Decodable {
-                        let id: Int
-                        let postName: String
-                        let postDescription: String?
-                        let images: [String]?
-                        let createdAt: Date
-                        let isArranged: Bool
-
-                        enum CodingKeys: String, CodingKey {
-                            case id
-                            case postName = "post_name"
-                            case postDescription = "post_description"
-                            case images
-                            case createdAt = "created_at"
-                            case isArranged = "is_arranged"
-                        }
-                    }
-
-                    let post = try insertion.decodeRecord(as: NewPost.self, decoder: decoder)
+                    let post = try insertion.decodeRecord(as: RealtimeNewPost.self, decoder: decoder)
 
                     let imageURL: URL? = {
                         guard let firstImage = post.images?.first else { return nil }
@@ -286,21 +302,7 @@ final class ActivityViewModel {
                 guard let self else { return }
 
                 do {
-                    struct NewForumPost: Decodable {
-                        let id: Int
-                        let forumPostName: String
-                        let forumPostDescription: String?
-                        let forumPostCreatedAt: Date
-
-                        enum CodingKeys: String, CodingKey {
-                            case id
-                            case forumPostName = "forum_post_name"
-                            case forumPostDescription = "forum_post_description"
-                            case forumPostCreatedAt = "forum_post_created_at"
-                        }
-                    }
-
-                    let post = try insertion.decodeRecord(as: NewForumPost.self, decoder: decoder)
+                    let post = try insertion.decodeRecord(as: RealtimeNewForumPost.self, decoder: decoder)
 
                     let activity = ActivityItem(
                         id: UUID(),

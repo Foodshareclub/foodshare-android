@@ -57,7 +57,7 @@ struct TrendingItemCard: View {
 
                         // Compact like button
                         CompactEngagementLikeButton(
-                            domain: .post(id: item.id),
+                            domain: EngagementDomain.post(id: item.id),
                             initialIsLiked: isLiked,
                             onToggle: { liked in
                                 isLiked = liked

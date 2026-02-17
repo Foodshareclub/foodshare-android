@@ -114,8 +114,8 @@ struct BadgesDetailView: View {
             }
             .padding(.horizontal, Spacing.xxs)
         }
-        .scrollBounceBehavior(.basedOnSize)
         #if !SKIP
+        .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
         #endif
     }

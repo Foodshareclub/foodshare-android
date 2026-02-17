@@ -161,7 +161,9 @@ struct SavedPostsView: View {
                     .font(.DesignSystem.headlineLarge)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.DesignSystem.text)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
 
                 Text(t.t("forum.saved_posts"))
                     .font(.DesignSystem.captionSmall)
@@ -406,7 +408,17 @@ private struct SavedPostCard: View {
                         Label("\(post.likesCount)", systemImage: "heart")
                         Label("\(post.commentsCount)", systemImage: "bubble.right")
                         Text("•")
+                        #if !SKIP
                         Text(post.forumPostCreatedAt, style: .relative)
+                        #else
+                        Text({
+                            let interval = Date().timeIntervalSince(post.forumPostCreatedAt)
+                            if interval < 60 { return "just now" }
+                            if interval < 3600 { return "\(Int(interval / 60))m ago" }
+                            if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+                            return "\(Int(interval / 86400))d ago"
+                        }())
+                        #endif
                     }
                     .font(.DesignSystem.captionSmall)
                     .foregroundStyle(Color.DesignSystem.textTertiary)

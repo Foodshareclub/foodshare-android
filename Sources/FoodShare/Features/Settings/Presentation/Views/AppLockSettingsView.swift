@@ -11,7 +11,7 @@ struct AppLockSettingsView: View {
     @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.translationService) private var t
 
-    @State private var appLockService = AppLockService.shared
+    @State private var appLockService: AppLockService = AppLockService.shared
     @State private var showEnableConfirmation = false
     @State private var showDisableConfirmation = false
     @State private var isProcessing = false

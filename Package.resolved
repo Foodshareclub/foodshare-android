@@ -1,5 +1,5 @@
 {
-  "originHash" : "da92a94706e94f2ded194377488f45012395aefb6e0a43edb5d9e91f3fc5982e",
+  "originHash" : "d7e2c23d535c07ef43c92edf0b7c6a8c1beb981b72b05603928800ac1f7b03de",
   "pins" : [
     {
       "identity" : "inject",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-fuse-ui.git",
       "state" : {
-        "revision" : "7352512328a631a8a73e45a3f4954305ee08a148",
-        "version" : "1.12.0"
+        "revision" : "1955f31c07a1e3a20babff4346d50adfdfab46eb",
+        "version" : "1.13.0"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-ui.git",
       "state" : {
-        "revision" : "32aa3c0c3c0f85126aebbdf778c5b4c7c3f52267",
-        "version" : "1.48.0"
+        "revision" : "f5571c9148fc0813b29bbf8c2e68967f6e849a90",
+        "version" : "1.49.0"
       }
     },
     {

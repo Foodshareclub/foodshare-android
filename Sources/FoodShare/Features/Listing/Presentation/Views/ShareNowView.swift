@@ -331,7 +331,7 @@ struct ShareNowView: View {
         ContentSection(
             title: t.t("create.section.share_items"),
             icon: "square.and.arrow.up.fill",
-            iconColors: [.DesignSystem.brandGreen, .DesignSystem.brandBlue]
+            iconColors: [Color.DesignSystem.brandGreen, Color.DesignSystem.brandBlue]
         ) {
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: Spacing.md),
@@ -352,7 +352,7 @@ struct ShareNowView: View {
         ContentSection(
             title: t.t("create.section.lifestyle"),
             icon: "leaf.circle.fill",
-            iconColors: [.green, .mint]
+            iconColors: [Color.green, Color.mint]
         ) {
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: Spacing.md),
@@ -373,7 +373,7 @@ struct ShareNowView: View {
         ContentSection(
             title: t.t("create.section.community"),
             icon: "person.3.fill",
-            iconColors: [.DesignSystem.brandPink, .DesignSystem.brandOrange],
+            iconColors: [Color.DesignSystem.brandPink, Color.DesignSystem.brandOrange],
             showReviewNotice: false
         ) {
             LazyVGrid(columns: [

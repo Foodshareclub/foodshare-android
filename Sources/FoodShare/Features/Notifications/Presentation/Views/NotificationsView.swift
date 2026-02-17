@@ -95,7 +95,9 @@ struct NotificationsView: View {
     @ViewBuilder
     private func notificationRowView(_ notification: UserNotification) -> some View {
         NotificationRow(notification: notification)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
             .onTapGesture {
                 HapticManager.light()
                 Task { await viewModel.markAsRead(notification) }
@@ -273,7 +275,9 @@ struct NotificationRow: View {
                             .stroke(borderStyle, lineWidth: 1),
                     ),
         )
+        #if !SKIP
         .contentShape(Rectangle())
+        #endif
     }
 }
 

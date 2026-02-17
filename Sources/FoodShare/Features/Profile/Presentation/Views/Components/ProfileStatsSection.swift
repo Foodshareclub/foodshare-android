@@ -21,7 +21,7 @@ struct ProfileStatsSection: View {
                 value: viewModel.sharedCount,
                 label: t.t("profile.stats.shared"),
                 icon: "arrow.up.heart.fill",
-                color: .DesignSystem.brandOrange
+                color: Color.DesignSystem.brandOrange
             )
             .opacity(hasAppeared ? 1 : 0)
             .offset(y: hasAppeared ? 0 : 20)
@@ -33,7 +33,7 @@ struct ProfileStatsSection: View {
                 value: viewModel.receivedCount,
                 label: t.t("profile.stats.received"),
                 icon: "arrow.down.heart.fill",
-                color: .DesignSystem.success
+                color: Color.DesignSystem.success
             )
             .opacity(hasAppeared ? 1 : 0)
             .offset(y: hasAppeared ? 0 : 20)
@@ -45,7 +45,7 @@ struct ProfileStatsSection: View {
                 value: viewModel.ratingText,
                 label: t.t("profile.stats.rating"),
                 icon: "star.fill",
-                color: .DesignSystem.accentYellow
+                color: Color.DesignSystem.accentYellow
             )
             .opacity(hasAppeared ? 1 : 0)
             .offset(y: hasAppeared ? 0 : 20)
@@ -53,6 +53,7 @@ struct ProfileStatsSection: View {
         }
         .padding(Spacing.md)
         .glassEffect(cornerRadius: CornerRadius.large)
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             t.t("profile.stats.accessibility", args: [
@@ -61,6 +62,7 @@ struct ProfileStatsSection: View {
                 "rating": viewModel.ratingText
             ])
         )
+        #endif
         .onAppear {
             hasAppeared = true
         }
@@ -106,7 +108,9 @@ struct ProfileStatItem: View {
                 .font(.LiquidGlass.headlineLarge)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             Text(label)
                 .font(.LiquidGlass.caption)

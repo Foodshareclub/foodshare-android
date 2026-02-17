@@ -15,11 +15,14 @@
 //  ```
 //
 
+#if !SKIP
 import Kingfisher
+#endif
 import SwiftUI
 
 // MARK: - Glass Async Image
 
+#if !SKIP
 /// A unified async image component with Liquid Glass styling
 /// Uses Kingfisher for caching and loading with shimmer placeholders
 struct GlassAsyncImage<Placeholder: View, Failure: View>: View {
@@ -315,6 +318,7 @@ extension GlassAsyncImage where Placeholder == GlassShimmerPlaceholder, Failure 
         .frame(maxWidth: .infinity)
     }
 }
+#endif
 
 // MARK: - Placeholder Components
 
@@ -366,7 +370,7 @@ struct GlassAvatarFallback: View {
 
 // MARK: - Preview
 
-#if DEBUG
+#if DEBUG && !SKIP
 #Preview("GlassAsyncImage Examples") {
     ScrollView {
         VStack(spacing: Spacing.xl) {

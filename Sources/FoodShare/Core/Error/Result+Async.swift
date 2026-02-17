@@ -22,6 +22,7 @@
 
 import Foundation
 
+#if !SKIP
 // MARK: - Result Async Extensions
 
 /// Result capture helpers for async operations
@@ -366,3 +367,4 @@ public func tryOrDefault<T: Sendable>(
         body,
     ) ?? defaultValue()
 }
+#endif

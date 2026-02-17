@@ -43,9 +43,11 @@ struct ProfileCompletionCard: View {
             onTap()
             HapticManager.light()
         }
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel(t.t("profile.completion_accessibility", args: ["percent": "\(Int(completion.percentage))"]))
         .accessibilityAddTraits(.isButton)
+        #endif
     }
 
     // MARK: - Progress Ring
@@ -74,7 +76,9 @@ struct ProfileCompletionCard: View {
                     .font(.LiquidGlass.headlineSmall)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.DesignSystem.text)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
             }
         }
         .onAppear {

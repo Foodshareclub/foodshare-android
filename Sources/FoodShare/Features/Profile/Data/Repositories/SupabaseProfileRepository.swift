@@ -56,7 +56,8 @@ final class SupabaseProfileRepository: BaseSupabaseRepository, ProfileRepository
             return try await RequestDeduplicator.shared.fetchProfile(id: userId) {
                 try await self.fetchProfileInternal(userId: userId)
             }
-        } catch let error as DeduplicationError where error.isDeduplicated {
+        } catch let error as DeduplicationError {
+            guard error.isDeduplicated else { throw error }
             // Request already in flight - wait briefly and retry once
             try await Task.sleep(nanoseconds: 100_000_000) // 100ms
             return try await fetchProfileInternal(userId: userId)

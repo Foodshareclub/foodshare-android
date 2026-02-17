@@ -20,6 +20,7 @@ enum InputSanitizer {
         sanitized = sanitized.replacingOccurrences(of: "\0", with: "")
 
         // Remove control characters (except newlines and tabs)
+        #if !SKIP
         sanitized = sanitized.unicodeScalars
             .filter { scalar in
                 scalar == "\n" || scalar == "\t" || scalar == "\r" ||
@@ -27,6 +28,11 @@ enum InputSanitizer {
             }
             .map { String($0) }
             .joined()
+        #else
+        sanitized = sanitized.filter { char in
+            char == "\n" || char == "\t" || char == "\r" || !char.isASCII || char.asciiValue! >= 32
+        }
+        #endif
 
         return sanitized
     }
@@ -46,7 +52,7 @@ enum InputSanitizer {
         input.replacingOccurrences(
             of: "<[^>]+>",
             with: "",
-            options: .regularExpression,
+            options: String.CompareOptions.regularExpression,
         )
     }
 
@@ -175,6 +181,6 @@ enum ValidationPattern {
 
     /// Check if string matches pattern
     static func matches(_ input: String, pattern: String) -> Bool {
-        input.range(of: pattern, options: .regularExpression) != nil
+        input.range(of: pattern, options: String.CompareOptions.regularExpression) != nil
     }
 }

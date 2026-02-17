@@ -165,7 +165,7 @@ enum DistanceUnit: String, CaseIterable, Sendable {
         }
 
         // Also check measurement system as fallback
-        if locale.measurementSystem == .us || locale.measurementSystem == .uk {
+        if locale.measurementSystem == Locale.MeasurementSystem.us || locale.measurementSystem == Locale.MeasurementSystem.uk {
             return .miles
         }
 
@@ -188,7 +188,7 @@ enum DistanceUnit: String, CaseIterable, Sendable {
     }
 
     /// Full unit name
-    var name: String {
+    var unitName: String {
         switch self {
         case .kilometers: "kilometers"
         case .miles: "miles"

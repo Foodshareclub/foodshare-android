@@ -689,8 +689,8 @@ struct LiquidGlassMapDetailSheet: View {
 
         // Clean up extra whitespace, newlines, and multiple spaces
         cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
-        cleaned = cleaned.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-        cleaned = cleaned.replacingOccurrences(of: "\n+", with: "\n", options: .regularExpression)
+        cleaned = cleaned.replacingOccurrences(of: "\\s+", with: " ", options: String.CompareOptions.regularExpression)
+        cleaned = cleaned.replacingOccurrences(of: "\n+", with: "\n", options: String.CompareOptions.regularExpression)
 
         return cleaned.isEmpty ? nil : cleaned
     }
@@ -705,7 +705,7 @@ struct LiquidGlassMapDetailSheet: View {
         }
 
         // Check for [SOURCE] marker
-        if let range = desc.range(of: "\\[SOURCE\\]\\s*([^\\[]+)", options: .regularExpression) {
+        if let range = desc.range(of: "\\[SOURCE\\]\\s*([^\\[]+)", options: String.CompareOptions.regularExpression) {
             let sourceText = String(desc[range])
                 .replacingOccurrences(of: "[SOURCE]", with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)

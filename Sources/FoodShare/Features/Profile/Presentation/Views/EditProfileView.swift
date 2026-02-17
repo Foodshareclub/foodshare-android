@@ -206,7 +206,7 @@ struct EditProfileView: View {
                         step: 5,
                         label: t.t("profile.edit.search_radius"),
                         icon: "location.circle.fill",
-                        accentColor: .DesignSystem.brandBlue,
+                        accentColor: Color.DesignSystem.brandBlue,
                         valueFormatter: { "\(Int($0)) km" }
                     )
                     .onChange(of: viewModel.searchRadiusKm) { _, _ in

@@ -39,7 +39,7 @@ final class SupabaseSearchRepository: BaseSupabaseRepository, SearchRepository {
         do {
             let result = try await searchAPI.search(
                 query: params.searchQuery ?? "",
-                mode: .hybrid,
+                mode: SearchMode.hybrid,
                 lat: params.location.latitude,
                 lng: params.location.longitude,
                 radiusKm: params.radiusKm,
@@ -97,7 +97,7 @@ final class SupabaseSearchRepository: BaseSupabaseRepository, SearchRepository {
         do {
             let result = try await searchAPI.search(
                 query: query.text ?? "",
-                mode: .text,
+                mode: SearchMode.text,
                 lat: query.location.latitude,
                 lng: query.location.longitude,
                 radiusKm: query.radiusKm,
@@ -194,7 +194,7 @@ final class SupabaseSearchRepository: BaseSupabaseRepository, SearchRepository {
     }
 
     private func loadRecentSearches() {
-        recentSearches = UserDefaults.standard.stringArray(forKey: "recentSearches") ?? []
+        recentSearches = (UserDefaults.standard.object(forKey: "recentSearches") as? [String]) ?? []
     }
 }
 

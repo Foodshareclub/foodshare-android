@@ -86,9 +86,9 @@ struct ChallengeDetailView: View {
                 RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
                     .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
             )
-            .padding(.horizontal, Spacing.md)
-            .padding(.bottom, Spacing.md)
-            .shadow(color: .black.opacity(0.1), radius: 20, y: -5)
+            .padding(Edge.Set.horizontal, Spacing.md)
+            .padding(Edge.Set.bottom, Spacing.md)
+            .shadow(color: Color.black.opacity(0.1), radius: 20, y: -5)
         }
     }
 
@@ -361,7 +361,7 @@ struct ChallengeDetailView: View {
             .shadow(color: difficultyColor.opacity(0.4), radius: 25, y: 12)
             .scaleEffect(animateHeader ? 1.0 : 0.92)
             .opacity(animateHeader ? 1 : 0)
-            .animation(.spring(response: 0.7, dampingFraction: 0.75), value: animateHeader)
+            .animation(Animation.spring(response: 0.7, dampingFraction: 0.75), value: animateHeader)
 
             // Content section below hero
             VStack(spacing: Spacing.lg) {

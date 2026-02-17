@@ -23,10 +23,10 @@ enum PasswordStrength: Sendable, Equatable {
         if password.isEmpty { return .none }
         if password.count < 8 { return .weak }
 
-        let hasUppercase = password.range(of: "[A-Z]", options: .regularExpression) != nil
-        let hasLowercase = password.range(of: "[a-z]", options: .regularExpression) != nil
-        let hasNumber = password.range(of: "[0-9]", options: .regularExpression) != nil
-        let hasSpecial = password.range(of: "[^A-Za-z0-9]", options: .regularExpression) != nil
+        let hasUppercase = password.range(of: "[A-Z]", options: String.CompareOptions.regularExpression) != nil
+        let hasLowercase = password.range(of: "[a-z]", options: String.CompareOptions.regularExpression) != nil
+        let hasNumber = password.range(of: "[0-9]", options: String.CompareOptions.regularExpression) != nil
+        let hasSpecial = password.range(of: "[^A-Za-z0-9]", options: String.CompareOptions.regularExpression) != nil
 
         let strength = [hasUppercase, hasLowercase, hasNumber, hasSpecial].count(where: { $0 })
 

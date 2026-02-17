@@ -56,7 +56,7 @@ final class SupabaseListingRepository: BaseSupabaseRepository, ListingRepository
         for data in imageData {
             let fileName = "\(UUID().uuidString).jpg"
             let path = "listings/\(fileName)"
-            try await supabase.storage.from(bucket).upload(path, data: data, options: .init(contentType: "image/jpeg"))
+            try await supabase.storage.from(bucket).upload(path, data: data, options: FileOptions(contentType: "image/jpeg"))
             let publicURL = try supabase.storage.from(bucket).getPublicURL(path: path)
             urls.append(publicURL.absoluteString)
         }

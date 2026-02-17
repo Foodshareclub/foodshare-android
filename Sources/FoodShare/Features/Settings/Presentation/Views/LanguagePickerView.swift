@@ -62,7 +62,9 @@ struct LanguagePickerView: View {
                     systemSection
                     languagesSection
                 }
+                #if !SKIP
                 .listStyle(.insetGrouped)
+                #endif
                 #if !SKIP
                 .scrollDismissesKeyboard(.interactively)
                 #endif
@@ -169,7 +171,9 @@ struct LanguagePickerView: View {
                     }
                 }
                 .padding(.vertical, Spacing.xs)
+                #if !SKIP
                 .contentShape(Rectangle())
+                #endif
             }
             .buttonStyle(.plain)
             .disabled(!translationService.hasLocaleOverride)
@@ -246,7 +250,9 @@ struct LanguagePickerView: View {
                 }
             }
             .padding(.vertical, Spacing.xs)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(locale.nativeName), \(locale.name)")
@@ -270,7 +276,9 @@ struct LanguagePickerView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.xl)
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(translationService.t("settings.language.no_results_for", args: ["query": searchText]))
     }
 
@@ -299,7 +307,9 @@ struct LanguagePickerView: View {
             .padding(Spacing.xl)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: CornerRadius.large))
         }
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(translationService.t("settings.language.changing_wait"))
     }
 

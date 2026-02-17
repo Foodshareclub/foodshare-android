@@ -18,7 +18,9 @@ struct FilterSheet: View {
     @State private var radiusLocalized = 5.0 // In user's locale unit (km or mi)
     @State private var showResetConfirmation = false
     @State private var sectionAppearStates: [String: Bool] = [:]
+    #if !SKIP
     @AccessibilityFocusState private var isResetFocused: Bool
+    #endif
 
     /// Current distance unit based on locale
     private var distanceUnit: DistanceUnit {
@@ -256,13 +258,17 @@ struct FilterSheet: View {
                                 endPoint: .trailing,
                             ),
                         )
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
                     Text(t.t("stats.total"))
                         .font(.DesignSystem.captionSmall)
                         .foregroundColor(.DesignSystem.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
+                #if !SKIP
                 .accessibilityElement(children: .combine)
+                #endif
                 .accessibilityLabel("Total items: \(viewModel.feedStats.totalItems)")
 
                 // Divider
@@ -281,13 +287,17 @@ struct FilterSheet: View {
                                 endPoint: .trailing,
                             ),
                         )
+                        #if !SKIP
                         .contentTransition(.numericText())
+                        #endif
                     Text(t.t("stats.available"))
                         .font(.DesignSystem.captionSmall)
                         .foregroundColor(.DesignSystem.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
+                #if !SKIP
                 .accessibilityElement(children: .combine)
+                #endif
                 .accessibilityLabel("Available items: \(viewModel.feedStats.availableItems)")
 
                 // Divider
@@ -313,7 +323,9 @@ struct FilterSheet: View {
                         .foregroundColor(.DesignSystem.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
+                #if !SKIP
                 .accessibilityElement(children: .combine)
+                #endif
                 .accessibilityLabel("Last updated: \(viewModel.feedStats.formattedLastUpdated)")
             }
         }
@@ -330,7 +342,9 @@ struct FilterSheet: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 24))
                     .foregroundStyle(.tint)
+                    #if !SKIP
                     .symbolRenderingMode(.hierarchical)
+                    #endif
             }
             .accessibilityLabel("Close filters")
         }
@@ -354,7 +368,9 @@ struct FilterSheet: View {
                 .foregroundColor(.DesignSystem.brandGreen)
             }
             .accessibilityLabel("Reset all filters to defaults")
+            #if !SKIP
             .accessibilityFocused($isResetFocused)
+            #endif
         }
     }
 
@@ -504,7 +520,7 @@ struct FilterSheet: View {
                         .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
                 )
                 .shadow(
-                    color: .black.opacity(0.05),
+                    color: Color.black.opacity(0.05),
                     radius: 8,
                     y: 2,
                 ),

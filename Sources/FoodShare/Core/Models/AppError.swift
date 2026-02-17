@@ -252,40 +252,42 @@ enum AppError: LocalizedError, Equatable, Sendable {
 
 // MARK: - Equatable for Associated Values
 
+#if !SKIP
 extension AppError {
     static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
-        case let (.networkError(a), .networkError(b)):
+        case (.networkError(let a), .networkError(let b)):
             a == b
-        case let (.validationError(a), .validationError(b)):
+        case (.validationError(let a), .validationError(let b)):
             a == b
-        case let (.validation(a), .validation(b)):
+        case (.validation(let a), .validation(let b)):
             a == b
-        case let (.unauthorized(a), .unauthorized(b)):
+        case (.unauthorized(let a), .unauthorized(let b)):
             a == b
-        case let (.notFound(a), .notFound(b)):
+        case (.notFound(let a), .notFound(let b)):
             a == b
-        case let (.locationError(a), .locationError(b)):
+        case (.locationError(let a), .locationError(let b)):
             a == b
-        case let (.databaseError(a), .databaseError(b)):
+        case (.databaseError(let a), .databaseError(let b)):
             a == b
-        case let (.configurationError(a), .configurationError(b)):
+        case (.configurationError(let a), .configurationError(let b)):
             a == b
-        case let (.rateLimitExceeded(a), .rateLimitExceeded(b)):
+        case (.rateLimitExceeded(let a), .rateLimitExceeded(let b)):
             a == b
-        case let (.permissionDenied(a), .permissionDenied(b)):
+        case (.permissionDenied(let a), .permissionDenied(let b)):
             a == b
-        case let (.syncFailed(a), .syncFailed(b)):
+        case (.syncFailed(let a), .syncFailed(let b)):
             a == b
-        case let (.decodingError(a), .decodingError(b)):
+        case (.decodingError(let a), .decodingError(let b)):
             a == b
-        case let (.unknown(a), .unknown(b)):
+        case (.unknown(let a), .unknown(let b)):
             a == b
         default:
             false
         }
     }
 }
+#endif
 
 // MARK: - Validation Error
 

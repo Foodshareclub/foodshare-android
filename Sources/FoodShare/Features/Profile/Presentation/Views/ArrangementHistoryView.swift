@@ -410,8 +410,10 @@ private struct DateRangeSelector: View {
             }
             .padding(.horizontal, Spacing.md)
         }
+        #if !SKIP
         .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
+        #endif
         .padding(.vertical, Spacing.xs)
     }
 }
@@ -787,8 +789,10 @@ private struct ArrangementHistoryCard: View {
             RoundedRectangle(cornerRadius: CornerRadius.large)
                 .fill(Color.DesignSystem.glassBackground),
         )
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(record.isSharer ? t.t("profile.history.filter.shared") : t.t("profile.history.filter.received")) \(record.postName)")
         .accessibilityHint(t.t("profile.history.tap_for_details"))
+        #endif
     }
 }

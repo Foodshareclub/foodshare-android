@@ -383,6 +383,7 @@ struct FeedView: View {
                     .blur(radius: 10)
 
                 // Animated gradient ring
+                #if !SKIP
                 Circle()
                     .trim(from: 0, to: 0.65)
                     .stroke(
@@ -399,6 +400,23 @@ struct FeedView: View {
                     .frame(width: 50, height: 50)
                     .rotationEffect(.degrees(-90))
                     .modifier(RotatingModifier())
+                #else
+                Circle()
+                    .trim(from: 0, to: 0.65)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.DesignSystem.brandGreen,
+                                Color.DesignSystem.brandBlue,
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                    )
+                    .frame(width: 50, height: 50)
+                    .rotationEffect(Angle.degrees(-90))
+                #endif
 
                 // Center icon
                 Image(systemName: "fork.knife")

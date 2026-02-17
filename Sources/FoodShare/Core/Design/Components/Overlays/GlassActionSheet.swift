@@ -114,7 +114,7 @@ struct GlassActionSheet: View {
                     lineWidth: 1
                 )
         )
-        .shadow(color: .black.opacity(0.25), radius: 30, y: 10)
+        .shadow(color: Color.black.opacity(0.25), radius: 30, y: 10)
     }
 
     // MARK: - Header Section
@@ -162,7 +162,9 @@ struct GlassActionSheet: View {
             .foregroundColor(action.style.color)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
         }
         .buttonStyle(ActionSheetButtonStyle())
         .disabled(action.isDisabled)
@@ -193,7 +195,7 @@ struct GlassActionSheet: View {
             RoundedRectangle(cornerRadius: CornerRadius.large)
                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.15), radius: 20, y: 5)
+        .shadow(color: Color.black.opacity(0.15), radius: 20, y: 5)
     }
 
     // MARK: - Sheet Background
@@ -231,7 +233,11 @@ struct GlassActionSheet: View {
         Task { @MainActor in
             for index in actions.indices {
                 let delay = UInt64((50 + Double(index) * 30))
+                #if SKIP
+                try? await Task.sleep(nanoseconds: delay * 1_000_000)
+                #else
                 try? await Task.sleep(for: .milliseconds(delay))
+                #endif
                 withAnimation(.interpolatingSpring(stiffness: 350, damping: 25)) {
                     if actionStates.indices.contains(index) {
                         actionStates[index] = true
@@ -252,7 +258,11 @@ struct GlassActionSheet: View {
 
         // Dismiss after animation
         Task { @MainActor in
+            #if SKIP
+            try? await Task.sleep(nanoseconds: UInt64(250 * 1_000_000))
+            #else
             try? await Task.sleep(for: .milliseconds(250))
+            #endif
             isPresented = false
         }
     }
@@ -312,7 +322,7 @@ private struct ActionSheetButtonStyle: ButtonStyle {
                     : Color.clear
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 25), value: configuration.isPressed)
     }
 }
 

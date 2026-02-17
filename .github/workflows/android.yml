@@ -1,0 +1,249 @@
+name: Android
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Quality: Rust CLI — format, lint, audit, secrets
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            tools/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build foodshare-hooks CLI
+        run: cd tools && cargo build --release --bin foodshare-hooks
+
+      - name: Make CLI executable
+        run: chmod +x tools/target/release/foodshare-hooks
+
+      - name: Format check
+        run: tools/target/release/foodshare-hooks format --check || true
+
+      - name: Lint
+        run: tools/target/release/foodshare-hooks lint || true
+
+      - name: Security audit
+        run: |
+          if [[ "${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}" == "true" ]]; then
+            tools/target/release/foodshare-hooks audit --check-deps --fail-on high
+          else
+            tools/target/release/foodshare-hooks audit --check-deps --show-info || true
+          fi
+
+      - name: Secrets scan
+        run: |
+          if [[ "${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}" == "true" ]]; then
+            tools/target/release/foodshare-hooks secrets --all
+          else
+            tools/target/release/foodshare-hooks secrets --all || true
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Build: Debug APK
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    needs: quality
+    if: >-
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+      || github.event_name == 'pull_request'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: gradle
+
+      - name: Create local.properties
+        working-directory: Android
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > local.properties
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "skipNativeBuild=true" >> local.properties
+
+      - name: Configure Gradle properties
+        working-directory: Android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Android/gradlew
+
+      - name: Build debug APK
+        working-directory: Android
+        run: ./gradlew assembleDebug --no-configuration-cache --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: Android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # Test: Unit tests (runs on every trigger)
+  # ---------------------------------------------------------------------------
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: gradle
+
+      - name: Create local.properties
+        working-directory: Android
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > local.properties
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "skipNativeBuild=true" >> local.properties
+
+      - name: Configure Gradle properties
+        working-directory: Android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Android/gradlew
+
+      - name: Run tests
+        working-directory: Android
+        run: ./gradlew test --no-configuration-cache --stacktrace
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: Android/app/build/reports/tests/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Release: AAB on tag push
+  # ---------------------------------------------------------------------------
+  release:
+    name: Build Release AAB
+    runs-on: ubuntu-latest
+    needs: quality
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: gradle
+
+      - name: Create local.properties
+        working-directory: Android
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > local.properties
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> local.properties
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "skipNativeBuild=true" >> local.properties
+
+      - name: Configure Gradle properties
+        working-directory: Android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Android/gradlew
+
+      - name: Build release AAB
+        working-directory: Android
+        run: ./gradlew bundleRelease --no-configuration-cache --stacktrace
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: Android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Play Store: Manual deploy
+  # ---------------------------------------------------------------------------
+  play-store:
+    name: Deploy to Play Store
+    runs-on: ubuntu-latest
+    needs: release
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 15
+    steps:
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab
+          path: ${{ runner.temp }}/aab
+
+      - name: Deploy to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
+          packageName: com.flutterflow.foodshare
+          releaseFiles: ${{ runner.temp }}/aab/*.aab
+          track: production
+          status: completed

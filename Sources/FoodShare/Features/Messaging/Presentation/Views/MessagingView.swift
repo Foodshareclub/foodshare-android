@@ -223,8 +223,8 @@ struct MessagingView: View {
             .padding(.horizontal, Spacing.md)
             .padding(.vertical, Spacing.sm)
         }
-        .scrollBounceBehavior(.basedOnSize)
         #if !SKIP
+        .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
         #endif
     }
@@ -271,6 +271,7 @@ struct MessagingView: View {
                                                 .otherParticipant(currentUserId: viewModel.currentUserId)),
                                     )
                                 }
+                                #if !SKIP
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
                                         HapticManager.warning()
@@ -298,7 +299,7 @@ struct MessagingView: View {
                                             systemImage: viewModel.showArchived ? "tray.and.arrow.up" : "archivebox",
                                         )
                                     }
-                                    .tint(.DesignSystem.brandBlue)
+                                    .tint(Color.DesignSystem.brandBlue)
                                 }
                                 .swipeActions(edge: .leading) {
                                     if room.hasUnreadMessages(for: viewModel.currentUserId) {
@@ -311,9 +312,10 @@ struct MessagingView: View {
                                         } label: {
                                             Label(t.t("messaging.mark_read"), systemImage: "envelope.open")
                                         }
-                                        .tint(.DesignSystem.brandGreen)
+                                        .tint(Color.DesignSystem.brandGreen)
                                     }
                                 }
+                                #endif
                             }
                         } header: {
                             Text(dateKey)
@@ -573,7 +575,7 @@ struct RoomRow: View {
                                     .stroke(Color.DesignSystem.background, lineWidth: 2),
                             )
                     }
-                    .proMotionPulse(isActive: true, color: .DesignSystem.success, intensity: 0.5)
+                    .proMotionPulse(isActive: true, color: Color.DesignSystem.success, intensity: 0.5)
                     .offset(x: 18, y: 18)
                 }
 
@@ -587,7 +589,7 @@ struct RoomRow: View {
                                 .stroke(Color.DesignSystem.background, lineWidth: 2),
                         )
                         .offset(x: 18, y: -18)
-                        .transition(.scale.combined(with: .opacity))
+                        .transition(AnyTransition.scale.combined(with: AnyTransition.opacity))
                         .animation(ProMotionAnimation.bouncy, value: hasUnread)
                 }
             }
@@ -602,9 +604,15 @@ struct RoomRow: View {
                     Spacer()
 
                     if let time = room.lastMessageTime {
+                        #if !SKIP
                         Text(time, style: .relative)
                             .font(.DesignSystem.captionSmall)
                             .foregroundColor(hasUnread ? .DesignSystem.brandGreen : .DesignSystem.textTertiary)
+                        #else
+                        Text(timeAgoString(from: time))
+                            .font(.DesignSystem.captionSmall)
+                            .foregroundColor(hasUnread ? .DesignSystem.brandGreen : .DesignSystem.textTertiary)
+                        #endif
                     }
                 }
 
@@ -675,6 +683,19 @@ struct RoomRow: View {
         )
         .shadow(color: hasUnread ? .DesignSystem.brandGreen.opacity(0.1) : .clear, radius: 8, y: 2)
     }
+
+    #if SKIP
+    private func timeAgoString(from date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        let minutes = Int(interval / 60)
+        let hours = Int(interval / 3600)
+        let days = Int(interval / 86400)
+        if minutes < 1 { return "just now" }
+        if minutes < 60 { return "\(minutes)m ago" }
+        if hours < 24 { return "\(hours)h ago" }
+        return "\(days)d ago"
+    }
+    #endif
 }
 
 // MARK: - Chat Room View (Liquid Glass Enhanced)
@@ -905,6 +926,7 @@ struct ChatRoomView: View {
 
 struct TypingDotsView: View {
     var body: some View {
+        #if !SKIP
         TimelineView(.animation(minimumInterval: 0.4)) { timeline in
             let phase = Int(timeline.date.timeIntervalSinceReferenceDate * 2.5) % 3
 
@@ -919,6 +941,16 @@ struct TypingDotsView: View {
                 }
             }
         }
+        #else
+        HStack(spacing: 2) {
+            ForEach(0 ..< 3, id: \.self) { index in
+                Circle()
+                    .fill(Color.DesignSystem.brandGreen)
+                    .frame(width: 4, height: 4)
+                    .opacity(0.6)
+            }
+        }
+        #endif
     }
 }
 
@@ -927,6 +959,7 @@ struct TypingDotsView: View {
 struct TypingIndicatorView: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: Spacing.sm) {
+            #if !SKIP
             TimelineView(.animation(minimumInterval: 0.4)) { timeline in
                 let phase = Int(timeline.date.timeIntervalSinceReferenceDate * 2.5) % 3
 
@@ -951,6 +984,26 @@ struct TypingIndicatorView: View {
                             .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
                     ),
             )
+            #else
+            HStack(spacing: 4) {
+                ForEach(0 ..< 3, id: \.self) { index in
+                    Circle()
+                        .fill(Color.DesignSystem.textSecondary)
+                        .frame(width: 8, height: 8)
+                        .opacity(0.6)
+                }
+            }
+            .padding(Edge.Set.horizontal, Spacing.md)
+            .padding(Edge.Set.vertical, Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.medium)
+                            .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
+                    ),
+            )
+            #endif
 
             Spacer(minLength: 100)
         }
@@ -1026,7 +1079,7 @@ struct MessageBubbleView: View {
                                 ),
                         )
                         .shadow(
-                            color: isFromCurrentUser ? .DesignSystem.brandGreen.opacity(0.2) : .black.opacity(0.05),
+                            color: isFromCurrentUser ? Color.DesignSystem.brandGreen.opacity(0.2) : Color.black.opacity(0.05),
                             radius: 4, y: 2,
                         )
                 }

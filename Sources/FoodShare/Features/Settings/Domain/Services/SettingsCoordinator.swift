@@ -131,7 +131,11 @@ final class SettingsCoordinator {
             matchingCategories = SettingsCategory.sortedCases
         } else {
             let matchingItems = SettingItem.search(searchQuery)
-            filteredSettings = Dictionary(grouping: matchingItems, by: \.category)
+            var grouped: [SettingsCategory: [SettingItem]] = [:]
+            for item in matchingItems {
+                grouped[item.category, default: []].append(item)
+            }
+            filteredSettings = grouped
             matchingCategories = SettingsCategory.sortedCases.filter { filteredSettings[$0]?.isEmpty == false }
 
             // Auto-expand matching categories when searching
@@ -204,7 +208,11 @@ final class SettingsCoordinator {
 
         debounceTask?.cancel()
         debounceTask = Task {
+            #if SKIP
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            #else
             try? await Task.sleep(for: .milliseconds(200))
+            #endif
 
             if !Task.isCancelled {
                 await flushUpdates()

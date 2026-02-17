@@ -441,16 +441,18 @@ public struct EnterpriseNotificationSettingsView: View {
         }
         .padding(.vertical, Spacing.xs)
         .padding(.horizontal, Spacing.md)
+        #if !SKIP
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(category.displayName) \(channel.displayName) notifications")
         .accessibilityValue(viewModel.preferences.preference(for: category, channel: channel).enabled ? "On" : "Off")
+        #endif
     }
 
     // MARK: - Email Category Row (with frequency)
 
     private func emailCategoryRow(category: NotificationCategory) -> some View {
-        let preference = viewModel.preferences.preference(for: category, channel: .email)
-        let isUpdating = viewModel.isUpdating(category: category, channel: .email)
+        let preference = viewModel.preferences.preference(for: category, channel: NotificationChannel.email)
+        let isUpdating = viewModel.isUpdating(category: category, channel: NotificationChannel.email)
 
         return VStack(spacing: 0) {
             HStack(spacing: Spacing.sm) {

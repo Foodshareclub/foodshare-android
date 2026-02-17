@@ -65,7 +65,7 @@ struct FoodListingCard: View {
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .transition(.opacity.animation(.interpolatingSpring(stiffness: 300, damping: 24)))
+                                .transition(.opacity)
                         case .failure:
                             placeholderImage
                         @unknown default:
@@ -92,7 +92,7 @@ struct FoodListingCard: View {
 
                     // Like button with beautiful animation
                     CompactEngagementLikeButton(
-                        domain: .post(id: listing.id),
+                        domain: EngagementDomain.post(id: listing.id),
                         initialIsLiked: isLiked,
                         onToggle: { liked in
                             isLiked = liked

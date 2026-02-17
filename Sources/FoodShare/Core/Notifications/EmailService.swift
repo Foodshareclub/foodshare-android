@@ -23,6 +23,8 @@ private struct DirectEmailRequest: Encodable, Sendable {
     let html: String
 }
 
+private struct EmailResponse: Decodable { let id: String? }
+
 actor EmailService {
     private let apiKey: String
     private let fromEmail: String
@@ -107,7 +109,6 @@ actor EmailService {
             )
         }
 
-        struct EmailResponse: Decodable { let id: String? }
         let emailResponse = try JSONDecoder().decode(EmailResponse.self, from: data)
         return emailResponse.id ?? "unknown"
     }

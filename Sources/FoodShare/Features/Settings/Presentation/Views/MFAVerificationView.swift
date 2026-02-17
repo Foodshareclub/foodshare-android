@@ -180,7 +180,7 @@ struct MFAVerificationView: View {
                 .opacity(0.01)
                 .focused($isInputFocused)
                 .onChange(of: verificationCode) { _, newValue in
-                    let filtered = newValue.filter(\.isNumber)
+                    let filtered = newValue.filter({ $0 >= "0" && $0 <= "9" })
                     if filtered.count > 6 {
                         verificationCode = String(filtered.prefix(6))
                     } else {
@@ -246,7 +246,9 @@ struct MFAVerificationView: View {
             Text(digit)
                 .font(.system(size: 28, weight: .bold, design: .monospaced))
                 .foregroundStyle(Color.DesignSystem.text)
+                #if !SKIP
                 .contentTransition(.numericText())
+                #endif
 
             // Cursor animation
             if isFocused, digit.isEmpty {

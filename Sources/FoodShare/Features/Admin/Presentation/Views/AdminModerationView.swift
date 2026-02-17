@@ -1,3 +1,4 @@
+#if !SKIP
 import SwiftUI
 
 #if DEBUG
@@ -423,3 +424,4 @@ struct AuditLogRow: View {
         )
     }
 }
+#endif

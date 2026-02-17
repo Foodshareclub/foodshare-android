@@ -106,7 +106,7 @@ struct ChallengeLeaderboardSection: View {
                                 endPoint: .trailing,
                             ),
                         )
-                        .contentTransition(.numericText())
+                        /* contentTransition removed for Skip compatibility */
                         .animation(
                             .spring(response: 0.3, dampingFraction: 0.7),
                             value: viewModel.publishedChallenges.count,
@@ -122,7 +122,7 @@ struct ChallengeLeaderboardSection: View {
                         .font(.DesignSystem.headlineLarge)
                         .fontWeight(.black)
                         .foregroundColor(.DesignSystem.accentOrange)
-                        .contentTransition(.numericText())
+                        /* contentTransition removed for Skip compatibility */
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.joinedChallengesCount)
                     Text(t.t("challenge.status.in_progress"))
                         .font(.DesignSystem.caption)
@@ -135,7 +135,7 @@ struct ChallengeLeaderboardSection: View {
                         .font(.DesignSystem.headlineLarge)
                         .fontWeight(.black)
                         .foregroundColor(.DesignSystem.brandGreen)
-                        .contentTransition(.numericText())
+                        /* contentTransition removed for Skip compatibility */
                         .animation(
                             .spring(response: 0.3, dampingFraction: 0.7),
                             value: viewModel.completedChallengesCount,

@@ -328,7 +328,9 @@ struct StatPill: View {
                     .font(.DesignSystem.labelMedium)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.DesignSystem.text)
+                    #if !SKIP
                     .contentTransition(.numericText())
+                    #endif
 
                 Text(label)
                     .font(.DesignSystem.captionSmall)

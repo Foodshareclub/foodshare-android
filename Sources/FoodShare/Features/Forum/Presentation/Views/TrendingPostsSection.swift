@@ -127,7 +127,7 @@ private struct TrendingPostCard: View {
 
                     // Like button with beautiful animation
                     CompactEngagementLikeButton(
-                        domain: .forum(id: post.id),
+                        domain: EngagementDomain.forum(id: post.id),
                         initialIsLiked: isLiked,
                         onToggle: { liked in
                             isLiked = liked
@@ -192,9 +192,21 @@ private struct TrendingPostCard: View {
                     Spacer()
 
                     // Time ago
+                    #if !SKIP
                     Text(post.forumPostCreatedAt, style: .relative)
                         .font(.system(size: 9))
                         .foregroundStyle(Color.DesignSystem.textTertiary)
+                    #else
+                    Text({
+                        let interval = Date().timeIntervalSince(post.forumPostCreatedAt)
+                        if interval < 60 { return "just now" }
+                        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+                        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+                        return "\(Int(interval / 86400))d ago"
+                    }())
+                        .font(Font.system(size: 9))
+                        .foregroundStyle(Color.DesignSystem.textTertiary)
+                    #endif
                 }
             }
             .padding(Spacing.sm)
@@ -217,7 +229,7 @@ private struct TrendingPostCard: View {
                     ),
             )
             .shadow(color: rankColor.opacity(0.15), radius: 8, y: 4)
-            .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+            .shadow(color: Color.black.opacity(0.06), radius: 4, y: 2)
         }
         .buttonStyle(TrendingCardButtonStyle())
         .task {
@@ -284,7 +296,7 @@ private struct TrendingCardButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .brightness(configuration.isPressed ? 0.02 : 0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 

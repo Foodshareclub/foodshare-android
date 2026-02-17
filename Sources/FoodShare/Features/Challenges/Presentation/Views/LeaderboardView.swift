@@ -98,7 +98,7 @@ struct LeaderboardView: View {
             RoundedRectangle(cornerRadius: CornerRadius.medium)
                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
         )
-        .padding(.horizontal, Spacing.md)
+        .padding(Edge.Set.horizontal, Spacing.md)
     }
 
     // MARK: - Category Picker
@@ -110,10 +110,10 @@ struct LeaderboardView: View {
                     categoryButton(category)
                 }
             }
-            .padding(.horizontal, Spacing.md)
+            .padding(Edge.Set.horizontal, Spacing.md)
         }
-        .scrollBounceBehavior(.basedOnSize)
         #if !SKIP
+        .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
         #endif
     }
@@ -445,38 +445,6 @@ struct LeaderboardView: View {
                 .limit(50)
                 .execute()
 
-            struct LeaderboardResponse: Decodable {
-                let profileId: UUID
-                let itemsShared: Int?
-                let itemsReceived: Int?
-                let ratingCount: Int?
-                let sharedPostsCounter: Int?
-                let profiles: ProfileInfo?
-
-                enum CodingKeys: String, CodingKey {
-                    case profileId = "profile_id"
-                    case itemsShared = "items_shared"
-                    case itemsReceived = "items_received"
-                    case ratingCount = "rating_count"
-                    case sharedPostsCounter = "shared_posts_counter"
-                    case profiles
-                }
-
-                struct ProfileInfo: Decodable {
-                    let id: UUID
-                    let nickname: String?
-                    let avatarUrl: String?
-                    let isVerified: Bool?
-
-                    enum CodingKeys: String, CodingKey {
-                        case id
-                        case nickname
-                        case avatarUrl = "avatar_url"
-                        case isVerified = "is_verified"
-                    }
-                }
-            }
-
             let entries = try decoder.decode([LeaderboardResponse].self, from: response.data)
 
             leaders = entries.compactMap { entry in
@@ -526,6 +494,38 @@ struct LeaderboardEntry: Identifiable {
     let avatarURL: URL?
     let score: Int
     let isVerified: Bool
+}
+
+private struct LeaderboardResponse: Decodable {
+    let profileId: UUID
+    let itemsShared: Int?
+    let itemsReceived: Int?
+    let ratingCount: Int?
+    let sharedPostsCounter: Int?
+    let profiles: LeaderboardProfileInfo?
+
+    enum CodingKeys: String, CodingKey {
+        case profileId = "profile_id"
+        case itemsShared = "items_shared"
+        case itemsReceived = "items_received"
+        case ratingCount = "rating_count"
+        case sharedPostsCounter = "shared_posts_counter"
+        case profiles
+    }
+}
+
+private struct LeaderboardProfileInfo: Decodable {
+    let id: UUID
+    let nickname: String?
+    let avatarUrl: String?
+    let isVerified: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case nickname
+        case avatarUrl = "avatar_url"
+        case isVerified = "is_verified"
+    }
 }
 
 // MARK: - Time Period Enum

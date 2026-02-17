@@ -22,7 +22,7 @@ struct SubscriptionView: View {
 
     // MARK: - State
 
-    @State private var storeService = StoreKitService.shared
+    @State private var storeService: StoreKitService = StoreKitService.shared
     @State private var selectedProduct: Product?
     @State private var isPurchasing = false
     @State private var showError = false
@@ -76,7 +76,9 @@ struct SubscriptionView: View {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 28))
                             .foregroundStyle(.ultraThinMaterial)
+                            #if !SKIP
                             .symbolRenderingMode(.hierarchical)
+                            #endif
                     }
                 }
             }
@@ -124,6 +126,7 @@ struct SubscriptionView: View {
             .ignoresSafeArea()
 
             // Animated aurora overlay
+            #if !SKIP
             TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
                 let time = timeline.date.timeIntervalSinceReferenceDate
 
@@ -141,6 +144,18 @@ struct SubscriptionView: View {
                 )
             }
             .ignoresSafeArea()
+            #else
+            RadialGradient(
+                colors: [
+                    Color.DesignSystem.brandGreen.opacity(0.08),
+                    Color.clear,
+                ],
+                center: UnitPoint(x: 0.5, y: 0.3),
+                startRadius: 0,
+                endRadius: 400,
+            )
+            .ignoresSafeArea()
+            #endif
         }
     }
 
@@ -326,7 +341,7 @@ struct SubscriptionView: View {
                     lineWidth: 1,
                 ),
         )
-        .shadow(color: .black.opacity(0.1), radius: 12, y: 6)
+        .shadow(color: Color.black.opacity(0.1), radius: 12, y: 6)
     }
 
     // MARK: - Products Section
@@ -526,7 +541,9 @@ struct SubscriptionView: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(.plain)
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(accessibilityLabel(for: product, isYearly: isYearly, pricing: pricingInfo))
         .accessibilityHint(isSelected ? "Selected" : "Double tap to select")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
@@ -690,6 +707,7 @@ struct SubscriptionView: View {
                     .shadow(color: Color.DesignSystem.brandPink.opacity(0.5), radius: 20, y: 10)
 
                 // Shimmer overlay
+                #if !SKIP
                 TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
                     let time = timeline.date.timeIntervalSinceReferenceDate
 
@@ -707,12 +725,13 @@ struct SubscriptionView: View {
                         RoundedRectangle(cornerRadius: CornerRadius.xl),
                     )
                 }
+                #endif
 
                 // Button content
                 HStack(spacing: Spacing.sm) {
                     if isPurchasing {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                             .scaleEffect(1.2)
                     } else {
                         Image(systemName: "crown.fill")

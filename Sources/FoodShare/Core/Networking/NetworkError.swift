@@ -135,8 +135,8 @@ enum NetworkError: LocalizedError, Sendable {
             retryAfter
         case .timeout, .noInternetConnection:
             2.0
-        case let .serverError(statusCode, _, _) where statusCode >= 500:
-            5.0
+        case let .serverError(statusCode, _, _):
+            if statusCode >= 500 { 5.0 } else { nil }
         default:
             nil
         }

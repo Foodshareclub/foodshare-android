@@ -132,6 +132,7 @@ struct GlassLoadingState: View {
                     .scaleEffect(pulseScale)
 
                 // Animated ring
+                #if !SKIP
                 Circle()
                     .trim(from: 0, to: 0.65)
                     .stroke(
@@ -147,6 +148,24 @@ struct GlassLoadingState: View {
                     )
                     .frame(width: 50, height: 50)
                     .rotationEffect(Angle.degrees(rotationAngle))
+                #else
+                Circle()
+                    .trim(from: 0, to: 0.65)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.DesignSystem.brandGreen,
+                                Color.DesignSystem.brandBlue,
+                                Color.DesignSystem.brandGreen.opacity(0.3)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                    )
+                    .frame(width: 50, height: 50)
+                    .rotationEffect(Angle.degrees(rotationAngle))
+                #endif
 
                 // Center icon
                 Image(systemName: "fork.knife")

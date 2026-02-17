@@ -35,7 +35,7 @@ struct EditProfileAvatarSection: View {
                     .overlay(gradientBorder)
                     .shadow(color: Color.DesignSystem.brandGreen.opacity(0.3), radius: 12, y: 5)
                     .scaleEffect(isPressed ? 0.95 : 1.0)
-                    .animation(.interpolatingSpring(stiffness: 300, damping: 20), value: isPressed)
+                    .animation(Animation.interpolatingSpring(stiffness: 300, damping: 20), value: isPressed)
 
                 // Upload progress overlay
                 if viewModel.isUploadingAvatar {
@@ -80,8 +80,8 @@ struct EditProfileAvatarSection: View {
             // Show preview of selected image
             Image(uiImage: previewImage)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .aspectRatio(contentMode: ContentMode.fill)
+                .transition(AnyTransition.opacity.combined(with: AnyTransition.scale(scale: 0.95)))
         } else if let avatarUrl = viewModel.displayAvatarUrl,
                   let url = URL(string: avatarUrl)
         {
@@ -97,7 +97,7 @@ struct EditProfileAvatarSection: View {
                 }
                 .fade(duration: 0.3)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: ContentMode.fill)
         } else {
             // Show placeholder
             avatarPlaceholder
@@ -152,7 +152,7 @@ struct EditProfileAvatarSection: View {
                         .foregroundStyle(Color.DesignSystem.text)
                 },
             )
-            .transition(.opacity)
+            .transition(AnyTransition.opacity)
     }
 
     // MARK: - Camera Badge
@@ -164,8 +164,7 @@ struct EditProfileAvatarSection: View {
                 Spacer()
                 PhotosPicker(
                     selection: $viewModel.selectedPhotoItem,
-                    matching: .images,
-                    photoLibrary: .shared(),
+                    matching: PHPickerFilter.images
                 ) {
                     ZStack {
                         Circle()

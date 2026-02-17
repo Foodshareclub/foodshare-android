@@ -266,31 +266,31 @@ public final class SessionStateMachine {
     private func nextState(for event: SessionEvent) -> SessionState {
         switch (state, event) {
         // From initializing
-        case let (.initializing, .sessionRestored(session)):
+        case (.initializing, .sessionRestored(let session)):
             return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
         case (.initializing, .sessionNotFound):
             return SessionState.unauthenticated
 
-        case let (.initializing, .authFailure(error)):
+        case (.initializing, .authFailure(let error)):
             return SessionState.failed(error: error)
 
         // From unauthenticated
-        case let (.unauthenticated, .startAuth(method)):
+        case (.unauthenticated, .startAuth(let method)):
             return SessionState.authenticating(method: method)
 
-        case let (.unauthenticated, .sessionRestored(session)):
+        case (.unauthenticated, .sessionRestored(let session)):
             return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
         // From authenticating
-        case (.authenticating, let .authSuccess(session)):
+        case (.authenticating, .authSuccess(let session)):
             return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
-        case (.authenticating, let .authFailure(error)):
+        case (.authenticating, .authFailure(let error)):
             return SessionState.failed(error: error)
 
         // From authenticated
-        case let (.authenticated(session), .startRefresh):
+        case (.authenticated(let session), .startRefresh):
             return SessionState.refreshing(session: session)
 
         case (.authenticated, .startSignOut):
@@ -300,10 +300,10 @@ public final class SessionStateMachine {
             return SessionState.sessionExpired(previousUserId: state.userId)
 
         // From refreshing
-        case (.refreshing, let .refreshSuccess(session)):
+        case (.refreshing, .refreshSuccess(let session)):
             return SessionState.authenticated(session: AuthenticatedSession(from: session))
 
-        case let (.refreshing(oldSession), .refreshFailure):
+        case (.refreshing(let oldSession), .refreshFailure):
             return SessionState.sessionExpired(previousUserId: oldSession.userId)
 
         // From signing out
@@ -311,14 +311,14 @@ public final class SessionStateMachine {
             return SessionState.unauthenticated
 
         // From session expired
-        case (.sessionExpired, let .startAuth(method)):
+        case (.sessionExpired, .startAuth(let method)):
             return SessionState.authenticating(method: method)
 
         case (.sessionExpired, .signOutComplete):
             return SessionState.unauthenticated
 
         // From failed
-        case (.failed, let .startAuth(method)):
+        case (.failed, .startAuth(let method)):
             return SessionState.authenticating(method: method)
 
         case (.failed, .reset):

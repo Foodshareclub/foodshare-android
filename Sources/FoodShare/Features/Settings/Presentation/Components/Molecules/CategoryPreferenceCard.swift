@@ -87,7 +87,7 @@ public struct CategoryPreferenceCard: View {
                         .rotationEffect(.degrees(showDetails ? 90 : 0))
 
                     // Icon
-                    NotificationIcon(category: category, size: .medium)
+                    NotificationIcon(category: category, size: NotificationIcon.Size.medium)
 
                     // Title and description
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
@@ -108,7 +108,9 @@ public struct CategoryPreferenceCard: View {
                     }
                 }
                 .padding(Spacing.md)
+                #if !SKIP
                 .contentShape(Rectangle())
+                #endif
             }
             .buttonStyle(.plain)
 
@@ -193,7 +195,7 @@ public struct CategoryPreferenceCard: View {
             category: category,
             channel: channel,
             enabled: false,
-            frequency: .instant,
+            frequency: NotificationFrequency.instant,
         )
 
         HStack(spacing: Spacing.sm) {
@@ -271,7 +273,7 @@ public struct CompactCategoryPreferenceCard: View {
 
     public var body: some View {
         HStack(spacing: Spacing.md) {
-            NotificationIcon(category: category, size: .small)
+            NotificationIcon(category: category, size: NotificationIcon.Size.small)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(category.displayName)

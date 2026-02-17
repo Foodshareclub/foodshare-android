@@ -221,8 +221,10 @@ struct UserReviewsView: View {
                 }
             }
         }
+        #if !SKIP
         .scrollBounceBehavior(.basedOnSize)
         .fixedSize(horizontal: false, vertical: true)
+        #endif
     }
 
     // MARK: - No Results View

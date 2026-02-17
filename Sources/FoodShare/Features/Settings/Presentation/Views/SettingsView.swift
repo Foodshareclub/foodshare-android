@@ -70,6 +70,7 @@ struct SettingsView: View {
             }
             .padding(Spacing.md)
         }
+        #if !SKIP
         .safeAreaInset(edge: .top, spacing: 0) {
             // Pinned Glass Search Bar
             GlassSearchBar(
@@ -86,10 +87,11 @@ struct SettingsView: View {
                         Rectangle()
                             .fill(Color.DesignSystem.glassBorder)
                             .frame(height: 0.5),
-                        alignment: .bottom,
+                        alignment: Alignment.bottom,
                     ),
             )
         }
+        #endif
         .background(Color.DesignSystem.background)
         .navigationTitle(t.t("settings.title"))
         .navigationBarTitleDisplayMode(.inline)
@@ -538,7 +540,9 @@ struct SettingsView: View {
                         .foregroundColor(.DesignSystem.textTertiary)
                 }
                 .padding(Spacing.md)
+                #if !SKIP
                 .contentShape(Rectangle())
+                #endif
             }
             .buttonStyle(.plain)
         }
@@ -706,8 +710,9 @@ struct SettingsView: View {
                 value: viewModel.appVersion,
             )
 
+            #if !SKIP
             NavigationLink {
-                LegalDocumentView(type: .privacy)
+                LegalDocumentView(type: LegalDocumentView.LegalDocumentType.privacy)
             } label: {
                 GlassSettingsRow(
                     icon: "hand.raised.fill",
@@ -718,7 +723,7 @@ struct SettingsView: View {
             }
 
             NavigationLink {
-                LegalDocumentView(type: .terms)
+                LegalDocumentView(type: LegalDocumentView.LegalDocumentType.terms)
             } label: {
                 GlassSettingsRow(
                     icon: "doc.text.fill",
@@ -727,6 +732,7 @@ struct SettingsView: View {
                     showChevron: true,
                 )
             }
+            #endif
         }
     }
 
@@ -811,7 +817,9 @@ struct CollapsibleSettingsSection<Content: View>: View {
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
                 .padding(.horizontal, Spacing.sm)
+                #if !SKIP
                 .contentShape(Rectangle())
+                #endif
             }
             .buttonStyle(.plain)
 
@@ -828,7 +836,7 @@ struct CollapsibleSettingsSection<Content: View>: View {
                                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
                         ),
                 )
-                .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .top)))
+                .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: UnitPoint.top)))
             }
         }
     }
@@ -954,7 +962,9 @@ struct ThemeSettingsRow: View {
                 .foregroundColor(.DesignSystem.textTertiary)
         }
         .padding(Spacing.md)
+        #if !SKIP
         .contentShape(Rectangle())
+        #endif
     }
 }
 
@@ -1004,8 +1014,10 @@ struct GlassSettingsRow: View {
             }
         }
         .padding(Spacing.md)
+        #if !SKIP
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(showChevron ? "Double tap to open" : "")
     }
@@ -1058,7 +1070,9 @@ struct GlassSettingsToggle: View {
                 .labelsHidden()
         }
         .padding(Spacing.md)
+        #if !SKIP
         .accessibilityElement(children: .combine)
+        #endif
         .accessibilityLabel(subtitle.map { "\(title), \($0)" } ?? title)
         .accessibilityValue(isOn ? "On" : "Off")
         .accessibilityHint("Double tap to toggle")
@@ -1109,6 +1123,8 @@ struct LanguageSettingsRow: View {
                 .foregroundColor(.DesignSystem.textTertiary)
         }
         .padding(Spacing.md)
+        #if !SKIP
         .contentShape(Rectangle())
+        #endif
     }
 }

@@ -124,6 +124,7 @@ enum LoadingState<T: Sendable>: Sendable {
         return false
     }
 
+    #if !SKIP
     // MARK: - State Transitions
 
     /// Transition to loading state, preserving existing data if available
@@ -171,6 +172,7 @@ enum LoadingState<T: Sendable>: Sendable {
     mutating func reset() {
         self = .idle
     }
+    #endif
 
     // MARK: - Mapping
 
@@ -195,6 +197,7 @@ enum LoadingState<T: Sendable>: Sendable {
     }
 }
 
+#if !SKIP
 // MARK: - Equatable Conformance
 
 extension LoadingState: Equatable where T: Equatable {
@@ -204,21 +207,22 @@ extension LoadingState: Equatable where T: Equatable {
             true
         case (.loading, .loading):
             true
-        case let (.loaded(l), .loaded(r)):
+        case (.loaded(let l), .loaded(let r)):
             l == r
-        case let (.refreshing(l), .refreshing(r)):
+        case (.refreshing(let l), .refreshing(let r)):
             l == r
-        case let (.loadingMore(l), .loadingMore(r)):
+        case (.loadingMore(let l), .loadingMore(let r)):
             l == r
-        case let (.failed(l), .failed(r)):
+        case (.failed(let l), .failed(let r)):
             l.localizedDescription == r.localizedDescription
-        case let (.retrying(la, le), .retrying(ra, re)):
+        case (.retrying(let la, let le), .retrying(let ra, let re)):
             la == ra && le.localizedDescription == re.localizedDescription
         default:
             false
         }
     }
 }
+#endif
 
 // MARK: - View Helpers
 
@@ -260,6 +264,7 @@ extension LoadingState {
     }
 }
 
+#if !SKIP
 // MARK: - Pagination State
 
 /// Extended state for paginated data
@@ -316,3 +321,4 @@ struct PaginatedLoadingState<T: Sendable>: Sendable {
         currentPage = 0
     }
 }
+#endif

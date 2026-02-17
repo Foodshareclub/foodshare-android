@@ -194,7 +194,7 @@ public struct InputValidator: Sendable {
         }
 
         // Remove common formatting
-        let cleaned = phone.replacingOccurrences(of: "[^0-9+]", with: "", options: .regularExpression)
+        let cleaned = phone.replacingOccurrences(of: "[^0-9+]", with: "", options: String.CompareOptions.regularExpression)
 
         // Length check
         if cleaned.count < 10 || cleaned.count > 15 {

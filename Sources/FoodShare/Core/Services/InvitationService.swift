@@ -191,20 +191,20 @@ final class InvitationService {
 
     // MARK: - Analytics
 
+    private struct ActivityLog: Encodable {
+        let actorId: String
+        let activityType: String
+        let notes: String
+
+        enum CodingKeys: String, CodingKey {
+            case actorId = "actor_id"
+            case activityType = "activity_type"
+            case notes
+        }
+    }
+
     private func logInvitationAnalytics(count: Int, userId: UUID) async {
         let supabase = SupabaseManager.shared.client
-
-        struct ActivityLog: Encodable {
-            let actorId: String
-            let activityType: String
-            let notes: String
-
-            enum CodingKeys: String, CodingKey {
-                case actorId = "actor_id"
-                case activityType = "activity_type"
-                case notes
-            }
-        }
 
         do {
             try await supabase

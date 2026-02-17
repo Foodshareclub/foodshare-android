@@ -20,7 +20,7 @@ struct AccessibilitySettingsView: View {
 
     // System accessibility state
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion: Bool
-    @Environment(\.accessibilityDifferentiateWithoutColor) private var systemDifferentiateWithoutColor
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var systemDifferentiateWithoutColor: Bool
 
     var body: some View {
         ScrollView {
@@ -239,7 +239,9 @@ struct AccessibilitySettingsView: View {
                         .foregroundStyle(Color.DesignSystem.textTertiary)
                 }
                 .padding(Spacing.md)
+                #if !SKIP
                 .contentShape(Rectangle())
+                #endif
             }
             .buttonStyle(.plain)
 

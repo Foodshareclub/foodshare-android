@@ -394,7 +394,11 @@ struct BadgeCollection: Sendable {
 
     /// Badges grouped by type
     var badgesByType: [BadgeType: [ForumBadge]] {
-        Dictionary(grouping: allBadges, by: \.badgeType)
+        var result: [BadgeType: [ForumBadge]] = [:]
+        for badge in allBadges {
+            result[badge.badgeType, default: []].append(badge)
+        }
+        return result
     }
 
     /// Earned badge IDs for quick lookup

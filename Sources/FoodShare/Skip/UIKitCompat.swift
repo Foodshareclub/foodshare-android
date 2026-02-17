@@ -191,8 +191,8 @@ public class UITabBarAppearance {
 
 public class UINavigationBarAppearance {
     public var backgroundColor: UIColor?
-    public var largeTitleTextAttributes: [NSAttributedString.Key: Any] = [:]
-    public var titleTextAttributes: [NSAttributedString.Key: Any] = [:]
+    public var largeTitleTextAttributes: [NSAttributedStringKey: Any] = [:]
+    public var titleTextAttributes: [NSAttributedStringKey: Any] = [:]
     public init() {}
     public func configureWithDefaultBackground() {}
 }
@@ -203,15 +203,13 @@ public class UINavigationBar {
     public var scrollEdgeAppearance: UINavigationBarAppearance?
 }
 
-// MARK: - NSAttributedString.Key (stub)
+// MARK: - NSAttributedStringKey (stub)
 
-extension NSAttributedString {
-    public struct Key: Hashable, Sendable {
-        public let rawValue: String
-        public init(rawValue: String) { self.rawValue = rawValue }
+public struct NSAttributedStringKey: Hashable, Sendable {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
 
-        public static let foregroundColor = Key(rawValue: "NSColor")
-    }
+    public static let foregroundColor = NSAttributedStringKey(rawValue: "NSColor")
 }
 
 // MARK: - UIImagePickerController (stub for camera picker)

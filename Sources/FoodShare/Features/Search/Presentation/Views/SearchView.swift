@@ -404,12 +404,12 @@ struct SearchView: View {
 
             // Voice waveform visualization
             GlassVoiceWaveform(
-                isActive: .constant(viewModel.isVoiceSearchActive),
+                isActive: Binding.constant(viewModel.isVoiceSearchActive),
                 amplitude: 0.7,
-                style: .circular,
+                style: GlassVoiceWaveform.WaveformStyle.circular,
                 barCount: 32,
-                primaryColor: .DesignSystem.brandGreen,
-                secondaryColor: .DesignSystem.error,
+                primaryColor: Color.DesignSystem.brandGreen,
+                secondaryColor: Color.DesignSystem.error,
                 micSize: 70,
                 showMic: true
             )
@@ -861,8 +861,10 @@ struct SearchFilterView: View {
                                         .font(.DesignSystem.displaySmall)
                                         .fontWeight(.bold)
                                         .foregroundColor(.DesignSystem.primary)
+                                        #if !SKIP
                                         .contentTransition(.numericText())
-                                        .animation(.interpolatingSpring(stiffness: 280, damping: 25), value: viewModel.filters.maxDistanceKm)
+                                        #endif
+                                        .animation(Animation.interpolatingSpring(stiffness: 280, damping: 25), value: viewModel.filters.maxDistanceKm)
 
                                     Text(t.t("common.km"))
                                         .font(.DesignSystem.bodyLarge)

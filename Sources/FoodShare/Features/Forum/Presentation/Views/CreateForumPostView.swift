@@ -409,12 +409,16 @@ struct CreateForumPostView: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.DesignSystem.titleLarge)
-                            .foregroundStyle(.white, Color.DesignSystem.error)
+                            #if !SKIP
+                            .foregroundStyle(Color.white, Color.DesignSystem.error)
+                            #else
+                            .foregroundStyle(Color.DesignSystem.error)
+                            #endif
                     }
                     .padding(Spacing.sm)
                 }
             } else {
-                PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                PhotosPicker(selection: $selectedPhotoItem, matching: PHPickerFilter.images) {
                     HStack {
                         Image(systemName: "photo.badge.plus")
                             .font(.DesignSystem.titleMedium)

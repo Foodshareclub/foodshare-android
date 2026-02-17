@@ -91,12 +91,12 @@ struct CommunityFridgeDetailView: View {
                 #else
                 try? await Task.sleep(for: .milliseconds(300))
                 #endif
-                withAnimation(reduceMotion ? .none : .easeOut(duration: 0.2)) {
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
                     isLoading = false
                 }
 
                 // Trigger staggered section entrance animations
-                withAnimation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8).delay(0.15)) {
+                withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.8).delay(0.15)) {
                     sectionsAppeared = true
                 }
             }
@@ -117,7 +117,7 @@ struct CommunityFridgeDetailView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .transition(.opacity.animation(.interpolatingSpring(stiffness: 300, damping: 24)))
+                            .transition(.opacity)
                     case .failure:
                         fridgePlaceholder
                     @unknown default:
@@ -188,9 +188,21 @@ struct CommunityFridgeDetailView: View {
 
             // Last updated
             if let lastUpdated = fridge.statusLastUpdated {
+                #if !SKIP
                 Text(t.t("fridge.last_updated", args: ["time": lastUpdated.formatted(.relative(presentation: .named))]))
                     .font(.LiquidGlass.caption)
                     .foregroundColor(.DesignSystem.textSecondary)
+                #else
+                Text(t.t("fridge.last_updated", args: ["time": {
+                    let interval = Date().timeIntervalSince(lastUpdated)
+                    if interval < 60 { return "just now" }
+                    if interval < 3600 { return "\(Int(interval / 60))m ago" }
+                    if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+                    return "\(Int(interval / 86400))d ago"
+                }()]))
+                    .font(Font.LiquidGlass.caption)
+                    .foregroundColor(Color.DesignSystem.textSecondary)
+                #endif
             }
         }
         .detailSection(index: 0, sectionsAppeared: $sectionsAppeared)

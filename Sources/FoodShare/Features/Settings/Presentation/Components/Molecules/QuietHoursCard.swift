@@ -97,7 +97,7 @@ public struct QuietHoursCard: View {
                 // Toggle
                 if isProcessing {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .DesignSystem.brandGreen))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.DesignSystem.brandGreen))
                         .scaleEffect(0.8)
                 } else {
                     Toggle("", isOn: Binding(

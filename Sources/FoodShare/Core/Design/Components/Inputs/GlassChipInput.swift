@@ -95,11 +95,19 @@ struct GlassChipInput<ID: Hashable>: View {
     }
 
     private var wrappingLayout: some View {
+        #if !SKIP
         ChipFlowLayout(spacing: chipStyle.spacing) {
             ForEach(options) { option in
                 chipView(for: option)
             }
         }
+        #else
+        LazyVGrid(columns: [GridItem(GridItem.Size.adaptive(minimum: 100), spacing: chipStyle.spacing)], spacing: chipStyle.spacing) {
+            ForEach(options) { option in
+                chipView(for: option)
+            }
+        }
+        #endif
     }
 
     private var verticalLayout: some View {
@@ -307,6 +315,7 @@ private struct ChipButtonStyle: ButtonStyle {
 // MARK: - Chip Flow Layout
 
 /// A layout that wraps items horizontally (local to GlassChipInput to avoid conflicts)
+#if !SKIP
 private struct ChipFlowLayout: Layout {
     let spacing: CGFloat
 
@@ -361,6 +370,7 @@ private struct ChipFlowLayout: Layout {
         return (CGSize(width: totalWidth, height: totalHeight), frames)
     }
 }
+#endif
 
 // MARK: - Selected Chips View
 

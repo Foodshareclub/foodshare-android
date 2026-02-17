@@ -64,9 +64,13 @@ struct GlassCategoryBar<Category: Hashable & Identifiable>: View where Category:
             }
             .padding(.leading, Spacing.sm)
             .padding(.vertical, Spacing.sm)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
         }
+        #if !SKIP
         .scrollBounceBehavior(.basedOnSize)
+        #endif
         #if !SKIP
         .fixedSize(horizontal: false, vertical: true)
         #endif
@@ -89,7 +93,7 @@ struct GlassCategoryChipButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(
-                reduceMotion ? .none : .interpolatingSpring(stiffness: 400, damping: 25),
+                reduceMotion ? Animation.default : Animation.interpolatingSpring(stiffness: 400, damping: 25),
                 value: configuration.isPressed,
             )
     }

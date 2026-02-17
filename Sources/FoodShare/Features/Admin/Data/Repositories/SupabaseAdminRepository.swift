@@ -1,6 +1,26 @@
 import Foundation
 import Supabase
 
+// MARK: - Admin DTOs
+
+private struct ResolveModerationDTO: Encodable {
+    let status: String
+    let resolution: String
+    let resolved_by: String
+    let resolved_at: String
+    let resolution_notes: String?
+}
+
+private struct AuditLogDTO: Encodable {
+    let admin_id: String
+    let action: String
+    let resource_type: String
+    let success: Bool
+    let resource_id: String?
+    let metadata: [String: String]?
+    let error_message: String?
+}
+
 // MARK: - Supabase Admin Repository
 
 /// Supabase implementation of AdminRepository
@@ -210,14 +230,6 @@ final class SupabaseAdminRepository: BaseSupabaseRepository, AdminRepository {
         notes: String?,
         resolvedBy: UUID,
     ) async throws {
-        struct ResolveModerationDTO: Encodable {
-            let status: String
-            let resolution: String
-            let resolved_by: String
-            let resolved_at: String
-            let resolution_notes: String?
-        }
-
         let updateData = ResolveModerationDTO(
             status: "resolved",
             resolution: resolution,
@@ -312,16 +324,6 @@ final class SupabaseAdminRepository: BaseSupabaseRepository, AdminRepository {
         success: Bool,
         errorMessage: String?,
     ) async throws {
-        struct AuditLogDTO: Encodable {
-            let admin_id: String
-            let action: String
-            let resource_type: String
-            let success: Bool
-            let resource_id: String?
-            let metadata: [String: String]?
-            let error_message: String?
-        }
-
         let logData = AuditLogDTO(
             admin_id: adminId.uuidString,
             action: action.rawValue,

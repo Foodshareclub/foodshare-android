@@ -96,7 +96,7 @@ struct SignInPromptView: View {
                             lineWidth: 1,
                         ),
                 )
-                .shadow(color: .DesignSystem.brandGreen.opacity(0.2), radius: 20)
+                .shadow(color: Color.DesignSystem.brandGreen.opacity(0.2), radius: 20)
 
             // Icon
             Image(systemName: icon)

@@ -139,11 +139,13 @@ struct PressAnimationModifier: ViewModifier {
             .opacity(isPressed ? 0.95 : 1.0)
             // ProMotion 120Hz optimized: interpolating spring for instant response
             .animation(.interpolatingSpring(stiffness: 400, damping: 30), value: isPressed)
+            #if !SKIP
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in isPressed = true }
                     .onEnded { _ in isPressed = false },
             )
+            #endif
     }
 }
 
@@ -261,7 +263,7 @@ extension View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.glassBorder, lineWidth: 1),
             )
-            .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+            .shadow(color: Color.black.opacity(0.1), radius: 10, y: 5)
     }
 }
 
@@ -327,8 +329,8 @@ struct GlassToolbarButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: size * 0.45, weight: .medium))
-            .foregroundColor(isAccented ? .DesignSystem.brandGreen : .DesignSystem.text)
+            .font(Font.system(size: size * 0.45, weight: Font.Weight.medium))
+            .foregroundColor(isAccented ? Color.DesignSystem.brandGreen : Color.DesignSystem.text)
             .frame(width: size, height: size)
             .background(
                 Circle()
@@ -346,7 +348,7 @@ struct GlassToolbarButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
             .opacity(configuration.isPressed ? 0.8 : 1.0)
             // ProMotion 120Hz optimized: interpolating spring for instant response
-            .animation(.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 30), value: configuration.isPressed)
     }
 }
 
@@ -443,8 +445,8 @@ struct GlassCardAccentModifier: ViewModifier {
                         lineWidth: 1,
                     ),
             )
-            .shadow(color: (accentColor ?? .black).opacity(shadowIntensity * 0.3), radius: 20, y: 10)
-            .shadow(color: .black.opacity(shadowIntensity * 0.15), radius: 10, y: 5)
+            .shadow(color: (accentColor ?? Color.black).opacity(shadowIntensity * 0.3), radius: 20, y: 10)
+            .shadow(color: Color.black.opacity(shadowIntensity * 0.15), radius: 10, y: 5)
     }
 }
 
@@ -788,6 +790,7 @@ extension View {
 
 // MARK: - ProMotion Count Up Modifier (New in v27)
 
+#if !SKIP
 /// Animated number counter using ContentTransition
 struct ProMotionCountUpModifier: ViewModifier {
     let countsDown: Bool
@@ -806,6 +809,7 @@ extension View {
         modifier(ProMotionCountUpModifier(countsDown: countsDown))
     }
 }
+#endif
 
 #if !SKIP
 // MARK: - ProMotion Confetti Modifier (New in v27)
@@ -952,7 +956,7 @@ struct DetailSectionModifier: ViewModifier {
             .offset(y: sectionsAppeared ? 0 : (reduceMotion ? 0 : 20))
             .animation(
                 reduceMotion
-                    ? .none
+                    ? nil
                     : .spring(response: 0.5, dampingFraction: 0.8)
                         .delay(0.1 + Double(index) * 0.05),
                 value: sectionsAppeared,

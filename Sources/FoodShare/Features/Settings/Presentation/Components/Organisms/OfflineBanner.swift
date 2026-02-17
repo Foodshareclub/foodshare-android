@@ -169,7 +169,7 @@ public struct OfflineBanner: View {
             RoundedRectangle(cornerRadius: 12)
                 .strokeBorder(type.borderColor, lineWidth: 1),
         )
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
 
     // MARK: - Helpers

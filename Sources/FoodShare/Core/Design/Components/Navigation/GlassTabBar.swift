@@ -107,8 +107,8 @@ struct GlassTabBar<Tab: Hashable>: View {
     private func badgeView(count: Int) -> some View {
         NotificationBadge(
             count: count,
-            size: .regular,
-            color: .DesignSystem.error,
+            size: NotificationBadge.BadgeSize.regular,
+            color: Color.DesignSystem.error,
         )
     }
 
@@ -152,7 +152,7 @@ private struct TabButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
-            .animation(.interpolatingSpring(stiffness: 400, damping: 15), value: configuration.isPressed)
+            .animation(Animation.interpolatingSpring(stiffness: 400, damping: 15), value: configuration.isPressed)
     }
 }
 

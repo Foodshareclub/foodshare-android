@@ -296,7 +296,7 @@ public struct EnterpriseNotificationPreferencesView: View {
 
             VStack(spacing: Spacing.md) {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .DesignSystem.brandGreen))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color.DesignSystem.brandGreen))
                     .scaleEffect(1.5)
 
                 Text("Loading preferences...")
@@ -363,9 +363,11 @@ public struct EnterpriseNotificationPreferencesView: View {
                                     },
                                 ),
                                 in: Date()...,
-                                displayedComponents: [.date, .hourAndMinute],
+                                displayedComponents: [DatePickerComponents.date, DatePickerComponents.hourAndMinute],
                             )
+                            #if !SKIP
                             .datePickerStyle(.graphical)
+                            #endif
                             .tint(.DesignSystem.accentPurple)
                         }
                     }
@@ -589,9 +591,11 @@ public struct EnterpriseNotificationPreferencesView: View {
                         HapticFeedback.selection()
                     },
                 ),
-                displayedComponents: [.hourAndMinute],
+                displayedComponents: [DatePickerComponents.hourAndMinute],
             )
+            #if !SKIP
             .datePickerStyle(.wheel)
+            #endif
             .labelsHidden()
             .frame(maxWidth: .infinity)
         }
@@ -731,7 +735,7 @@ public struct EnterpriseNotificationPreferencesView: View {
                 HStack {
                     if viewModel.isVerifyingPhone {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                             .scaleEffect(0.8)
                     } else {
                         Image(systemName: "paperplane.fill")
@@ -826,7 +830,7 @@ public struct EnterpriseNotificationPreferencesView: View {
                 HStack {
                     if viewModel.isVerifyingPhone {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                             .scaleEffect(0.8)
                     } else {
                         Image(systemName: "checkmark.circle.fill")

@@ -83,13 +83,13 @@ final class SupabaseForumPostRepository: BaseSupabaseRepository, @unchecked Send
 
         if let cursor = pagination.cursor {
             queryParams.append(URLQueryItem(name: "cursor", value: cursor))
-            queryParams.append(URLQueryItem(name: "direction", value: pagination.direction == .backward ? "backward" : "forward"))
+            queryParams.append(URLQueryItem(name: "direction", value: pagination.direction == CursorDirection.backward ? "backward" : "forward"))
         }
 
         let posts: [ForumPost] = try await supabase.functions.invoke(
             "api-v1-forum",
             options: FunctionInvokeOptions(
-                method: .get,
+                method: FunctionInvokeOptions.Method.get,
                 query: queryParams
             )
         )
@@ -326,7 +326,7 @@ private struct ForumSearchResult: Codable {
             isLocked: false,
             isEdited: false,
             lastActivityAt: nil,
-            postType: .discussion,
+            postType: ForumPostType.discussion,
             bestAnswerId: nil,
             hotScore: Double(rank),
             isFeatured: false,

@@ -206,7 +206,11 @@ struct ForumContainerView: View {
         logger.info("✅ ForumViewModel created successfully")
 
         // Small delay to show the beautiful loading state
+        #if SKIP
+        try? await Task.sleep(nanoseconds: UInt64(300 * 1_000_000))
+        #else
         try? await Task.sleep(for: .milliseconds(300))
+        #endif
 
         withAnimation {
             showContent = true

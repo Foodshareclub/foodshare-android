@@ -157,14 +157,14 @@ struct ForumPostDetailView: View {
                 GlassToast(
                     notification: ToastNotification(
                         message: errorMessage ?? t.t("common.something_went_wrong"),
-                        style: .error,
+                        style: ToastNotification.ToastStyle.error,
                     ),
                     onDismiss: { showErrorToast = false },
                 )
-                .padding(.top, Spacing.xl)
-                .transition(.asymmetric(
-                    insertion: .move(edge: .top).combined(with: .opacity),
-                    removal: .opacity,
+                .padding(Edge.Set.top, Spacing.xl)
+                .transition(AnyTransition.asymmetric(
+                    insertion: AnyTransition.move(edge: Edge.top).combined(with: AnyTransition.opacity),
+                    removal: AnyTransition.opacity,
                 ))
             }
         }
@@ -359,7 +359,7 @@ struct ForumPostDetailView: View {
                 }
                 .buttonStyle(LiquidGlassActionButtonStyle(
                     isActive: isBookmarked,
-                    activeColor: .DesignSystem.accentOrange,
+                    activeColor: Color.DesignSystem.accentOrange,
                 ))
 
                 // Share button
@@ -371,7 +371,7 @@ struct ForumPostDetailView: View {
                         Text(t.t("common.share"))
                     }
                 }
-                .buttonStyle(LiquidGlassActionButtonStyle(isActive: false, activeColor: .DesignSystem.brandGreen))
+                .buttonStyle(LiquidGlassActionButtonStyle(isActive: false, activeColor: Color.DesignSystem.brandGreen))
 
                 Spacer()
             }
@@ -501,6 +501,7 @@ struct ForumPostDetailView: View {
 
     private var commentInput: some View {
         HStack(spacing: Spacing.sm) {
+            #if !SKIP
             TextField(t.t("forum.add_comment_placeholder"), text: $newComment, axis: .vertical)
                 .textFieldStyle(.plain)
                 .padding(Spacing.sm)
@@ -509,6 +510,16 @@ struct ForumPostDetailView: View {
                         .fill(Color.DesignSystem.glassBackground),
                 )
                 .lineLimit(1 ... 4)
+            #else
+            TextField(t.t("forum.add_comment_placeholder"), text: $newComment)
+                .textFieldStyle(.plain)
+                .padding(Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.small)
+                        .fill(Color.DesignSystem.glassBackground),
+                )
+                .lineLimit(4)
+            #endif
 
             Button {
                 Task { await submitComment() }
@@ -1157,9 +1168,15 @@ struct CommentRow: View {
                     Text("•")
                         .foregroundStyle(.secondary)
 
+                    #if !SKIP
                     Text(comment.commentCreatedAt, style: .relative)
                         .font(.DesignSystem.captionSmall)
                         .foregroundStyle(.secondary)
+                    #else
+                    Text(relativeTimeString(from: comment.commentCreatedAt))
+                        .font(.DesignSystem.captionSmall)
+                        .foregroundStyle(.secondary)
+                    #endif
 
                     if comment.isEdited {
                         Text(t.t("forum.edited"))
@@ -1175,6 +1192,7 @@ struct CommentRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    #if !SKIP
                     Text(displayContent.isEmpty ? comment.content : displayContent)
                         .font(.DesignSystem.bodySmall)
                         .contextMenu {
@@ -1199,6 +1217,10 @@ struct CommentRow: View {
                                 Label(t.t("common.copy"), systemImage: "doc.on.doc")
                             }
                         }
+                    #else
+                    Text(displayContent.isEmpty ? comment.content : displayContent)
+                        .font(.DesignSystem.bodySmall)
+                    #endif
 
                     if isContentTranslated {
                         TranslatedIndicator()
@@ -1241,9 +1263,14 @@ struct CommentRow: View {
                                     ? Color.DesignSystem.brandPink
                                     : Color.DesignSystem.textSecondary)
                             if localLikeCount > 0 {
+                                #if !SKIP
                                 Text("\(localLikeCount)")
                                     .font(.system(size: 12, weight: .semibold))
                                     .contentTransition(.numericText())
+                                #else
+                                Text("\(localLikeCount)")
+                                    .font(.system(size: 12, weight: .semibold))
+                                #endif
                             }
                         }
                         .padding(.horizontal, 8)
@@ -1400,11 +1427,11 @@ struct LiquidGlassActionButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.DesignSystem.bodySmall)
-            .fontWeight(.medium)
-            .foregroundColor(isActive ? activeColor : .DesignSystem.text)
-            .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.sm)
+            .font(Font.DesignSystem.bodySmall)
+            .fontWeight(Font.Weight.medium)
+            .foregroundColor(isActive ? activeColor : Color.DesignSystem.text)
+            .padding(Edge.Set.horizontal, Spacing.md)
+            .padding(Edge.Set.vertical, Spacing.sm)
             .background(
                 Group {
                     if isActive {
@@ -1424,7 +1451,7 @@ struct LiquidGlassActionButtonStyle: ButtonStyle {
                 ),
             )
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -1432,9 +1459,9 @@ struct LiquidGlassActionButtonStyle: ButtonStyle {
 struct GlassActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.DesignSystem.bodySmall)
-            .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.sm)
+            .font(Font.DesignSystem.bodySmall)
+            .padding(Edge.Set.horizontal, Spacing.md)
+            .padding(Edge.Set.vertical, Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
                     .fill(.ultraThinMaterial)
@@ -1444,7 +1471,7 @@ struct GlassActionButtonStyle: ButtonStyle {
                     ),
             )
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .animation(Animation.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -1608,9 +1635,15 @@ struct ReplyCommentSheet: View {
                         Text("•")
                             .foregroundStyle(Color.DesignSystem.textTertiary)
 
+                        #if !SKIP
                         Text(comment.commentCreatedAt, style: .relative)
                             .font(.DesignSystem.captionSmall)
                             .foregroundStyle(Color.DesignSystem.textSecondary)
+                        #else
+                        Text(relativeTimeString(from: comment.commentCreatedAt))
+                            .font(.DesignSystem.captionSmall)
+                            .foregroundStyle(Color.DesignSystem.textSecondary)
+                        #endif
                     }
 
                     // Comment content (truncated)
@@ -1763,12 +1796,21 @@ struct EditCommentSheet: View {
                                     .font(.DesignSystem.bodySmall)
                                     .fontWeight(.medium)
 
+                                #if !SKIP
                                 HStack(spacing: Spacing.xxs) {
                                     Text(t.t("forum.posted"))
                                     Text(comment.commentCreatedAt, style: .relative)
                                 }
                                 .font(.DesignSystem.captionSmall)
                                 .foregroundStyle(Color.DesignSystem.textSecondary)
+                                #else
+                                HStack(spacing: Spacing.xxs) {
+                                    Text(t.t("forum.posted"))
+                                    Text(relativeTimeString(from: comment.commentCreatedAt))
+                                }
+                                .font(.DesignSystem.captionSmall)
+                                .foregroundStyle(Color.DesignSystem.textSecondary)
+                                #endif
                             }
 
                             Spacer()
@@ -1866,5 +1908,25 @@ struct EditCommentSheet: View {
             editedText = comment?.content ?? ""
             isTextFieldFocused = true
         }
+    }
+}
+
+// MARK: - Relative Time Helper (Skip fallback for Text(date, style: .relative))
+
+private func relativeTimeString(from date: Date) -> String {
+    let interval = Date().timeIntervalSince(date)
+    let seconds = Int(interval)
+
+    if seconds < 60 {
+        return "\(seconds)s ago"
+    } else if seconds < 3600 {
+        let minutes = seconds / 60
+        return "\(minutes)m ago"
+    } else if seconds < 86400 {
+        let hours = seconds / 3600
+        return "\(hours)h ago"
+    } else {
+        let days = seconds / 86400
+        return "\(days)d ago"
     }
 }

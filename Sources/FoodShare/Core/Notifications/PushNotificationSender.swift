@@ -9,6 +9,10 @@ import Foundation
 import OSLog
 import Supabase
 
+private struct TokenRow: Codable {
+    let token: String
+}
+
 // MARK: - Push Notification Sender
 
 @MainActor
@@ -109,10 +113,6 @@ final class PushNotificationSender {
     // MARK: - Private Helpers
 
     private func fetchDeviceTokens(for userIds: [UUID]) async throws -> [String] {
-        struct TokenRow: Codable {
-            let token: String
-        }
-
         let rows: [TokenRow] = try await supabase
             .from("device_tokens")
             .select("token")

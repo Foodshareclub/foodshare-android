@@ -69,7 +69,7 @@ struct BlockUserSheet: View {
                     dismiss()
                 }
             } message: {
-                Text(t.t("profile.user_blocked_message", ["name": userName]))
+                Text(t.t("profile.user_blocked_message", args: ["name": userName]))
             }
         }
     }
@@ -226,6 +226,7 @@ struct BlockUserSheet: View {
                 .font(.DesignSystem.labelMedium)
                 .foregroundStyle(Color.DesignSystem.textSecondary)
 
+            #if !SKIP
             TextField(t.t("profile.optional_details"), text: $customReason, axis: .vertical)
                 .lineLimit(3 ... 6)
                 .textFieldStyle(.plain)
@@ -238,6 +239,19 @@ struct BlockUserSheet: View {
                                 .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
                         ),
                 )
+            #else
+            TextField(t.t("profile.optional_details"), text: $customReason)
+                .lineLimit(6)
+                .padding(Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .fill(Color.DesignSystem.glassBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                .stroke(Color.DesignSystem.glassBorder, lineWidth: 1),
+                        ),
+                )
+            #endif
         }
     }
 

@@ -92,7 +92,7 @@ public enum AppAuthError: Error, LocalizedError, Equatable, Sendable {
             "This account has been disabled. Contact support for assistance"
         case let .accountLocked(until):
             if let until {
-                "Account locked until \(until.formatted(date: .abbreviated, time: .shortened))"
+                "Account locked until \(until.formatted(date: Date.FormatStyle.DateStyle.abbreviated, time: Date.FormatStyle.TimeStyle.shortened))"
             } else {
                 "Account has been temporarily locked. Please try again later"
             }

@@ -12,6 +12,10 @@ import Supabase
 
 // MARK: - RPC Parameter Structs
 
+private struct PostOwner: Decodable {
+    let profileId: UUID
+}
+
 private struct ReviewsWithAverageParams: Codable, Sendable {
     let p_post_id: Int
     let p_user_id: String?
@@ -201,7 +205,7 @@ final class SupabaseReviewRepository: BaseSupabaseRepository, ReviewRepository {
         do {
             let response = try await supabase
                 .from("reviews")
-                .select("id", head: true, count: .exact)
+                .select("id", head: true, count: CountOption.exact)
                 .eq("post_id", value: postId)
                 .eq("profile_id", value: userId.uuidString)
                 .execute()
@@ -289,10 +293,6 @@ final class SupabaseReviewRepository: BaseSupabaseRepository, ReviewRepository {
         guard let postId = request.postId else { return }
 
         do {
-            struct PostOwner: Decodable {
-                let profileId: UUID
-            }
-
             let postOwner: PostOwner = try await fetchOne(
                 from: "posts",
                 select: "profile_id",

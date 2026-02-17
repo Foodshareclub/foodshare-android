@@ -30,7 +30,7 @@ struct PrivacySettingsView: View {
         let currentTimeout = service.sessionTimeoutDuration
         let matchingOption = SessionTimeoutOption.allCases.first {
             abs($0.duration - currentTimeout) < 1
-        } ?? .twentyFourHours
+        } ?? SessionTimeoutOption.twentyFourHours
         _selectedTimeout = State(initialValue: matchingOption)
     }
 

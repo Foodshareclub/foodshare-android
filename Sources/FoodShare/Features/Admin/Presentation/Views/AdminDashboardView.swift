@@ -525,6 +525,7 @@ struct AdminRingChart: View {
         #endif
     }
 
+    #if !SKIP
     private func drawRing(context: GraphicsContext, center: CGPoint, radius: CGFloat, width: CGFloat, progress: Double, color: Color) {
         let startAngle = Angle(degrees: -90)
         let endAngle = Angle(degrees: -90 + 360 * progress)
@@ -544,6 +545,7 @@ struct AdminRingChart: View {
             style: StrokeStyle(lineWidth: width, lineCap: .round)
         )
     }
+    #endif
 }
 
 // MARK: - Health Metric

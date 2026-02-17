@@ -152,45 +152,45 @@ enum MetalEffect: Equatable, Sendable {
 
     static func == (lhs: MetalEffect, rhs: MetalEffect) -> Bool {
         switch (lhs, rhs) {
-        case let (.glassBlur(l1, l2), .glassBlur(r1, r2)):
+        case (.glassBlur(let l1, let l2), .glassBlur(let r1, let r2)):
             l1 == r1 && l2 == r2
-        case let (.shimmer(l1, l2), .shimmer(r1, r2)):
+        case (.shimmer(let l1, let l2), .shimmer(let r1, let r2)):
             l1 == r1 && l2 == r2
-        case let (.liquidRipple(l), .liquidRipple(r)):
+        case (.liquidRipple(let l), .liquidRipple(let r)):
             l == r
-        case let (.chromaticAberration(l), .chromaticAberration(r)):
+        case (.chromaticAberration(let l), .chromaticAberration(let r)):
             l == r
-        case let (.glow(lc, li), .glow(rc, ri)):
+        case (.glow(let lc, let li), .glow(let rc, let ri)):
             lc == rc && li == ri
-        case let (.morphTransition(l), .morphTransition(r)):
+        case (.morphTransition(let l), .morphTransition(let r)):
             l == r
-        case let (.touchRipple(lc, lp), .touchRipple(rc, rp)):
+        case (.touchRipple(let lc, let lp), .touchRipple(let rc, let rp)):
             lc == rc && lp == rp
-        case let (.skeletonWave(l), .skeletonWave(r)):
+        case (.skeletonWave(let l), .skeletonWave(let r)):
             l == r
-        case let (.buttonPress(lc, lp), .buttonPress(rc, rp)):
+        case (.buttonPress(let lc, let lp), .buttonPress(let rc, let rp)):
             lc == rc && lp == rp
-        case let (.celebrationConfetti(l), .celebrationConfetti(r)):
+        case (.celebrationConfetti(let l), .celebrationConfetti(let r)):
             l == r
-        case let (.achievementBurst(l), .achievementBurst(r)):
+        case (.achievementBurst(let l), .achievementBurst(let r)):
             l == r
-        case let (.badgeSparkle(l), .badgeSparkle(r)):
+        case (.badgeSparkle(let l), .badgeSparkle(let r)):
             l == r
-        case let (.frostedGlass(l), .frostedGlass(r)):
+        case (.frostedGlass(let l), .frostedGlass(let r)):
             l == r
-        case let (.gradientMesh(lc, li), .gradientMesh(rc, ri)):
+        case (.gradientMesh(let lc, let li), .gradientMesh(let rc, let ri)):
             lc == rc && li == ri
-        case let (.depthBlur(l), .depthBlur(r)):
+        case (.depthBlur(let l), .depthBlur(let r)):
             l == r
-        case let (.holographic(l), .holographic(r)):
+        case (.holographic(let l), .holographic(let r)):
             l == r
-        case let (.energyField(l), .energyField(r)):
+        case (.energyField(let l), .energyField(let r)):
             l == r
-        case let (.caustics(l), .caustics(r)):
+        case (.caustics(let l), .caustics(let r)):
             l == r
-        case let (.smoke(l), .smoke(r)):
+        case (.smoke(let l), .smoke(let r)):
             l == r
-        case let (.combined(l), .combined(r)):
+        case (.combined(let l), .combined(let r)):
             l == r
         case (.none, .none):
             true

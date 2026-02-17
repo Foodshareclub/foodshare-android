@@ -118,13 +118,17 @@ struct NotificationBellButton: View {
                 }
             }
             .frame(width: size.frameSize, height: size.frameSize)
+            #if !SKIP
             .contentShape(Rectangle())
+            #endif
             .scaleEffect(isPressed ? 0.92 : 1.0)
             .opacity(isEnabled ? 1.0 : 0.5)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+        #if !SKIP
         .accessibilityElement(children: .ignore)
+        #endif
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(.isButton)
@@ -164,7 +168,9 @@ struct NotificationBellButton: View {
                     ? Color.DesignSystem.brandGreen
                     : Color.DesignSystem.textSecondary,
             )
+            #if !SKIP
             .symbolRenderingMode(.hierarchical)
+            #endif
     }
 
     // MARK: - Badge View
@@ -173,7 +179,7 @@ struct NotificationBellButton: View {
         NotificationBadge(
             count: unreadCount,
             size: badgeSize,
-            color: .DesignSystem.brandPink,
+            color: Color.DesignSystem.brandPink,
         )
     }
 
@@ -306,7 +312,9 @@ struct NotificationBellIcon: View {
                     .offset(x: 2, y: -2)
             }
         }
+        #if !SKIP
         .accessibilityElement(children: .ignore)
+        #endif
         .accessibilityLabel(unreadCount > 0 ? "\(unreadCount) notifications" : "No notifications")
     }
 }

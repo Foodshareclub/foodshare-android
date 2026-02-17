@@ -65,9 +65,17 @@ public struct ConflictVersion: Sendable {
     }
 
     public var formattedTimestamp: String {
+        #if !SKIP
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: timestamp, relativeTo: Date())
+        #else
+        let interval = Date().timeIntervalSince(timestamp)
+        if interval < 60 { return "just now" }
+        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+        return "\(Int(interval / 86400))d ago"
+        #endif
     }
 }
 
