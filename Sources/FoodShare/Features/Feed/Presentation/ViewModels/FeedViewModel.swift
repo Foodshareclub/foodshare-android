@@ -154,7 +154,8 @@ final class FeedViewModel {
 
     func loadFoodItems(forceRefresh: Bool = false) async {
         guard let location = userLocation else {
-            logger.warning("No user location available")
+            logger.info("No user location — loading recent items globally")
+            await loadRecentItemsFallback()
             return
         }
         guard !isLoading else {
@@ -188,6 +189,13 @@ final class FeedViewModel {
                 postType: selectedPostType
             )
             logger.info("Received \(items.count) items")
+
+            if items.isEmpty {
+                logger.info("No nearby listings — falling back to recent items globally")
+                await loadRecentItemsFallback()
+                return
+            }
+
             foodItems = items
             hasMoreItems = items.count >= pageSize
 
@@ -209,6 +217,55 @@ final class FeedViewModel {
                 return
             }
             logger.error("Error: \(error.localizedDescription)")
+            self.error = .networkError(error.localizedDescription)
+            loadingFailed = true
+        }
+    }
+
+    /// Load initial data without location (shows recent listings globally)
+    func loadInitialDataWithoutLocation() async {
+        logger.notice("📍 loadInitialDataWithoutLocation() — loading categories + recent items")
+        await searchRadiusService.loadFromDatabase()
+
+        async let categoriesTask: () = loadCategories()
+        async let itemsTask: () = loadRecentItemsFallback()
+        _ = await (categoriesTask, itemsTask)
+
+        updateFeedStats()
+        logger.notice("📍 loadInitialDataWithoutLocation() completed with \(self.foodItems.count) items")
+    }
+
+    private func loadRecentItemsFallback() async {
+        guard !isLoading else { return }
+        isLoading = true
+        error = nil
+        currentPage = 0
+        defer {
+            isLoading = false
+            lastFetchTime = Date()
+        }
+
+        do {
+            logger.info("Fetching recent items without location...")
+            let items = try await dataService.loadRecentItems(
+                limit: pageSize,
+                offset: 0,
+                postType: selectedPostType
+            )
+            logger.info("Received \(items.count) recent items (global fallback)")
+            foodItems = items
+            hasMoreItems = items.count >= pageSize
+
+            var itemsToTranslate = foodItems
+            await translationService.translateItems(&itemsToTranslate)
+            foodItems = itemsToTranslate
+
+            updateFeedStats()
+        } catch is CancellationError {
+            logger.debug("Recent items request cancelled")
+        } catch {
+            if (error as NSError).code == NSURLErrorCancelled { return }
+            logger.error("Failed to load recent items: \(error.localizedDescription)")
             self.error = .networkError(error.localizedDescription)
             loadingFailed = true
         }

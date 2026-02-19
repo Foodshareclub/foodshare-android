@@ -29,6 +29,9 @@ protocol FoodItemRepository: Sendable {
         limit: Int,
     ) async throws -> [FoodItem]
 
+    /// Fetch recent items without location filter (global fallback)
+    func fetchRecentItems(limit: Int, offset: Int, postType: String?) async throws -> [FoodItem]
+
     /// Fetch filtered and sorted feed via server
     /// Moves sorting/filtering logic server-side for consistency
     func fetchFilteredFeed(

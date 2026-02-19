@@ -48,6 +48,9 @@ protocol FeedDataServiceProtocol {
         limit: Int
     ) async throws -> [FoodItem]
 
+    /// Fetches recent items without location filter (global fallback)
+    func loadRecentItems(limit: Int, offset: Int, postType: String?) async throws -> [FoodItem]
+
     /// Fetches all available categories
     /// - Returns: Array of categories
     func loadCategories() async throws -> [Category]
@@ -142,6 +145,19 @@ final class FeedDataService: FeedDataServiceProtocol {
 
         updateTrendingCache(items: items)
 
+        return items
+    }
+
+    func loadRecentItems(limit: Int, offset: Int, postType: String?) async throws -> [FoodItem] {
+        let cacheKey = "recent_\(offset)_\(postType ?? "all")"
+
+        if let cached = getCachedItems(key: cacheKey) {
+            return cached
+        }
+
+        let items = try await fetchNearbyItemsUseCase.fetchRecent(limit: limit, offset: offset, postType: postType)
+
+        updateCache(key: cacheKey, items: items)
         return items
     }
 

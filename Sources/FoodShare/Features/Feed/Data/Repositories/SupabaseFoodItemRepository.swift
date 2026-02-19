@@ -68,21 +68,44 @@ final class SupabaseFoodItemRepository: BaseSupabaseRepository, FoodItemReposito
             return items
         } catch {
             logger.warning("⚠️ [FoodItemRepo] ProductsAPI failed, falling back to direct query: \(error.localizedDescription)")
-            return try await fetchNearbyItemsDirect(limit: limit, offset: offset)
+            return try await fetchNearbyItemsDirect(location: location, radiusKm: radiusKm, limit: limit, offset: offset, postType: postType)
         }
     }
 
     /// Direct query fallback when RPC function isn't available
-    /// Uses Supabase SDK to query the posts_with_location view
-    private func fetchNearbyItemsDirect(limit: Int, offset: Int) async throws -> [FoodItem] {
-        logger.debug("📡 [FoodItemRepo] Using SDK fallback query on posts_with_location view")
+    /// Uses Supabase SDK to query the posts_with_location view with optional bounding box filter
+    private func fetchNearbyItemsDirect(
+        location: CLLocationCoordinate2D? = nil,
+        radiusKm: Double? = nil,
+        limit: Int,
+        offset: Int,
+        postType: String? = nil
+    ) async throws -> [FoodItem] {
+        logger.debug("📡 [FoodItemRepo] Using SDK fallback query (postType=\(postType ?? "all"), hasLocation=\(location != nil))")
 
         do {
-            let response = try await supabase
+            var query = supabase
                 .from("posts_with_location")
                 .select()
                 .eq("is_active", value: true)
                 .eq("is_arranged", value: false)
+
+            if let postType {
+                query = query.eq("post_type", value: postType)
+            }
+
+            // Bounding box location filter (~approximation of radius search)
+            if let location, let radiusKm {
+                let latDelta = radiusKm / 111.0
+                let lngDelta = radiusKm / (111.0 * cos(location.latitude * .pi / 180))
+                query = query
+                    .gte("latitude", value: location.latitude - latDelta)
+                    .lte("latitude", value: location.latitude + latDelta)
+                    .gte("longitude", value: location.longitude - lngDelta)
+                    .lte("longitude", value: location.longitude + lngDelta)
+            }
+
+            let response = try await query
                 .order("created_at", ascending: false)
                 .limit(limit)
                 .execute()
@@ -94,6 +117,12 @@ final class SupabaseFoodItemRepository: BaseSupabaseRepository, FoodItemReposito
             logger.error("❌ [FoodItemRepo] SDK query failed: \(error.localizedDescription)")
             throw mapError(error)
         }
+    }
+
+    func fetchRecentItems(limit: Int, offset: Int, postType: String? = nil) async throws -> [FoodItem] {
+        try await rateLimiter.checkRateLimit()
+        logger.debug("📡 [FoodItemRepo] Fetching recent items globally (postType=\(postType ?? "all"))")
+        return try await fetchNearbyItemsDirect(limit: limit, offset: offset, postType: postType)
     }
 
     func fetchItemById(_ id: Int) async throws -> FoodItem {

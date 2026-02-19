@@ -54,7 +54,7 @@ struct AppLogoView: View {
     }
 
     private var logoImage: some View {
-        Image("AppLogo")
+        Image("AppLogo", bundle: .module)
             .resizable()
             .aspectRatio(contentMode: .fill)
     }

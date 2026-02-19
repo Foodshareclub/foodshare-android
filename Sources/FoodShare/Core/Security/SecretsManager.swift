@@ -230,7 +230,7 @@ actor SecretsManager {
     // MARK: - Private Helpers
 
     private func getFromConfigPlist(_ key: SecretKey) -> String? {
-        guard let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
+        guard let path = Bundle.module.path(forResource: "Config", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path) as? [String: Any],
               let value = dict[key.configPlistKey] as? String,
               !value.isEmpty else

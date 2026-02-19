@@ -62,6 +62,18 @@ import Foundation
             return item
         }
 
+        func fetchRecentItems(limit: Int, offset: Int, postType: String? = nil) async throws -> [FoodItem] {
+            if shouldFail { throw AppError.networkError("Mock error") }
+            try await Task.sleep(nanoseconds: 200_000_000)
+            var items = mockItems
+            if let postType {
+                items = items.filter { $0.postType == postType }
+            }
+            let startIndex = min(offset, items.count)
+            let endIndex = min(offset + limit, items.count)
+            return Array(items[startIndex ..< endIndex])
+        }
+
         func fetchTrendingItems(
             location: CLLocationCoordinate2D,
             radiusKm: Double,

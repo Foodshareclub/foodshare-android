@@ -170,7 +170,7 @@ final class PrivacyProtectionService {
         iconContainer.translatesAutoresizingMaskIntoConstraints = false
         blurView.contentView.addSubview(iconContainer)
 
-        let iconImageView = UIImageView(image: UIImage(named: "AppIcon"))
+        let iconImageView = UIImageView(image: UIImage(named: "AppIcon", in: .module, compatibleWith: nil))
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.layer.cornerRadius = 20

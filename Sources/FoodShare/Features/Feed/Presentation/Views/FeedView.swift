@@ -31,7 +31,7 @@ struct FeedView: View {
 
     // ProMotion animation states for 120Hz smooth transitions
     @State private var hasAppeared = false
-    @State private var cardAppearanceStates = LimitedDictionary<Int, Bool>(maxCapacity: 50)
+    @State private var cardAppearanceStates: [Int: Bool] = [:]
     @State private var refreshPulse = false
     @State private var scrollOffset: CGFloat = 0
 
@@ -174,8 +174,6 @@ struct FeedView: View {
             }
             HapticManager.light()
             await viewModel.refresh()
-            // Reset card states for fresh animations
-            cardAppearanceStates.removeAll()
             withAnimation(ProMotionAnimation.smooth) {
                 refreshPulse = false
             }
@@ -270,7 +268,7 @@ struct FeedView: View {
         LazyVStack(spacing: Spacing.sm) {
             ForEach(filteredListings, id: \.id) { listing in
                 let index = indexCache[listing.id] ?? 0
-                let isVisible = cardAppearanceStates.isTrue(listing.id)
+                let isVisible = cardAppearanceStates[listing.id] == true
                 NavigationLink(value: listing) {
                     CompactListingRow(
                         item: listing,
@@ -282,7 +280,7 @@ struct FeedView: View {
                     .onAppear {
                         let delay = min(Double(index) * 0.03, 0.2)
                         withAnimation(ProMotionAnimation.smooth.delay(delay)) {
-                            cardAppearanceStates.markTrue(listing.id)
+                            cardAppearanceStates[listing.id] = true
                         }
                         viewModel.markItemViewed(listing.id)
                     }
@@ -295,7 +293,7 @@ struct FeedView: View {
     @ViewBuilder
     private func listingRow(_ listing: FoodItem, indexCache: [Int: Int]) -> some View {
         let index = indexCache[listing.id] ?? 0
-        let isVisible = cardAppearanceStates.isTrue(listing.id)
+        let isVisible = cardAppearanceStates[listing.id] == true
         NavigationLink(value: listing) {
             GlassListingCard(
                 item: listing,
@@ -310,7 +308,7 @@ struct FeedView: View {
                 // Staggered ProMotion 120Hz animation for card appearance
                 let delay = min(Double(index) * 0.04, 0.25)
                 withAnimation(ProMotionAnimation.smooth.delay(delay)) {
-                    cardAppearanceStates.markTrue(listing.id)
+                    cardAppearanceStates[listing.id] = true
                 }
             }
         }
@@ -778,9 +776,10 @@ struct FeedView: View {
             feedLogger.notice("📍 loadInitialData() completed with IP location")
         } catch {
             feedLogger.error("❌ IP geolocation also failed: \(error.localizedDescription)")
-            // Both GPS and IP failed - show error
+            // Both GPS and IP failed - show error but still load recent listings
             locationError = .locationUnavailable
             showLocationError = true
+            await viewModel.loadInitialDataWithoutLocation()
         }
     }
 }

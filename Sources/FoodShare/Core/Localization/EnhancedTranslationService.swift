@@ -544,8 +544,8 @@ public final class EnhancedTranslationService: Sendable {
 
     /// Synchronously loads bundled translations so they're available immediately.
     private func loadBundledTranslationsSync() {
-        guard let url = Bundle.main.url(forResource: currentLocale, withExtension: "json")
-            ?? Bundle.main.url(forResource: "en", withExtension: "json") else
+        guard let url = Bundle.module.url(forResource: currentLocale, withExtension: "json")
+            ?? Bundle.module.url(forResource: "en", withExtension: "json") else
         {
             logger.error("❌ Bundled translations not found")
             return
@@ -565,8 +565,8 @@ public final class EnhancedTranslationService: Sendable {
     /// Loads bundled translations for a specific locale and returns them.
     /// Returns empty dictionary if not found (caller should handle fallback).
     private func loadBundledTranslations(for locale: String) -> [String: Any] {
-        guard let url = Bundle.main.url(forResource: locale, withExtension: "json")
-            ?? Bundle.main.url(forResource: "en", withExtension: "json") else
+        guard let url = Bundle.module.url(forResource: locale, withExtension: "json")
+            ?? Bundle.module.url(forResource: "en", withExtension: "json") else
         {
             logger.warning("⚠️ Bundled translations not found for \(locale), using empty base")
             return [:]

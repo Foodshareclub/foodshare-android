@@ -84,7 +84,7 @@ struct GuestModeBanner: View {
             // Base glass effect
             RoundedRectangle(cornerRadius: 16)
                 #if !SKIP
-                .fill(Color.DesignSystem.glassSurface.opacity(0.15) /* ultraThinMaterial fallback */)
+                .fill(.ultraThinMaterial)
                 #else
                 .fill(Color.DesignSystem.glassSurface.opacity(0.15))
                 #endif

@@ -23,6 +23,9 @@ protocol FetchNearbyItemsUseCase: Sendable {
         postType: String?,
     ) async throws -> [FoodItem]
 
+    /// Fetch recent items without location filter (global fallback)
+    func fetchRecent(limit: Int, offset: Int, postType: String?) async throws -> [FoodItem]
+
     /// Fetch trending items via server-side engagement scoring
     func fetchTrending(
         location: CLLocationCoordinate2D,
@@ -78,6 +81,20 @@ final class DefaultFetchNearbyItemsUseCase: FetchNearbyItemsUseCase {
         // Filter out expired items
         let available = items.filter(\.isAvailable)
         await AppLogger.shared.debug("After filtering: \(available.count) available items")
+        return available
+    }
+
+    func fetchRecent(limit: Int, offset: Int, postType: String? = nil) async throws -> [FoodItem] {
+        await AppLogger.shared.debug("fetchRecent() called with limit=\(limit) offset=\(offset) postType=\(postType ?? "all")")
+
+        guard limit > 0, limit <= 100 else {
+            await AppLogger.shared.warning("Invalid pagination limit: \(limit)")
+            throw FeedError.invalidPagination
+        }
+
+        let items = try await repository.fetchRecentItems(limit: limit, offset: offset, postType: postType)
+        let available = items.filter(\.isAvailable)
+        await AppLogger.shared.debug("fetchRecent returned \(available.count) available items")
         return available
     }
 

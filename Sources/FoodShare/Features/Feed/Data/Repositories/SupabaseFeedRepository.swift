@@ -80,17 +80,22 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
                 "📍 Fetching listings near \(location.latitude), \(location.longitude)",
             )
 
-        let dtos = try await productsAPI.getNearbyProducts(
-            lat: location.latitude,
-            lng: location.longitude,
-            radiusKm: radius,
-            limit: pagination.limit,
-            cursor: pagination.cursor,
-        )
+        do {
+            let dtos = try await productsAPI.getNearbyProducts(
+                lat: location.latitude,
+                lng: location.longitude,
+                radiusKm: radius,
+                limit: pagination.limit,
+                cursor: pagination.cursor,
+            )
 
-        let items = dtos.map { $0.toFoodItem() }
-        logger.info("✅ Loaded \(items.count) location-filtered items")
-        return items
+            let items = dtos.map { $0.toFoodItem() }
+            logger.info("✅ Loaded \(items.count) location-filtered items")
+            return items
+        } catch {
+            logger.warning("⚠️ ProductsAPI failed, falling back to direct query: \(error.localizedDescription)")
+            return try await fetchListingsDirect(location: location, radiusKm: radius, pagination: pagination)
+        }
     }
 
     @inline(__always)
@@ -113,7 +118,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
             return dtos.map { $0.toFoodItem() }
         } catch {
             // Fallback to direct query if API fails
-            return try await fetchListingsDirect(categoryId: categoryId, pagination: pagination)
+            return try await fetchListingsDirect(location: location, radiusKm: radius, categoryId: categoryId, pagination: pagination)
         }
     }
 
@@ -127,13 +132,18 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         offset: Int,
         excludeBlockedUsers: Bool = true,
     ) async throws -> [FoodItem] {
-        let dtos = try await productsAPI.getNearbyProducts(
-            lat: location.latitude,
-            lng: location.longitude,
-            radiusKm: radius,
-            limit: limit,
-        )
-        return dtos.map { $0.toFoodItem() }
+        do {
+            let dtos = try await productsAPI.getNearbyProducts(
+                lat: location.latitude,
+                lng: location.longitude,
+                radiusKm: radius,
+                limit: limit,
+            )
+            return dtos.map { $0.toFoodItem() }
+        } catch {
+            logger.warning("⚠️ ProductsAPI failed, falling back to direct query: \(error.localizedDescription)")
+            return try await fetchListingsDirect(location: location, radiusKm: radius, limit: limit, offset: offset)
+        }
     }
 
     @inline(__always)
@@ -156,12 +166,30 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
             return dtos.map { $0.toFoodItem() }
         } catch {
             // Fallback to direct query if API fails
-            return try await fetchListingsDirect(categoryId: categoryId, limit: limit, offset: offset)
+            return try await fetchListingsDirect(location: location, radiusKm: radius, categoryId: categoryId, limit: limit, offset: offset)
         }
+    }
+
+    /// Apply bounding box location filter to a query
+    private func applyBoundingBox(
+        query: PostgrestFilterBuilder,
+        location: Location?,
+        radiusKm: Double?
+    ) -> PostgrestFilterBuilder {
+        guard let location, let radiusKm else { return query }
+        let latDelta = radiusKm / 111.0
+        let lngDelta = radiusKm / (111.0 * cos(location.latitude * .pi / 180))
+        return query
+            .gte("latitude", value: location.latitude - latDelta)
+            .lte("latitude", value: location.latitude + latDelta)
+            .gte("longitude", value: location.longitude - lngDelta)
+            .lte("longitude", value: location.longitude + lngDelta)
     }
 
     /// Direct query fallback with cursor-based pagination
     private func fetchListingsDirect(
+        location: Location? = nil,
+        radiusKm: Double? = nil,
         categoryId: Int? = nil,
         pagination: CursorPaginationParams,
     ) async throws -> [FoodItem] {
@@ -171,34 +199,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         // Use posts_with_location view to get extracted latitude/longitude coordinates
         var query = supabase
             .from("posts_with_location")
-            .select("""
-                id,
-                profile_id,
-                post_name,
-                post_description,
-                post_type,
-                pickup_time,
-                available_hours,
-                post_address,
-                latitude,
-                longitude,
-                images,
-                is_active,
-                is_arranged,
-                post_arranged_to,
-                post_arranged_at,
-                post_views,
-                post_like_counter,
-                has_pantry,
-                condition,
-                network,
-                website,
-                donation,
-                donation_rules,
-                category_id,
-                created_at,
-                updated_at
-            """)
+            .select()
             .eq("is_active", value: true)
             .eq("is_arranged", value: false)
 
@@ -206,6 +207,9 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         if let categoryId {
             query = query.eq("category_id", value: categoryId)
         }
+
+        // Apply bounding box location filter
+        query = applyBoundingBox(query: query, location: location, radiusKm: radiusKm)
 
         // Apply cursor-based pagination
         if let cursor = pagination.cursor {
@@ -225,6 +229,8 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
 
     /// Direct query fallback when RPC functions aren't available (offset-based)
     private func fetchListingsDirect(
+        location: Location? = nil,
+        radiusKm: Double? = nil,
         categoryId: Int? = nil,
         limit: Int,
         offset: Int,
@@ -233,34 +239,7 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         // Use posts_with_location view to get extracted latitude/longitude coordinates
         var query = supabase
             .from("posts_with_location")
-            .select("""
-                id,
-                profile_id,
-                post_name,
-                post_description,
-                post_type,
-                pickup_time,
-                available_hours,
-                post_address,
-                latitude,
-                longitude,
-                images,
-                is_active,
-                is_arranged,
-                post_arranged_to,
-                post_arranged_at,
-                post_views,
-                post_like_counter,
-                has_pantry,
-                condition,
-                network,
-                website,
-                donation,
-                donation_rules,
-                category_id,
-                created_at,
-                updated_at
-            """)
+            .select()
             .eq("is_active", value: true)
             .eq("is_arranged", value: false)
 
@@ -268,6 +247,9 @@ final class SupabaseFeedRepository: BaseSupabaseRepository, FeedRepository {
         if let categoryId {
             query = query.eq("category_id", value: categoryId)
         }
+
+        // Apply bounding box location filter
+        query = applyBoundingBox(query: query, location: location, radiusKm: radiusKm)
 
         // Apply ordering and pagination
         let response = try await query
