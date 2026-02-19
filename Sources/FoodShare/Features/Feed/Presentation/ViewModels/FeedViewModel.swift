@@ -192,6 +192,7 @@ final class FeedViewModel {
 
             if items.isEmpty {
                 logger.info("No nearby listings — falling back to recent items globally")
+                isLoading = false
                 await loadRecentItemsFallback()
                 return
             }
